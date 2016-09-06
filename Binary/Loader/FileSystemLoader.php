@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\File\MimeType\ExtensionGuesserInterface;
 use Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesserInterface;
 use Liip\ImagineBundle\Exception\Binary\Loader\NotLoadableException;
 
-class FileSystemLoader implements LoaderInterface
+class FileSystemLoader implements ChainableLoaderInterface
 {
     /**
      * @var MimeTypeGuesserInterface
@@ -48,9 +48,17 @@ class FileSystemLoader implements LoaderInterface
     /**
      * {@inheritdoc}
      */
+    public function isPathSupported($path)
+    {
+        return realpath($this->rootPath.DIRECTORY_SEPARATOR.$path);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function find($path)
     {
-        if (!($absolutePath = realpath($this->rootPath.DIRECTORY_SEPARATOR.ltrim($path, DIRECTORY_SEPARATOR)))) {
+        if (!($absolutePath = $this->isPathSupported($path))) {
             throw new NotLoadableException(sprintf('Source image not resolvable "%s"', $path));
         }
 

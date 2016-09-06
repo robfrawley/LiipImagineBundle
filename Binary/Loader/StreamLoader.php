@@ -4,7 +4,7 @@ namespace Liip\ImagineBundle\Binary\Loader;
 
 use Liip\ImagineBundle\Exception\Binary\Loader\NotLoadableException;
 
-class StreamLoader implements LoaderInterface
+class StreamLoader implements ChainableLoaderInterface
 {
     /**
      * The wrapper prefix to append to the path to be loaded.
@@ -40,7 +40,7 @@ class StreamLoader implements LoaderInterface
     /**
      * {@inheritdoc}
      */
-    public function find($path)
+    public function isPathSupported($path)
     {
         $name = $this->wrapperPrefix.$path;
 
@@ -52,11 +52,23 @@ class StreamLoader implements LoaderInterface
          * file_exists() is not used as not all wrappers support stat() to actually check for existing resources.
          */
         if (($this->context && !$resource = @fopen($name, 'r', null, $this->context)) || !$resource = @fopen($name, 'r')) {
-            throw new NotLoadableException(sprintf('Source image %s not found.', $name));
+            return false;
         }
 
         // Closing the opened stream to avoid locking of the resource to find.
         fclose($resource);
+
+        return $name;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function find($path)
+    {
+        if (false === $name = $this->isPathSupported($path)) {
+            throw new NotLoadableException(sprintf('Source image %s not found.', $this->wrapperPrefix.$path));
+        }
 
         try {
             $content = file_get_contents($name, null, $this->context);

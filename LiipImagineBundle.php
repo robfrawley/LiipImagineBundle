@@ -6,6 +6,7 @@ use Liip\ImagineBundle\DependencyInjection\Compiler\FiltersCompilerPass;
 use Liip\ImagineBundle\DependencyInjection\Compiler\LoadersCompilerPass;
 use Liip\ImagineBundle\DependencyInjection\Compiler\PostProcessorsCompilerPass;
 use Liip\ImagineBundle\DependencyInjection\Compiler\ResolversCompilerPass;
+use Liip\ImagineBundle\DependencyInjection\Factory\Loader\ChainLoaderFactory;
 use Liip\ImagineBundle\DependencyInjection\Factory\Loader\FileSystemLoaderFactory;
 use Liip\ImagineBundle\DependencyInjection\Factory\Loader\StreamLoaderFactory;
 use Liip\ImagineBundle\DependencyInjection\Factory\Loader\FlysystemLoaderFactory;
@@ -40,5 +41,6 @@ class LiipImagineBundle extends Bundle
         $extension->addLoaderFactory(new StreamLoaderFactory());
         $extension->addLoaderFactory(new FileSystemLoaderFactory());
         $extension->addLoaderFactory(new FlysystemLoaderFactory());
+        $extension->addLoaderFactory(new ChainLoaderFactory());
     }
 }

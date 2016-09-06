@@ -5,7 +5,7 @@ namespace Liip\ImagineBundle\Binary\Loader;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Liip\ImagineBundle\Exception\Binary\Loader\NotLoadableException;
 
-class GridFSLoader implements LoaderInterface
+class GridFSLoader implements ChainableLoaderInterface
 {
     /**
      * @var DocumentManager
@@ -30,13 +30,19 @@ class GridFSLoader implements LoaderInterface
     /**
      * {@inheritdoc}
      */
-    public function find($id)
+    public function isPathSupported($path)
     {
-        $image = $this->dm
+        return $this->dm
             ->getRepository($this->class)
             ->find(new \MongoId($id));
+    }
 
-        if (!$image) {
+    /**
+     * {@inheritdoc}
+     */
+    public function find($id)
+    {
+        if (!($image = $this->isPathSupported($id))) {
             throw new NotLoadableException(sprintf('Source image was not found with id "%s"', $id));
         }
 

@@ -7,7 +7,7 @@ use Liip\ImagineBundle\Model\Binary;
 use Liip\ImagineBundle\Exception\Binary\Loader\NotLoadableException;
 use League\Flysystem\FilesystemInterface;
 
-class FlysystemLoader implements LoaderInterface
+class FlysystemLoader implements ChainableLoaderInterface
 {
     /**
      * @var FilesystemInterface
@@ -30,9 +30,17 @@ class FlysystemLoader implements LoaderInterface
     /**
      * {@inheritdoc}
      */
+    public function isPathSupported($path)
+    {
+        return $this->filesystem->has($path);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function find($path)
     {
-        if ($this->filesystem->has($path) === false) {
+        if ($this->isPathSupported($path) === false) {
             throw new NotLoadableException(sprintf('Source image "%s" not found.', $path));
         }
 

@@ -229,6 +229,27 @@ class LiipImagineBundleTest extends \Phpunit_Framework_TestCase
         $bundle->build($containerMock);
     }
 
+    public function testAddChainLoaderFactoryOnBuild()
+    {
+        $extensionMock = $this->createExtensionMock();
+        $extensionMock
+            ->expects($this->at(6))
+            ->method('addLoaderFactory')
+            ->with($this->isInstanceOf('Liip\ImagineBundle\DependencyInjection\Factory\Loader\ChainLoaderFactory'))
+        ;
+
+        $containerMock = $this->createContainerBuilderMock();
+        $containerMock
+            ->expects($this->atLeastOnce())
+            ->method('getExtension')
+            ->with('liip_imagine')
+            ->will($this->returnValue($extensionMock))
+        ;
+
+        $bundle = new LiipImagineBundle();
+        $bundle->build($containerMock);
+    }
+
     protected function createContainerBuilderMock()
     {
         return $this->getMock('Symfony\Component\DependencyInjection\ContainerBuilder', array(), array(), '', false);

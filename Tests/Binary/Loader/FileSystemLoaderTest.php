@@ -34,11 +34,7 @@ class FileSystemLoaderTest extends \PHPUnit_Framework_TestCase
 
     public function testCouldBeConstructedWithExpectedArguments()
     {
-        new FileSystemLoader(
-            MimeTypeGuesser::getInstance(),
-            ExtensionGuesser::getInstance(),
-            __DIR__
-        );
+        static::createLoaderInstance(__DIR__);
     }
 
     public function testThrowExceptionIfRootPathDoesNotExist()
@@ -48,20 +44,12 @@ class FileSystemLoaderTest extends \PHPUnit_Framework_TestCase
             'Root image path not resolvable'
         );
 
-        new FileSystemLoader(
-            MimeTypeGuesser::getInstance(),
-            ExtensionGuesser::getInstance(),
-            '/a/bad/root/path'
-        );
+        static::createLoaderInstance('/a/bad/root/path');
     }
 
     public function testThrowExceptionIfRealPathIsOutsideRootPath1()
     {
-        $loader = new FileSystemLoader(
-            MimeTypeGuesser::getInstance(),
-            ExtensionGuesser::getInstance(),
-            __DIR__
-        );
+        $loader = static::createLoaderInstance(__DIR__);
 
         $this->setExpectedException(
             'Liip\ImagineBundle\Exception\Binary\Loader\NotLoadableException',
@@ -73,11 +61,7 @@ class FileSystemLoaderTest extends \PHPUnit_Framework_TestCase
 
     public function testThrowExceptionIfRealPathIsOutsideRootPath2()
     {
-        $loader = new FileSystemLoader(
-            MimeTypeGuesser::getInstance(),
-            ExtensionGuesser::getInstance(),
-            __DIR__
-        );
+        $loader = static::createLoaderInstance(__DIR__);
 
         $this->setExpectedException(
             'Liip\ImagineBundle\Exception\Binary\Loader\NotLoadableException',
@@ -89,22 +73,14 @@ class FileSystemLoaderTest extends \PHPUnit_Framework_TestCase
 
     public function testThrowExceptionIfPathHasDoublePointSlashInTheMiddle()
     {
-        $loader = new FileSystemLoader(
-            MimeTypeGuesser::getInstance(),
-            ExtensionGuesser::getInstance(),
-            __DIR__
-        );
+        $loader = static::createLoaderInstance(__DIR__);
 
         $loader->find('/../../Binary/Loader/'.pathinfo(__FILE__, PATHINFO_BASENAME));
     }
 
     public function testThrowExceptionIfFileNotExist()
     {
-        $loader = new FileSystemLoader(
-            MimeTypeGuesser::getInstance(),
-            ExtensionGuesser::getInstance(),
-            __DIR__
-        );
+        $loader = static::createLoaderInstance(__DIR__);
 
         $this->setExpectedException(
             'Liip\ImagineBundle\Exception\Binary\Loader\NotLoadableException',
@@ -119,15 +95,25 @@ class FileSystemLoaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testLoad($rootDir, $path)
     {
-        $loader = new FileSystemLoader(
-            MimeTypeGuesser::getInstance(),
-            ExtensionGuesser::getInstance(),
-            $rootDir
-        );
+        $loader = static::createLoaderInstance($rootDir);
 
         $binary = $loader->find($path);
 
         $this->assertInstanceOf('Liip\ImagineBundle\Model\FileBinary', $binary);
         $this->assertStringStartsWith('text/', $binary->getMimeType());
+    }
+
+    /**
+     * @param string $rootDir
+     *
+     * @return FileSystemLoader
+     */
+    public static function createLoaderInstance($rootDir = __DIR__)
+    {
+        return new FileSystemLoader(
+            MimeTypeGuesser::getInstance(),
+            ExtensionGuesser::getInstance(),
+            $rootDir
+        );
     }
 }

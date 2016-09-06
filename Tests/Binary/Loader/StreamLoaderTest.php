@@ -12,7 +12,7 @@ class StreamLoaderTest extends AbstractTest
 {
     public function testThrowsIfInvalidPathGivenOnFind()
     {
-        $loader = new StreamLoader('file://');
+        $loader = static::createLoaderInstance('file://');
 
         $path = $this->tempDir.'/invalid.jpeg';
 
@@ -28,7 +28,7 @@ class StreamLoaderTest extends AbstractTest
     {
         $expectedContent = file_get_contents($this->fixturesDir.'/assets/cats.jpeg');
 
-        $loader = new StreamLoader('file://');
+        $loader = static::createLoaderInstance('file://');
 
         $this->assertSame(
             $expectedContent,
@@ -42,7 +42,7 @@ class StreamLoaderTest extends AbstractTest
 
         $context = stream_context_create();
 
-        $loader = new StreamLoader('file://', $context);
+        $loader = static::createLoaderInstance('file://', $context);
 
         $this->assertSame(
             $expectedContent,
@@ -54,6 +54,17 @@ class StreamLoaderTest extends AbstractTest
     {
         $this->setExpectedException('InvalidArgumentException', 'The given context is no valid resource.');
 
-        new StreamLoader('not valid resource', true);
+        static::createLoaderInstance('no valid resource', true);
+    }
+
+    /**
+     * @param string     $prefix
+     * @param null|mixed $context
+     *
+     * @return StreamLoader
+     */
+    public static function createLoaderInstance($prefix, $context = null)
+    {
+        return new StreamLoader($prefix, $context);
     }
 }
