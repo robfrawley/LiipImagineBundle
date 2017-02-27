@@ -22,22 +22,8 @@ class FileSystemLoaderFactory extends AbstractLoaderFactory
      */
     public function create(ContainerBuilder $container, $loaderName, array $config)
     {
-        $dataRoots = $config['data_root'];
-        
-        // Load bundle resources if requested
-        if ($config['bundle_resources']) {
-            foreach ($container->getParameter('kernel.bundles') as $bundle) {
-                $refClass = new \ReflectionClass($bundle);
-                $bundlePath = dirname($refClass->getFileName());
-                if (!is_dir($originDir = $bundlePath . '/Resources/public')) {
-                    continue;
-                }
-                $dataRoots[] = realpath($originDir);
-            }
-        }
-        
         $definition = $this->getChildLoaderDefinition();
-        $definition->replaceArgument(2, $dataRoots);
+        $definition->replaceArgument(2, $this->getDataRoots($config['data_root'], $config['bundle_resources'], $container));
         $definition->replaceArgument(3, new Reference(sprintf('liip_imagine.binary.locator.%s', $config['locator'])));
 
         return $this->setTaggedLoaderDefinition($loaderName, $definition, $container);
@@ -58,8 +44,19 @@ class FileSystemLoaderFactory extends AbstractLoaderFactory
     {
         $builder
             ->children()
-                ->booleanNode('bundle_resources')
-                  ->defaultFalse()
+                ->arrayNode('bundle_resources')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->booleanNode('auto_register')
+                            ->defaultFalse()
+                        ->end()
+                        ->arrayNode('black_list')
+                            ->defaultValue(array())
+                            ->prototype('scalar')
+                                ->cannotBeEmpty()
+                            ->end()
+                        ->end()
+                    ->end()
                 ->end()
                 ->enumNode('locator')
                     ->values(array('filesystem', 'filesystem_insecure'))
@@ -77,5 +74,50 @@ class FileSystemLoaderFactory extends AbstractLoaderFactory
                     ->end()
                 ->end()
             ->end();
+    }
+
+    /**
+     * @param string[]         $userRoots
+     * @param array            $bundleConfig
+     * @param ContainerBuilder $container
+     *
+     * @return string[]
+     */
+    private function getDataRoots(array $userRoots, array $bundleConfig, ContainerBuilder $container)
+    {
+        if (false === $bundleConfig['auto_register']) {
+            return $userRoots;
+        }
+
+        $resourceRoots = array_filter($this->getBundleResourcePaths($container), function ($path, $name) use ($bundleConfig) {
+            return is_dir($path) && false === in_array($name, $bundleConfig['black_list']);
+        }, ARRAY_FILTER_USE_BOTH);
+
+        return array_merge($userRoots, $resourceRoots);
+    }
+
+    /**
+     * @param ContainerBuilder $container
+     *
+     * @return string[]
+     */
+    private function getBundleResourcePaths(ContainerBuilder $container)
+    {
+        $paths = array();
+
+        if ($container->hasParameter('kernel.bundles_metadata')) {
+            foreach ($container->getParameter('kernel.bundles_metadata') as $name => $metadata) {
+                $paths[$name] = $metadata['path'];
+            }
+        } else {
+            foreach ($container->getParameter('kernel.bundles') as $name) {
+                $reflectClass = new \ReflectionClass($name);
+                $paths[$name] = dirname($reflectClass->getFileName());
+            }
+        }
+
+        return array_map(function ($path) {
+            return $path.DIRECTORY_SEPARATOR.'Resources'.DIRECTORY_SEPARATOR.'public';
+        }, $paths);
     }
 }

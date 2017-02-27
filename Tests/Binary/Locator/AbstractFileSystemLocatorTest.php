@@ -74,4 +74,14 @@ abstract class AbstractFileSystemLocatorTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertNotNull($this->getLocator($rootDirs)->locate($path));
     }
+
+    /**
+     * @expectedException \Liip\ImagineBundle\Exception\Binary\Loader\NotLoadableException
+     * @expectedExceptionMessage Invalid root placeholder "invalid-placeholder" for path
+     */
+    public function testThrowsExceptionOnInvalidNamedLoadCase()
+    {
+        $loader = $this->getLocator(__DIR__);
+        $loader->locate('@invalid-placeholder:file.ext');
+    }
 }

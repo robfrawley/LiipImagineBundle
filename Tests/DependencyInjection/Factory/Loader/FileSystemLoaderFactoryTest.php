@@ -48,7 +48,10 @@ class FileSystemLoaderFactoryTest extends FactoryTestCase
         $loader = new FileSystemLoaderFactory();
 
         $loader->create($container, 'the_loader_name', array(
-            'bundle_resources' => false,
+            'bundle_resources' => array(
+                'auto_register' => false,
+                'black_list' => array(),
+            ),
             'data_root' => array('theDataRoot'),
             'locator' => 'filesystem',
         ));
@@ -73,7 +76,10 @@ class FileSystemLoaderFactoryTest extends FactoryTestCase
         $loader = new FileSystemLoaderFactory();
 
         $loader->create($container, 'the_loader_name', array(
-            'bundle_resources' => true,
+            'bundle_resources' => array(
+                'auto_register' => false,
+                'black_list' => array(),
+            ),
             'data_root' => array('theDataRoot'),
             'locator' => 'filesystem',
         ));

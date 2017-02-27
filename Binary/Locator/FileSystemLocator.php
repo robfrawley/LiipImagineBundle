@@ -43,14 +43,50 @@ class FileSystemLocator implements LocatorInterface
      */
     public function locate($path)
     {
-        foreach ($this->roots as $root) {
-            if (false !== $absolute = $this->generateAbsolutePath($root, $path)) {
-                return $this->sanitizeAbsolutePath($absolute);
-            }
+        if (false !== $absolute = $this->locateUsingPlaceholder($path)) {
+            return $this->sanitizeAbsolutePath($absolute);
+        }
+
+        if (false !== $absolute = $this->locateUsingAllRoots($path)) {
+            return $this->sanitizeAbsolutePath($absolute);
         }
 
         throw new NotLoadableException(sprintf('Source image not resolvable "%s" in root path(s) "%s"',
             $path, implode(':', $this->roots)));
+    }
+
+    /**
+     * @param string $path
+     *
+     * @return bool|string
+     */
+    private function locateUsingAllRoots($path)
+    {
+        foreach ($this->roots as $root) {
+            if (false !== $absolute = $this->generateAbsolutePath($root, $path)) {
+                return $absolute;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param string $path
+     *
+     * @return bool|string
+     */
+    private function locateUsingPlaceholder($path)
+    {
+        if (0 !== strpos($path, '@') || 1 !== preg_match('{@(?<name>[^:]+):(?<path>.+)}', $path, $matches)) {
+            return false;
+        }
+
+        if (!isset($this->roots[$matches['name']])) {
+            throw new NotLoadableException(sprintf('Invalid root placeholder "%s" for path "%s"', $matches['name'], $matches['path']));
+        }
+
+        return $this->generateAbsolutePath($this->roots[$matches['name']], $matches['path']);
     }
 
     /**

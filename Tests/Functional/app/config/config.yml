@@ -18,7 +18,10 @@ liip_imagine:
     loaders:
         default:
             filesystem:
-                data_root: "%kernel.root_dir%/web"
+                data_root:
+                  web: "%kernel.root_dir%/web"
+                  images: "%kernel.root_dir%/web/images"
+                  media: "%kernel.root_dir%/web/media"
     resolvers:
         default:
             web_path:
