@@ -11,57 +11,42 @@
 
 namespace Liip\ImagineBundle\Tests\Templating\Helper;
 
-use Liip\ImagineBundle\Imagine\Cache\CacheManager;
 use Liip\ImagineBundle\Templating\Helper\ImagineHelper;
+use Liip\ImagineBundle\Tests\AbstractTest;
 
 /**
- * @covers Liip\ImagineBundle\Templating\Helper\ImagineHelper
+ * @covers \Liip\ImagineBundle\Templating\Helper\ImagineHelper
  */
-class ImagineHelperTest extends \PHPUnit_Framework_TestCase
+class ImagineHelperTest extends AbstractTest
 {
-    public function testSubClassOfHelper()
+    public function testInstanceOfSymfonyTemplatingHelper()
     {
         $rc = new \ReflectionClass('Liip\ImagineBundle\Templating\Helper\ImagineHelper');
-
         $this->assertTrue($rc->isSubclassOf('Symfony\Component\Templating\Helper\Helper'));
     }
 
-    public function testCouldBeConstructedWithCacheManagerAsArgument()
+    public function testConstruction()
     {
-        new ImagineHelper($this->createCacheManagerMock());
+        new ImagineHelper($this->getMockCacheManager());
     }
 
-    public function testAllowGetName()
+    public function testNameGetter()
     {
-        $helper = new ImagineHelper($this->createCacheManagerMock());
-
+        $helper = new ImagineHelper($this->getMockCacheManager());
         $this->assertEquals('liip_imagine', $helper->getName());
     }
 
     public function testProxyCallToCacheManagerOnFilter()
     {
-        $expectedPath = 'thePathToTheImage';
-        $expectedFilter = 'thumbnail';
-        $expectedCachePath = 'thePathToTheCachedImage';
-
-        $cacheManager = $this->createCacheManagerMock();
-        $cacheManager
+        $cache = $this->getMockCacheManager();
+        $cache
             ->expects($this->once())
             ->method('getBrowserPath')
-            ->with($expectedPath, $expectedFilter)
-            ->will($this->returnValue($expectedCachePath))
-        ;
+            ->with($expectedPath = 'thePathToTheImage', $expectedFilter = 'thumbnail')
+            ->will($this->returnValue($expectedCachePath = 'thePathToTheCachedImage'));
 
-        $helper = new ImagineHelper($cacheManager);
+        $helper = new ImagineHelper($cache);
 
         $this->assertEquals($expectedCachePath, $helper->filter($expectedPath, $expectedFilter));
-    }
-
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|CacheManager
-     */
-    protected function createCacheManagerMock()
-    {
-        return $this->getMock('Liip\ImagineBundle\Imagine\Cache\CacheManager', array(), array(), '', false);
     }
 }

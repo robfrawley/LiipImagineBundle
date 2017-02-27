@@ -146,11 +146,11 @@
 
         <service id="liip_imagine.gmagick" class="%liip_imagine.gmagick.class%" public="false" />
 
-        <!--  Templating helpers and extensions -->
+        <!--  Twig template extension/helper -->
 
         <service id="liip_imagine.twig.extension" class="%liip_imagine.twig.extension.class%" public="false">
             <tag name="twig.extension" />
-            <argument type="service" id="liip_imagine.cache.manager" />
+            <argument type="service" id="liip_imagine.templating.helper" />
         </service>
 
         <service id="liip_imagine.templating.helper" class="%liip_imagine.templating.helper.class%">

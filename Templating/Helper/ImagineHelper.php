@@ -34,13 +34,14 @@ class ImagineHelper extends Helper
      *
      * @param string $path
      * @param string $filter
-     * @param array  $runtimeConfig
+     * @param array  $config
+     * @param string $resolver
      *
      * @return string
      */
-    public function filter($path, $filter, array $runtimeConfig = array())
+    public function filter($path, $filter, array $config = array(), $resolver = null)
     {
-        return $this->cacheManager->getBrowserPath($path, $filter, $runtimeConfig);
+        return $this->cacheManager->getBrowserPath($path, $filter, $config, $resolver);
     }
 
     /**

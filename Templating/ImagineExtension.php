@@ -11,23 +11,21 @@
 
 namespace Liip\ImagineBundle\Templating;
 
-use Liip\ImagineBundle\Imagine\Cache\CacheManager;
+use Liip\ImagineBundle\Templating\Helper\ImagineHelper;
 
 class ImagineExtension extends \Twig_Extension
 {
     /**
-     * @var CacheManager
+     * @var ImagineHelper
      */
-    private $cacheManager;
+    private $helper;
 
     /**
-     * Constructor.
-     *
-     * @param CacheManager $cacheManager
+     * @param ImagineHelper $helper
      */
-    public function __construct(CacheManager $cacheManager)
+    public function __construct(ImagineHelper $helper)
     {
-        $this->cacheManager = $cacheManager;
+        $this->helper = $helper;
     }
 
     /**
@@ -36,23 +34,8 @@ class ImagineExtension extends \Twig_Extension
     public function getFilters()
     {
         return array(
-            new \Twig_SimpleFilter('imagine_filter', array($this, 'filter')),
+            new \Twig_SimpleFilter('imagine_filter', array($this->helper, 'filter')),
         );
-    }
-
-    /**
-     * Gets the browser path for the image and filter to apply.
-     *
-     * @param string $path
-     * @param string $filter
-     * @param array  $runtimeConfig
-     * @param string $resolver
-     *
-     * @return \Twig_Markup
-     */
-    public function filter($path, $filter, array $runtimeConfig = array(), $resolver = null)
-    {
-        return $this->cacheManager->getBrowserPath($path, $filter, $runtimeConfig, $resolver);
     }
 
     /**
@@ -60,6 +43,6 @@ class ImagineExtension extends \Twig_Extension
      */
     public function getName()
     {
-        return 'liip_imagine';
+        return $this->helper->getName();
     }
 }

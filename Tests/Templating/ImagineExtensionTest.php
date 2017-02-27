@@ -12,66 +12,71 @@
 namespace Liip\ImagineBundle\Tests\Templating\Helper;
 
 use Liip\ImagineBundle\Imagine\Cache\CacheManager;
+use Liip\ImagineBundle\Templating\Helper\ImagineHelper;
 use Liip\ImagineBundle\Templating\ImagineExtension;
+use Liip\ImagineBundle\Tests\AbstractTest;
 
 /**
- * @covers Liip\ImagineBundle\Templating\ImagineExtension
+ * @covers \Liip\ImagineBundle\Templating\ImagineExtension
  */
-class ImagineExtensionTest extends \PHPUnit_Framework_TestCase
+class ImagineExtensionTest extends AbstractTest
 {
-    public function testSubClassOfHelper()
+    public function testInstanceOfTwigExtension()
     {
         $rc = new \ReflectionClass('Liip\ImagineBundle\Templating\ImagineExtension');
-
         $this->assertTrue($rc->isSubclassOf('Twig_Extension'));
     }
 
-    public function testCouldBeConstructedWithCacheManagerAsArgument()
+    public function testConstruction()
     {
-        new ImagineExtension($this->createCacheManagerMock());
+        new ImagineExtension($this->createImagineTemplatingHelper());
     }
 
-    public function testAllowGetName()
+    public function testNameGetter()
     {
-        $extension = new ImagineExtension($this->createCacheManagerMock());
-
+        $extension = new ImagineExtension($this->createImagineTemplatingHelper());
         $this->assertEquals('liip_imagine', $extension->getName());
     }
 
-    public function testProxyCallToCacheManagerOnFilter()
+    public function testHasFilter()
     {
-        $expectedPath = 'thePathToTheImage';
-        $expectedFilter = 'thumbnail';
-        $expectedCachePath = 'thePathToTheCachedImage';
+        $extension = new ImagineExtension($this->createImagineTemplatingHelper());
 
-        $cacheManager = $this->createCacheManagerMock();
-        $cacheManager
-            ->expects($this->once())
-            ->method('getBrowserPath')
-            ->with($expectedPath, $expectedFilter)
-            ->will($this->returnValue($expectedCachePath))
-        ;
-
-        $extension = new ImagineExtension($cacheManager);
-
-        $this->assertEquals($expectedCachePath, $extension->filter($expectedPath, $expectedFilter));
+        $this->assertInternalType('array', $extension->getFilters());
+        $this->assertCount(1, $extension->getFilters());
     }
 
-    public function testAddsFilterMethodToFiltersList()
+    public function testHasFunctions()
     {
-        $extension = new ImagineExtension($this->createCacheManagerMock());
+        $extension = new ImagineExtension($this->createImagineTemplatingHelper());
 
+        $this->assertInternalType('array', $extension->getFunctions());
+        $this->assertCount(0, $extension->getFunctions());
+    }
+
+    public function testInvokeFilter()
+    {
+        $cache = $this->getMockCacheManager();
+        $cache
+            ->expects($this->once())
+            ->method('getBrowserPath')
+            ->with($expectedPath = 'thePathToTheImage', $expectedFilter = 'thumbnail')
+            ->will($this->returnValue($expectedCachePath = 'thePathToTheCachedImage'));
+
+        $extension = new ImagineExtension(new ImagineHelper($cache));
         $filters = $extension->getFilters();
+        $callable = array_shift($filters)->getCallable();
 
-        $this->assertInternalType('array', $filters);
-        $this->assertCount(1, $filters);
+        $this->assertEquals($expectedCachePath, $callable($expectedPath, $expectedFilter));
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|CacheManager
+     * @param CacheManager $cacheManager
+     *
+     * @return ImagineHelper
      */
-    protected function createCacheManagerMock()
+    private function createImagineTemplatingHelper(CacheManager $cacheManager = null)
     {
-        return $this->getMock('Liip\ImagineBundle\Imagine\Cache\CacheManager', array(), array(), '', false);
+        return new ImagineHelper($cacheManager ?: $this->getMockCacheManager());
     }
 }
