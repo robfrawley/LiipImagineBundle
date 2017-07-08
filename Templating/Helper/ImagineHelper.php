@@ -12,6 +12,7 @@
 namespace Liip\ImagineBundle\Templating\Helper;
 
 use Liip\ImagineBundle\Imagine\Cache\CacheManager;
+use Liip\ImagineBundle\Utility\Context\UriContext;
 use Symfony\Component\Templating\Helper\Helper;
 
 class ImagineHelper extends Helper
@@ -19,7 +20,12 @@ class ImagineHelper extends Helper
     /**
      * @var CacheManager
      */
-    protected $cacheManager;
+    private $cacheManager;
+
+    /**
+     * @var bool
+     */
+    private $removeUriQuery = true;
 
     /**
      * @param CacheManager $cacheManager
@@ -30,10 +36,15 @@ class ImagineHelper extends Helper
     }
 
     /**
-     * Gets the browser path for the image and filter to apply. If your path inadvertently contains a query string
-     * - which might happen if you use asset versioning - the query string will be stripped from the path, the
-     * URL will be resolved using the path without query string, and the stripped query string will be appended to
-     * the resulting URL.
+     * @param bool $removeUriQuery
+     */
+    public function setRemoveUriQuery($removeUriQuery)
+    {
+        $this->removeUriQuery = $removeUriQuery;
+    }
+
+    /**
+     * Gets the browser path for the image and filter to apply.
      *
      * @param string $path
      * @param string $filter
@@ -43,13 +54,10 @@ class ImagineHelper extends Helper
      */
     public function filter($path, $filter, array $runtimeConfig = array())
     {
-        $pathParts = explode('?', $path, 2);
-        $url = $this->cacheManager->getBrowserPath($pathParts[0], $filter, $runtimeConfig);
-        if (empty($pathParts[1])) {
-            return $url;
-        }
+        $origin = new UriContext($path);
+        $output = new UriContext($this->cacheManager->getBrowserPath($origin->getUri(!$this->removeUriQuery), $filter, $runtimeConfig));
 
-        return $url.(strpos($url, '?') ? '&' : '?').$pathParts[1];
+        return $this->removeUriQuery ? $output->addQuery($origin->getQuery())->getUri() : $output->getUri();
     }
 
     /**

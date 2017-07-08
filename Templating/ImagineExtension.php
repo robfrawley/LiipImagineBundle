@@ -12,6 +12,7 @@
 namespace Liip\ImagineBundle\Templating;
 
 use Liip\ImagineBundle\Imagine\Cache\CacheManager;
+use Liip\ImagineBundle\Utility\Context\UriContext;
 
 class ImagineExtension extends \Twig_Extension
 {
@@ -21,13 +22,24 @@ class ImagineExtension extends \Twig_Extension
     private $cacheManager;
 
     /**
-     * Constructor.
-     *
+     * @var bool
+     */
+    private $removeUriQuery = true;
+
+    /**
      * @param CacheManager $cacheManager
      */
     public function __construct(CacheManager $cacheManager)
     {
         $this->cacheManager = $cacheManager;
+    }
+
+    /**
+     * @param bool $removeUriQuery
+     */
+    public function setRemoveUriQuery($removeUriQuery)
+    {
+        $this->removeUriQuery = $removeUriQuery;
     }
 
     /**
@@ -41,10 +53,7 @@ class ImagineExtension extends \Twig_Extension
     }
 
     /**
-     * Gets the browser path for the image and filter to apply. If your path inadvertently contains a query string
-     * - which might happen if you use asset versioning - the query string will be stripped from the path, the
-     * URL will be resolved using the path without query string, and the stripped query string will be appended to
-     * the resulting URL.
+     * Gets the browser path for the image and filter to apply.
      *
      * @param string $path
      * @param string $filter
@@ -55,13 +64,10 @@ class ImagineExtension extends \Twig_Extension
      */
     public function filter($path, $filter, array $runtimeConfig = array(), $resolver = null)
     {
-        $pathParts = explode('?', $path, 2);
-        $url = $this->cacheManager->getBrowserPath($pathParts[0], $filter, $runtimeConfig, $resolver);
-        if (empty($pathParts[1])) {
-            return $url;
-        }
+        $origin = new UriContext($path);
+        $output = new UriContext($this->cacheManager->getBrowserPath($origin->getUri(!$this->removeUriQuery), $filter, $runtimeConfig, $resolver));
 
-        return $url.(strpos($url, '?') ? '&' : '?').$pathParts[1];
+        return $this->removeUriQuery ? $output->addQuery($origin->getQuery())->getUri() : $output->getUri();
     }
 
     /**

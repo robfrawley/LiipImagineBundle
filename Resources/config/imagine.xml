@@ -152,11 +152,13 @@
         <service id="liip_imagine.twig.extension" class="%liip_imagine.twig.extension.class%" public="false">
             <tag name="twig.extension" />
             <argument type="service" id="liip_imagine.cache.manager" />
+            <argument><!-- will be injected by LiipImagineExtension --></argument>
         </service>
 
         <service id="liip_imagine.templating.helper" class="%liip_imagine.templating.helper.class%">
             <tag name="templating.helper" alias="imagine" />
             <argument type="service" id="liip_imagine.cache.manager" />
+            <argument><!-- will be injected by LiipImagineExtension --></argument>
         </service>
 
         <!-- Filter loaders -->

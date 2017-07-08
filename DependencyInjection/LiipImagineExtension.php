@@ -84,6 +84,8 @@ class LiipImagineExtension extends Extension
             $container->removeDefinition('liip_imagine.meta_data.reader');
         }
 
+        $this->setTemplateServiceArguments($config, $container);
+
         $container->setAlias('liip_imagine', new Alias('liip_imagine.'.$config['driver']));
 
         $container->setParameter('liip_imagine.cache.resolver.default', $config['cache']);
@@ -149,6 +151,17 @@ class LiipImagineExtension extends Extension
                 $definition->setFactoryClass($factory[0]);
                 $definition->setFactoryMethod($factory[1]);
             }
+        }
+    }
+
+    /**
+     * @param array            $config
+     * @param ContainerBuilder $container
+     */
+    private function setTemplateServiceArguments(array $config, ContainerBuilder $container)
+    {
+        foreach (array('liip_imagine.twig.extension', 'liip_imagine.templating.helper') as $definitionName) {
+            $container->getDefinition($definitionName)->replaceArgument(1, $config['templating']['remove_uri_query']);
         }
     }
 }

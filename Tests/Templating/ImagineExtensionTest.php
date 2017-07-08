@@ -66,29 +66,40 @@ class ImagineExtensionTest extends AbstractTest
         $this->assertCount(1, $filters);
     }
 
-    public function testStripsQueryStringFromPathAndAppendToFinalUrl()
+    /**
+     * @return array
+     */
+    public function provideFilterData()
     {
-        $cacheManager = $this->createCacheManagerMock();
-
-        $cacheManager
-            ->method('getBrowserPath')
-            ->will($this->returnValue('/resolved/abc.png'));
-
-        $extension = new ImagineExtension($cacheManager);
-
-        $this->assertEquals('/resolved/abc.png?v=123', $extension->filter('abc.png?v=123', 'foo'));
+        return array(
+            // test keeps query string in path and final url
+            array('/resolved/abc.png?v=123', 'abc.png?v=123', false, '/resolved/abc.png?v=123'),
+            // test strips query string from path and append to final url
+            array('/resolved/abc.png', 'abc.png?v=123', true, '/resolved/abc.png?v=123'),
+            // test appends query string to existing query string in final url
+            array('/resolved/abc.png?foo=bar', 'abc.png?v=123', true, '/resolved/abc.png?foo=bar&v=123'),
+        );
     }
 
-    public function testAppendsQueryStringToExistingQueryStringInFinalUrl()
+    /**
+     * @param string $browserPath
+     * @param string $filterPath
+     * @param string $removeUriQuery
+     * @param string $expectedPath
+     *
+     * @dataProvider provideFilterData
+     */
+    public function testFilter($browserPath, $filterPath, $removeUriQuery, $expectedPath)
     {
         $cacheManager = $this->createCacheManagerMock();
 
         $cacheManager
             ->method('getBrowserPath')
-            ->will($this->returnValue('/resolved/abc.png?foo=bar'));
+            ->will($this->returnValue($browserPath));
 
         $extension = new ImagineExtension($cacheManager);
+        $extension->setRemoveUriQuery($removeUriQuery);
 
-        $this->assertEquals('/resolved/abc.png?foo=bar&v=123', $extension->filter('abc.png?v=123', 'foo'));
+        $this->assertEquals($expectedPath, $extension->filter($filterPath, 'foo'));
     }
 }
