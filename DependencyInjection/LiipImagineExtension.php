@@ -57,7 +57,7 @@ class LiipImagineExtension extends Extension
     }
 
     /**
-     * @see Symfony\Component\DependencyInjection\Extension.ExtensionInterface::load()
+     * @see \Symfony\Component\DependencyInjection\Extension.ExtensionInterface::load()
      */
     public function load(array $configs, ContainerBuilder $container)
     {
@@ -76,14 +76,8 @@ class LiipImagineExtension extends Extension
             $loader->load('enqueue.xml');
         }
 
-        $this->setFactories($container);
-
-        if (interface_exists('Imagine\Image\Metadata\MetadataReaderInterface')) {
-            $container->getDefinition('liip_imagine.'.$config['driver'])->addMethodCall('setMetadataReader', array(new Reference('liip_imagine.meta_data.reader')));
-        } else {
-            $container->removeDefinition('liip_imagine.meta_data.reader');
-        }
-
+        $this->setInstanceFactories($container);
+        $this->setDriverMetadataReader($config, $container);
         $this->setTemplateServiceArguments($config, $container);
 
         $container->setAlias('liip_imagine', new Alias('liip_imagine.'.$config['driver']));
@@ -134,7 +128,7 @@ class LiipImagineExtension extends Extension
     /**
      * @param ContainerBuilder $container
      */
-    private function setFactories(ContainerBuilder $container)
+    private function setInstanceFactories(ContainerBuilder $container)
     {
         $factories = array(
             'liip_imagine.mime_type_guesser' => array('Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesser', 'getInstance'),
@@ -158,10 +152,27 @@ class LiipImagineExtension extends Extension
      * @param array            $config
      * @param ContainerBuilder $container
      */
+    private function setDriverMetadataReader(array $config, ContainerBuilder $container)
+    {
+        if (interface_exists('Imagine\Image\Metadata\MetadataReaderInterface')) {
+            $container->getDefinition(sprintf('liip_imagine.%s', $config['driver']))->addMethodCall('setMetadataReader', array(
+                new Reference('liip_imagine.meta_data.reader')
+            ));
+        } else {
+            $container->removeDefinition('liip_imagine.meta_data.reader');
+        }
+    }
+
+    /**
+     * @param array            $config
+     * @param ContainerBuilder $container
+     */
     private function setTemplateServiceArguments(array $config, ContainerBuilder $container)
     {
         foreach (array('liip_imagine.twig.extension', 'liip_imagine.templating.helper') as $definitionName) {
-            $container->getDefinition($definitionName)->replaceArgument(1, $config['templating']['remove_uri_query']);
+            $container->getDefinition($definitionName)->addMethodCall('setRemoveUriQuery', array(
+                $config['templating']['remove_uri_query']
+            ));
         }
     }
 }

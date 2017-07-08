@@ -119,6 +119,45 @@ class LiipImagineExtensionTest extends AbstractTest
         $this->assertEquals($factory[1], $definition->getFactoryMethod());
     }
 
+    public function testAddTemplatingMethodCallOnBuild()
+    {
+        $this->createEmptyConfiguration();
+
+        foreach (array('liip_imagine.twig.extension', 'liip_imagine.templating.helper') as $service) {
+            $definition = $this->containerBuilder->getDefinition($service);
+            $methodCall = $definition->getMethodCalls();
+
+            $this->assertCount(1, $methodCall);
+            $this->assertSame(array('setRemoveUriQuery', array(false)), $methodCall[0]);
+        }
+    }
+
+    public function testInstanceFactories()
+    {
+        $this->createEmptyConfiguration();
+
+        foreach (array('liip_imagine.mime_type_guesser', 'liip_imagine.extension_guesser') as $service) {
+            $definition = $this->containerBuilder->getDefinition($service);
+
+            if (method_exists($definition, 'getFactoryMethod')) {
+                $this->assertSame('getInstance', $definition->getFactoryMethod());
+            } else {
+                $factory = $definition->getFactory();
+                $this->assertCount(2, $factory);
+                $this->assertSame('getInstance', array_pop($factory));
+            }
+        }
+    }
+
+    public function testAddFormResources()
+    {
+        $this->createEmptyConfiguration();
+        $parameter = $this->containerBuilder->getParameter('twig.form.resources');
+
+        $this->assertGreaterThan(0, $parameter);
+        $this->assertArraySubset(array('LiipImagineBundle:Form:form_div_layout.html.twig'), $parameter);
+    }
+
     protected function createEmptyConfiguration()
     {
         $this->containerBuilder = new ContainerBuilder();

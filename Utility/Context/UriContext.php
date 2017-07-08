@@ -19,12 +19,12 @@ class UriContext
     /**
      * @var string
      */
-    private $uri;
+    private $base;
 
     /**
-     * @var string|null
+     * @var string[]
      */
-    private $query;
+    private $query = [];
 
     /**
      * @var string|null
@@ -36,7 +36,17 @@ class UriContext
      */
     public function __construct($uri)
     {
-        $this->uri = $this->parseUriBase($uri, $this->query = $this->parseUriQuery($uri), $this->fragment = $this->parseUriFragment($uri));
+        $this->query = $this->parseQuery($uri);
+        $this->fragment = $this->parseFragment($uri);
+        $this->base = $this->parseBase($uri);
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->getUri();
     }
 
     /**
@@ -46,15 +56,15 @@ class UriContext
      */
     public function getUri($withQueryAndFragment = true)
     {
-        return $withQueryAndFragment ? $this->buildUri() : $this->uri;
+        return $withQueryAndFragment ? $this->buildUri() : $this->base;
     }
 
     /**
-     * @return string|null
+     * @return string
      */
     public function getQuery()
     {
-        return $this->query;
+        return http_build_query($this->query);
     }
 
     /**
@@ -62,7 +72,7 @@ class UriContext
      */
     public function hasQuery()
     {
-        return $this->query !== null;
+        return 0 !== count($this->query);
     }
 
     /**
@@ -72,8 +82,10 @@ class UriContext
      */
     public function addQuery($query = null)
     {
-        if ($query && false === strpos($query, $this->query)) {
-            $this->query = strlen($this->query) > 0 ? sprintf('%s&%s', $this->query, $query) : $query;
+        parse_str($query, $queryParsed);
+
+        foreach ((array) $queryParsed as $k => $v) {
+            $this->query[$k] = $v;
         }
 
         return $this;
@@ -96,38 +108,30 @@ class UriContext
     }
 
     /**
+     * @param string $fragment
+     *
+     * @return $this
+     */
+    public function setFragment($fragment)
+    {
+        $this->fragment = $fragment;
+
+        return $this;
+    }
+
+    /**
      * @return string
      */
     private function buildUri()
     {
-        $uri = $this->uri;
+        $uri = $this->base;
 
-        if ($this->query) {
-            $uri = sprintf('%s?%s', $uri, $this->query);
+        if ($this->hasQuery()) {
+            $uri .= sprintf('?%s', $this->getQuery());
         }
 
-        if ($this->fragment) {
-            $uri = sprintf('%s#%s', $uri, $this->fragment);
-        }
-
-        return $uri;
-    }
-
-    /**
-     * @param string      $uri
-     * @param string|null $query
-     * @param string|null $anchor
-     *
-     * @return string
-     */
-    private function parseUriBase($uri, $query, $anchor)
-    {
-        if (null !== $anchor) {
-            $uri = str_replace(sprintf('#%s', $anchor), '', $uri);
-        }
-
-        if (null !== $query) {
-            $uri = substr($uri, 0, strlen($uri) - strlen($query) - 1);
+        if ($this->hasFragment()) {
+            $uri .= sprintf('#%s', $this->getFragment());
         }
 
         return $uri;
@@ -136,11 +140,31 @@ class UriContext
     /**
      * @param string $uri
      *
-     * @return string|null
+     * @return string
      */
-    private function parseUriQuery($uri)
+    private function parseBase($uri)
     {
-        return parse_url($uri, PHP_URL_QUERY) ?: null;
+        if ($this->hasFragment()) {
+            $uri = preg_replace(sprintf('{#%s$}', preg_quote($this->getFragment())), '', $uri);
+        }
+
+        if ($this->hasQuery()) {
+            $uri = preg_replace(sprintf('{\?%s$}', preg_quote($this->getQuery())), '', $uri);
+        }
+
+        return $uri;
+    }
+
+    /**
+     * @param string $uri
+     *
+     * @return string[]
+     */
+    private function parseQuery($uri)
+    {
+        parse_str(parse_url($uri, PHP_URL_QUERY) ?: '', $query);
+
+        return $query;
     }
 
     /**
@@ -148,7 +172,7 @@ class UriContext
      *
      * @return null|string
      */
-    private function parseUriFragment($uri)
+    private function parseFragment($uri)
     {
         return parse_url($uri, PHP_URL_FRAGMENT) ?: null;
     }

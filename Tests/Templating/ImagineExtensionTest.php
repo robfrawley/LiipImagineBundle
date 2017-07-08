@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Liip\ImagineBundle\Tests\Templating\Helper;
+namespace Liip\ImagineBundle\Tests\Templating;
 
 use Liip\ImagineBundle\Templating\ImagineExtension;
 use Liip\ImagineBundle\Tests\AbstractTest;
@@ -69,7 +69,7 @@ class ImagineExtensionTest extends AbstractTest
     /**
      * @return array
      */
-    public function provideFilterData()
+    public static function provideFilterData()
     {
         return array(
             // test keeps query string in path and final url
