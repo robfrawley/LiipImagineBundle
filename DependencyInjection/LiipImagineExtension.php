@@ -170,8 +170,9 @@ class LiipImagineExtension extends Extension
     private function setTemplateServiceArguments(array $config, ContainerBuilder $container)
     {
         foreach (array('liip_imagine.twig.extension', 'liip_imagine.templating.helper') as $definitionName) {
-            $container->getDefinition($definitionName)->addMethodCall('setRemoveUriQuery', array(
-                $config['templating']['remove_uri_query']
+            $container->getDefinition($definitionName)->addMethodCall('setUriQueryBehavior', array(
+                $config['templating']['uri_query']['origin_remove'],
+                $config['templating']['uri_query']['output_append'],
             ));
         }
     }

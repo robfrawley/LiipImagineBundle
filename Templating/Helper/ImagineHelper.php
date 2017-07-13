@@ -25,7 +25,12 @@ class ImagineHelper extends Helper
     /**
      * @var bool
      */
-    private $removeUriQuery = true;
+    private $uriQueryOriginRemove = true;
+
+    /**
+     * @var bool
+     */
+    private $uriQueryOutputAppend = true;
 
     /**
      * @param CacheManager $cacheManager
@@ -36,11 +41,13 @@ class ImagineHelper extends Helper
     }
 
     /**
-     * @param bool $removeUriQuery
+     * @param bool $originRemove
+     * @param bool $outputAppend
      */
-    public function setRemoveUriQuery($removeUriQuery)
+    public function setUriQueryBehavior($originRemove, $outputAppend)
     {
-        $this->removeUriQuery = $removeUriQuery;
+        $this->uriQueryOriginRemove = $originRemove;
+        $this->uriQueryOutputAppend = $outputAppend;
     }
 
     /**
@@ -55,9 +62,11 @@ class ImagineHelper extends Helper
     public function filter($path, $filter, array $runtimeConfig = array())
     {
         $origin = new UriContext($path);
-        $output = new UriContext($this->cacheManager->getBrowserPath($origin->getUri(!$this->removeUriQuery), $filter, $runtimeConfig));
+        $output = new UriContext($this->cacheManager->getBrowserPath(
+            $origin->getUri(!$this->uriQueryOriginRemove), $filter, $runtimeConfig
+        ));
 
-        return $this->removeUriQuery ? $output->addQuery($origin->getQuery())->getUri() : $output->getUri();
+        return $this->uriQueryOutputAppend ? $output->addQuery($origin->getQuery())->getUri() : $output->getUri();
     }
 
     /**

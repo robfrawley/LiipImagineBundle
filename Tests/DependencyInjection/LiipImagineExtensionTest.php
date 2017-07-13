@@ -128,7 +128,7 @@ class LiipImagineExtensionTest extends AbstractTest
             $methodCall = $definition->getMethodCalls();
 
             $this->assertCount(1, $methodCall);
-            $this->assertSame(array('setRemoveUriQuery', array(false)), $methodCall[0]);
+            $this->assertSame(array('setUriQueryBehavior', array(false, true)), $methodCall[0]);
         }
     }
 

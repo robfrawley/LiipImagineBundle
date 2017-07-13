@@ -62,34 +62,66 @@ class ImagineHelperTest extends AbstractTest
     public function provideFilterData()
     {
         return array(
-            // test keeps query string in path and final url
-            array('/resolved/abc.png?v=123', 'abc.png?v=123', false, '/resolved/abc.png?v=123'),
-            // test strips query string from path and append to final url
-            array('/resolved/abc.png', 'abc.png?v=123', true, '/resolved/abc.png?v=123'),
-            // test appends query string to existing query string in final url
-            array('/resolved/abc.png?foo=bar', 'abc.png?v=123', true, '/resolved/abc.png?foo=bar&v=123'),
+            // DO keep origin query string and DO append output query string (default)
+            array('abc.png', 'abc.png', '/cache/abc.png', '/cache/abc.png', false, true),
+
+            // DO keep origin query string and DO append output query string (default)
+            array('abc.png?foo=bar', 'abc.png?foo=bar', '/cache/abc.png?foo=bar', '/cache/abc.png?foo=bar', false, true),
+
+            // DO keep origin query string and DO append output query string (default)
+            array('abc.png?foo=bar', 'abc.png?foo=bar', '/cache/abc.png?baz=qux', '/cache/abc.png?baz=qux&foo=bar', false, true),
+
+            // DO keep origin query string and do NOT append output query string
+            array('abc.png?foo=bar', 'abc.png?foo=bar', '/cache/abc.png?baz=qux', '/cache/abc.png?baz=qux', false, false),
+
+            // DO keep origin query string and DO append output query string
+            array('abc.png?baz=qux', 'abc.png', '/cache/abc.png?foo=bar', '/cache/abc.png?foo=bar', true, false),
+
+            // DO keep origin query string and DO append output query string
+            array('abc.png?baz=qux', 'abc.png?baz=qux', '/cache/abc.png?foo=bar', '/cache/abc.png?foo=bar&baz=qux', false, true),
+
+            // DO keep origin query string and DO append output query string
+            array('abc.png?baz=qux', 'abc.png', '/cache/abc.png', '/cache/abc.png?baz=qux', true, true),
+
+            // DO keep origin query string and do NOT append output query string
+            array('abc.png?baz=qux', 'abc.png', '/cache/abc.png', '/cache/abc.png', true, false),
+
+            // DO keep origin query string and DO append output query string
+            array('abc.png?baz=qux', 'abc.png', '/cache/abc.png', '/cache/abc.png', true, false),
+
+            // DO keep origin query string and DO append output query string
+            array('abc.png?baz=qux', 'abc.png?baz=qux', '/cache/abc.png?foo=bar', '/cache/abc.png?foo=bar&baz=qux', false, true),
+
+            // DO keep origin query string and DO append output query string
+            array('abc.png?baz=qux', 'abc.png', '/cache/abc.png?foo=bar', '/cache/abc.png?foo=bar&baz=qux', true, true),
+
+            // DO keep origin query string and DO append output query string
+            array('abc.png?baz=qux', 'abc.png', '/cache/abc.png?foo=bar', '/cache/abc.png?foo=bar&baz=qux', true, true),
         );
     }
 
     /**
-     * @param string $browserPath
      * @param string $filterPath
-     * @param string $removeUriQuery
-     * @param string $expectedPath
+     * @param string $requestedPath
+     * @param string $resolvedPath
+     * @param string $finalPath
+     * @param bool   $uriQueryOriginRemove
+     * @param bool   $uriQueryOutputAppend
      *
      * @dataProvider provideFilterData
      */
-    public function testFilter($browserPath, $filterPath, $removeUriQuery, $expectedPath)
+    public function testFilter($filterPath, $requestedPath, $resolvedPath, $finalPath, $uriQueryOriginRemove, $uriQueryOutputAppend)
     {
         $cacheManager = $this->createCacheManagerMock();
 
         $cacheManager
             ->method('getBrowserPath')
-            ->will($this->returnValue($browserPath));
+            ->with($requestedPath)
+            ->will($this->returnValue($resolvedPath));
 
-        $extension = new ImagineHelper($cacheManager);
-        $extension->setRemoveUriQuery($removeUriQuery);
+        $helper = new ImagineHelper($cacheManager);
+        $helper->setUriQueryBehavior($uriQueryOriginRemove, $uriQueryOutputAppend);
 
-        $this->assertEquals($expectedPath, $extension->filter($filterPath, 'foo'));
+        $this->assertEquals($finalPath, $helper->filter($filterPath, 'foo'));
     }
 }

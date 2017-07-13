@@ -24,7 +24,12 @@ class ImagineExtension extends \Twig_Extension
     /**
      * @var bool
      */
-    private $removeUriQuery = true;
+    private $uriQueryOriginRemove = true;
+
+    /**
+     * @var bool
+     */
+    private $uriQueryOutputAppend = true;
 
     /**
      * @param CacheManager $cacheManager
@@ -35,11 +40,13 @@ class ImagineExtension extends \Twig_Extension
     }
 
     /**
-     * @param bool $removeUriQuery
+     * @param bool $originRemove
+     * @param bool $outputAppend
      */
-    public function setRemoveUriQuery($removeUriQuery)
+    public function setUriQueryBehavior($originRemove, $outputAppend)
     {
-        $this->removeUriQuery = $removeUriQuery;
+        $this->uriQueryOriginRemove = $originRemove;
+        $this->uriQueryOutputAppend = $outputAppend;
     }
 
     /**
@@ -65,9 +72,11 @@ class ImagineExtension extends \Twig_Extension
     public function filter($path, $filter, array $runtimeConfig = array(), $resolver = null)
     {
         $origin = new UriContext($path);
-        $output = new UriContext($this->cacheManager->getBrowserPath($origin->getUri(!$this->removeUriQuery), $filter, $runtimeConfig, $resolver));
+        $output = new UriContext($this->cacheManager->getBrowserPath(
+            $origin->getUri(!$this->uriQueryOriginRemove), $filter, $runtimeConfig, $resolver
+        ));
 
-        return $this->removeUriQuery ? $output->addQuery($origin->getQuery())->getUri() : $output->getUri();
+        return $this->uriQueryOutputAppend ? $output->addQuery($origin->getQuery())->getUri() : $output->getUri();
     }
 
     /**

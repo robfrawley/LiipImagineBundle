@@ -35,6 +35,9 @@ class UriContextTest extends \PHPUnit_Framework_TestCase
             array('schema://domain.com/path/to/file.ext?foo=bar&bar=baz', 'schema://domain.com/path/to/file.ext', 'foo=bar&bar=baz', null),
             array('file.ext#anchor', 'file.ext', '', 'anchor'),
             array('file.ext?foo=bar#anchor', 'file.ext', 'foo=bar', 'anchor'),
+            array('@root:file.ext', '@root:file.ext', '', null),
+            array('[$some-werid-format$]file.ext', '[$some-werid-format$]file.ext', '', null),
+            array('[=some-werid-format&]file.ext', '[=some-werid-format&]file.ext', '', null),
         );
     }
 
