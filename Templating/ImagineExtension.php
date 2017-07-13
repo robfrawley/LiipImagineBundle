@@ -19,7 +19,7 @@ class ImagineExtension extends \Twig_Extension
     /**
      * @var CacheManager
      */
-    private $cacheManager;
+    protected $cacheManager;
 
     /**
      * @var bool
@@ -40,13 +40,13 @@ class ImagineExtension extends \Twig_Extension
     }
 
     /**
-     * @param bool $originRemove
-     * @param bool $outputAppend
+     * @param bool $uriQueryOriginRemove
+     * @param bool $uriQueryOutputAppend
      */
-    public function setUriQueryBehavior($originRemove, $outputAppend)
+    public function setUriQueryBehavior($uriQueryOriginRemove, $uriQueryOutputAppend)
     {
-        $this->uriQueryOriginRemove = $originRemove;
-        $this->uriQueryOutputAppend = $outputAppend;
+        $this->uriQueryOriginRemove = $uriQueryOriginRemove;
+        $this->uriQueryOutputAppend = $uriQueryOutputAppend;
     }
 
     /**

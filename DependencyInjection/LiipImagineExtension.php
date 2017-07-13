@@ -76,9 +76,9 @@ class LiipImagineExtension extends Extension
             $loader->load('enqueue.xml');
         }
 
+        $this->setDriverMetadataReader($container, $config);
         $this->setInstanceFactories($container);
-        $this->setDriverMetadataReader($config, $container);
-        $this->setTemplateServiceArguments($config, $container);
+        $this->setTemplateServiceArguments($container, $config);
 
         $container->setAlias('liip_imagine', new Alias('liip_imagine.'.$config['driver']));
 
@@ -149,10 +149,10 @@ class LiipImagineExtension extends Extension
     }
 
     /**
-     * @param array            $config
      * @param ContainerBuilder $container
+     * @param array            $config
      */
-    private function setDriverMetadataReader(array $config, ContainerBuilder $container)
+    private function setDriverMetadataReader(ContainerBuilder $container, array $config)
     {
         if (interface_exists('Imagine\Image\Metadata\MetadataReaderInterface')) {
             $container->getDefinition(sprintf('liip_imagine.%s', $config['driver']))->addMethodCall('setMetadataReader', array(
@@ -164,10 +164,10 @@ class LiipImagineExtension extends Extension
     }
 
     /**
-     * @param array            $config
      * @param ContainerBuilder $container
+     * @param array            $config
      */
-    private function setTemplateServiceArguments(array $config, ContainerBuilder $container)
+    private function setTemplateServiceArguments(ContainerBuilder $container, array $config)
     {
         foreach (array('liip_imagine.twig.extension', 'liip_imagine.templating.helper') as $definitionName) {
             $container->getDefinition($definitionName)->addMethodCall('setUriQueryBehavior', array(

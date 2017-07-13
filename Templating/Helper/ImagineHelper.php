@@ -20,7 +20,7 @@ class ImagineHelper extends Helper
     /**
      * @var CacheManager
      */
-    private $cacheManager;
+    protected $cacheManager;
 
     /**
      * @var bool
@@ -41,13 +41,13 @@ class ImagineHelper extends Helper
     }
 
     /**
-     * @param bool $originRemove
-     * @param bool $outputAppend
+     * @param bool $uriQueryOriginRemove
+     * @param bool $uriQueryOutputAppend
      */
-    public function setUriQueryBehavior($originRemove, $outputAppend)
+    public function setUriQueryBehavior($uriQueryOriginRemove, $uriQueryOutputAppend)
     {
-        $this->uriQueryOriginRemove = $originRemove;
-        $this->uriQueryOutputAppend = $outputAppend;
+        $this->uriQueryOriginRemove = $uriQueryOriginRemove;
+        $this->uriQueryOutputAppend = $uriQueryOutputAppend;
     }
 
     /**
