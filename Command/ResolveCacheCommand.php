@@ -27,67 +27,146 @@ class ResolveCacheCommand extends ContainerAwareCommand
         $this
             ->setName('liip:imagine:cache:resolve')
             ->setDescription('Resolve cache for given path and set of filters.')
-            ->addArgument('paths', InputArgument::REQUIRED | InputArgument::IS_ARRAY, 'Image paths')
-            ->addOption(
-                'filters',
-                'f',
-                InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
-                'Filters list'
-            )->setHelp(<<<'EOF'
-The <info>%command.name%</info> command resolves cache by specified parameters.
-It returns list of urls.
+            ->setDefinition(array(
+                new InputArgument('paths', InputArgument::REQUIRED | InputArgument::IS_ARRAY,
+                    'Any number of image paths to act on.'),
+                new InputOption('filters', ['f'], InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
+                    'List of filters to apply to passed images.'),
+                new InputOption('force', ['F'], InputOption::VALUE_NONE,
+                    'Force image resolution regardless of cache.'),
+                new InputOption('machine', ['m'], InputOption::VALUE_NONE,
+                    'Only print machine-parseable results.'),
+            ))
+            ->setHelp(<<<'EOF'
+The <comment>%command.name%</comment> command resolves the passed image(s) for the resolved
+filter(s), outputting results using the following basic format:
+  <info>- "image.ext[filter]" (resolved|cached) as "path/to/cached/image.ext"</>
 
-<info>php app/console %command.name% path1 path2 --filters=thumb1</info>
-Cache for this two paths will be resolved with passed filter.
-As a result you will get<info>
-    http://localhost/media/cache/thumb1/path1
-    http://localhost/media/cache/thumb1/path2</info>
 
-You can pass few filters:
-<info>php app/console %command.name% path1 --filters=thumb1 --filters=thumb2</info>
-As a result you will get<info>
-    http://localhost/media/cache/thumb1/path1
-    http://localhost/media/cache/thumb2/path1</info>
+<comment># bin/console %command.name% --filters=thumb1 foo.ext bar.ext</comment>
+Resolve <options=bold>both</> <comment>foo.ext</comment> and <comment>bar.ext</comment> using <comment>thumb1</comment> filter, outputting:
+  <info>- "foo.ext[thumb1]" resolved as "http://localhost/media/cache/thumb1/foo.ext"</>
+  <info>- "bar.ext[thumb1]" resolved as "http://localhost/media/cache/thumb1/bar.ext"</>
 
-If you omit --filters parameter then to resolve given paths will be used all configured and available filters in application:
-<info>php app/console %command.name% path1</info>
-As a result you will get<info>
-    http://localhost/media/cache/thumb1/path1
-    http://localhost/media/cache/thumb2/path1</info>
+
+<comment># bin/console %command.name% --filters=thumb1 --filters=thumb2 foo.ext</comment>
+Resolve <comment>foo.ext</comment> using <options=bold>both</> <comment>thumb1</comment> and <comment>thumb2</comment> filters, outputting:
+  <info>- "foo.ext[thumb1]" resolved as "http://localhost/media/cache/thumb1/foo.ext"</>
+  <info>- "foo.ext[thumb2]" resolved as "http://localhost/media/cache/thumb2/foo.ext"</>
+
+
+<comment># bin/console %command.name% foo.ext</comment>
+Resolve <comment>foo.ext</comment> using <options=bold>all configured filters</> (as none are specified), outputting:
+  <info>- "foo.ext[thumb1]" resolved as "http://localhost/media/cache/thumb1/foo.ext"</>
+  <info>- "foo.ext[thumb2]" resolved as "http://localhost/media/cache/thumb2/foo.ext"</>
+
+
+<comment># bin/console %command.name% --force --filters=thumb1 foo.ext</comment>
+Resolve <comment>foo.ext</comment> using <comment>thumb1</comment> and <options=bold>force creation</> regardless of cache, outputting:
+  <info>- "foo.ext[thumb1]" resolved as "http://localhost/media/cache/thumb1/foo.ext"</>
+
 EOF
             );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $paths = $input->getArgument('paths');
-        $filters = $input->getOption('filters');
+        $imagePaths = $input->getArgument('paths');
+        $useFilters = $input->getOption('filters');
+        $forced = $input->getOption('force');
+        $failures = 0;
 
-        /* @var FilterManager filterManager */
-        $filterManager = $this->getContainer()->get('liip_imagine.filter.manager');
-        /* @var CacheManager cacheManager */
-        $cacheManager = $this->getContainer()->get('liip_imagine.cache.manager');
-        /* @var DataManager dataManager */
-        $dataManager = $this->getContainer()->get('liip_imagine.data.manager');
+        $filterManager = $this->getFilterManager();
+        $dataManager = $this->getDataManager();
+        $cacheManager = $this->getCacheManager();
 
-        if (empty($filters)) {
-            $filters = array_keys($filterManager->getFilterConfiguration()->all());
+        if (0 === count($useFilters)) {
+            $useFilters = array_keys($filterManager->getFilterConfiguration()->all());
         }
 
-        foreach ($paths as $path) {
-            foreach ($filters as $filter) {
-                if (!$cacheManager->isStored($path, $filter)) {
-                    $binary = $dataManager->find($filter, $path);
+        $this->outputTitle($output);
 
-                    $cacheManager->store(
-                        $filterManager->applyFilter($binary, $filter),
-                        $path,
-                        $filter
-                    );
+        foreach ($imagePaths as $path) {
+            foreach ($useFilters as $filter) {
+                $output->write(sprintf('- "%s[%s]" ', $path, $filter));
+
+                try {
+                    if ($forced || !$cacheManager->isStored($path, $filter)) {
+                        $cacheManager->store($filterManager->applyFilter($dataManager->find($filter, $path), $filter), $path, $filter);
+                        $output->write('RESOLVED ');
+                    } else {
+                        $output->write('CACHED ');
+                    }
+
+                    $output->writeln(sprintf('as "%s"', $cacheManager->resolve($path, $filter)));
+                } catch (\Exception $e) {
+                    $output->writeln(sprintf('FAILED with exception "%s"', $e->getMessage()));
+                    ++$failures;
                 }
-
-                $output->writeln($cacheManager->resolve($path, $filter));
             }
         }
+
+        $this->outputSummary($output, $useFilters, $imagePaths, $failures);
+
+        return 0 === $failures ? 0 : 255;
+    }
+
+    /**
+     * @param OutputInterface $output
+     */
+    private function outputTitle(OutputInterface $output)
+    {
+        $title = 'Resolving Imagine Bundle Images';
+        $output->writeln(sprintf('<info>%s</info>', $title));
+        $output->writeln(str_repeat('=', strlen($title)));
+        $output->writeln('');
+    }
+
+    /**
+     * @param OutputInterface $output
+     * @param string[]        $useFilters
+     * @param string[]        $imagePaths
+     * @param int             $failures
+     */
+    private function outputSummary(OutputInterface $output, $useFilters, $imagePaths, $failures)
+    {
+        $useFiltersCount = count($useFilters);
+        $imagePathsCount = count($imagePaths);
+        $totalActionStep = $useFiltersCount * $imagePathsCount;
+
+        $output->writeln('');
+        $output->writeln(vsprintf('Completed %d %s (%d %s on %d %s) %s', [
+            $totalActionStep,
+            1 === $totalActionStep ? 'operation' : 'operations',
+            count($useFilters),
+            1 === $useFiltersCount ? 'filter' : 'filters',
+            count($imagePaths),
+            1 === $totalActionStep ? 'image' : 'images',
+            0 === $failures ? '' : sprintf('<fg=red>[encountered</> <fg=red;options=bold>%d</> <fg=red> failures]</>', $failures)
+        ]));
+    }
+
+    /**
+     * @return FilterManager
+     */
+    private function getFilterManager()
+    {
+        return $this->getContainer()->get('liip_imagine.filter.manager');
+    }
+
+    /**
+     * @return DataManager
+     */
+    private function getDataManager()
+    {
+        return $this->getContainer()->get('liip_imagine.data.manager');
+    }
+
+    /**
+     * @return CacheManager
+     */
+    private function getCacheManager()
+    {
+        return $this->getContainer()->get('liip_imagine.cache.manager');
     }
 }
