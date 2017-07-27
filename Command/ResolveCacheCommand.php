@@ -74,6 +74,7 @@ EOF
         $imagePaths = $input->getArgument('paths');
         $useFilters = $input->getOption('filters');
         $forced = $input->getOption('force');
+        $machine = $input->getOption('machine');
         $failures = 0;
 
         $filterManager = $this->getFilterManager();
@@ -84,7 +85,9 @@ EOF
             $useFilters = array_keys($filterManager->getFilterConfiguration()->all());
         }
 
-        $this->outputTitle($output);
+        if (!$machine) {
+            $this->outputTitle($output);
+        }
 
         foreach ($imagePaths as $path) {
             foreach ($useFilters as $filter) {
@@ -106,7 +109,9 @@ EOF
             }
         }
 
-        $this->outputSummary($output, $useFilters, $imagePaths, $failures);
+        if (!$machine) {
+            $this->outputSummary($output, $useFilters, $imagePaths, $failures);
+        }
 
         return 0 === $failures ? 0 : 255;
     }
