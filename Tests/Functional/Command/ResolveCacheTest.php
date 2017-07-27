@@ -137,6 +137,20 @@ class ResolveCacheTest extends AbstractCommandTestCase
         $this->delResolvedImages($images, $filters);
     }
 
+    public function testFailedResolve()
+    {
+        $images = array('images/cats.jpeg', 'images/cats2.jpeg');
+        $filters = array('does_not_exist');
+
+        $this->assertImagesNotExist($images, $filters);
+        $output = $this->executeConsole(new ResolveCacheCommand(), array('paths' => $images, '--filters' => $filters));
+
+        $this->assertImagesNotExist($images, $filters);
+        $this->assertOutputContainsFailedImages($output, $images, $filters);
+
+        $this->delResolvedImages($images, $filters);
+    }
+
     /**
      * @param string[] $images
      * @param string[] $filters
@@ -187,6 +201,20 @@ class ResolveCacheTest extends AbstractCommandTestCase
         foreach ($images as $i) {
             foreach ($filters as $f) {
                 $this->assertOutputContainsImage($output, $i, $f, 'CACHED');
+            }
+        }
+    }
+
+    /**
+     * @param string $output
+     * @param array  $images
+     * @param array  $filters
+     */
+    private function assertOutputContainsFailedImages($output, array $images, array $filters)
+    {
+        foreach ($images as $i) {
+            foreach ($filters as $f) {
+                $this->assertContains(sprintf('"%s[%s]" FAILED with exception "', $i, $f), $output);
             }
         }
     }
