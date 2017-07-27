@@ -199,13 +199,13 @@ class ResolveCacheTest extends AbstractCommandTestCase
      */
     private function assertOutputContainsImage($output, $image, $filter, $type)
     {
-        $expected = vsprintf('"%s[%s]" %s as "http://localhost/media/cache/%s/%s"', [
+        $expected = vsprintf('"%s[%s]" %s as "http://localhost/media/cache/%s/%s"', array(
             $image,
             $filter,
             $type,
             $filter,
             $image,
-        ]);
+        ));
         $this->assertContains($expected, $output);
     }
 
