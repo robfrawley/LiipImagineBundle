@@ -25,7 +25,7 @@ class ResolveCacheTest extends AbstractCommandTestCase
 
         $this->assertImagesNotExist($images, $filters);
 
-        $output = $this->executeConsole(new ResolveCacheCommand(), array('paths' => $images, '--filters' => $filters));
+        $output = $this->executeConsole($this->getResolveCacheCommand(), array('paths' => $images, '--filters' => $filters));
 
         $this->assertImagesExist($images, $filters);
         $this->assertImagesNotExist($images, array('thumbnail_default'));
@@ -41,7 +41,7 @@ class ResolveCacheTest extends AbstractCommandTestCase
 
         $this->putResolvedImages($images, $filters);
 
-        $output = $this->executeConsole(new ResolveCacheCommand(), array('paths' => $images, '--filters' => $filters));
+        $output = $this->executeConsole($this->getResolveCacheCommand(), array('paths' => $images, '--filters' => $filters));
 
         $this->assertImagesExist($images, $filters);
         $this->assertImagesNotExist($images, array('thumbnail_default'));
@@ -55,12 +55,12 @@ class ResolveCacheTest extends AbstractCommandTestCase
         $images = array('images/cats.jpeg', 'images/cats2.jpeg');
         $filters = array('thumbnail_web_path');
 
-        $output = $this->executeConsole(new ResolveCacheCommand(), array('paths' => $images, '--filters' => $filters));
+        $output = $this->executeConsole($this->getResolveCacheCommand(), array('paths' => $images, '--filters' => $filters));
 
         $this->assertImagesExist($images, $filters);
         $this->assertOutputContainsResolvedImages($output, $images, $filters);
 
-        $output = $this->executeConsole(new ResolveCacheCommand(), array('paths' => $images, '--filters' => $filters));
+        $output = $this->executeConsole($this->getResolveCacheCommand(), array('paths' => $images, '--filters' => $filters));
 
         $this->assertImagesExist($images, $filters);
         $this->assertOutputContainsCachedImages($output, $images, $filters);
@@ -80,7 +80,7 @@ class ResolveCacheTest extends AbstractCommandTestCase
         $this->assertImagesNotExist($imagesResolved, $filters);
         $this->assertImagesExist($imagesCached, $filters);
 
-        $output = $this->executeConsole(new ResolveCacheCommand(), array('paths' => $images, '--filters' => $filters));
+        $output = $this->executeConsole($this->getResolveCacheCommand(), array('paths' => $images, '--filters' => $filters));
 
         $this->assertImagesExist($images, $filters);
         $this->assertOutputContainsResolvedImages($output, $imagesResolved, $filters);
@@ -94,7 +94,7 @@ class ResolveCacheTest extends AbstractCommandTestCase
         $images = array('images/cats.jpeg', 'images/cats2.jpeg');
         $filters = array('thumbnail_web_path', 'thumbnail_default');
 
-        $output = $this->executeConsole(new ResolveCacheCommand(), array('paths' => $images, '--filters' => $filters));
+        $output = $this->executeConsole($this->getResolveCacheCommand(), array('paths' => $images, '--filters' => $filters));
 
         $this->assertImagesExist($images, $filters);
         $this->assertOutputContainsResolvedImages($output, $images, $filters);
@@ -107,7 +107,7 @@ class ResolveCacheTest extends AbstractCommandTestCase
         $images = array('images/cats.jpeg', 'images/cats2.jpeg');
         $filters = array('thumbnail_web_path', 'thumbnail_default');
 
-        $output = $this->executeConsole(new ResolveCacheCommand(), array('paths' => $images));
+        $output = $this->executeConsole($this->getResolveCacheCommand(), array('paths' => $images));
 
         $this->assertImagesExist($images, $filters);
         $this->assertOutputContainsResolvedImages($output, $images, $filters);
@@ -124,12 +124,12 @@ class ResolveCacheTest extends AbstractCommandTestCase
         $this->putResolvedImages($images, $filters);
         $this->assertImagesExist($images, $filters);
 
-        $output = $this->executeConsole(new ResolveCacheCommand(), array('paths' => $images, '--filters' => $filters));
+        $output = $this->executeConsole($this->getResolveCacheCommand(), array('paths' => $images, '--filters' => $filters));
 
         $this->assertImagesExist($images, $filters);
         $this->assertOutputContainsCachedImages($output, $images, $filters);
 
-        $output = $this->executeConsole(new ResolveCacheCommand(), array('paths' => $images, '--filters' => $filters, '--force' => true));
+        $output = $this->executeConsole($this->getResolveCacheCommand(), array('paths' => $images, '--filters' => $filters, '--force' => true));
 
         $this->assertImagesExist($images, $filters);
         $this->assertOutputContainsResolvedImages($output, $images, $filters);
@@ -143,7 +143,7 @@ class ResolveCacheTest extends AbstractCommandTestCase
         $filters = array('does_not_exist');
 
         $this->assertImagesNotExist($images, $filters);
-        $output = $this->executeConsole(new ResolveCacheCommand(), array('paths' => $images, '--filters' => $filters));
+        $output = $this->executeConsole($this->getResolveCacheCommand(), array('paths' => $images, '--filters' => $filters));
 
         $this->assertImagesNotExist($images, $filters);
         $this->assertOutputContainsFailedImages($output, $images, $filters);
@@ -186,7 +186,7 @@ class ResolveCacheTest extends AbstractCommandTestCase
     {
         foreach ($images as $i) {
             foreach ($filters as $f) {
-                $this->assertOutputContainsImage($output, $i, $f, 'RESOLVED');
+                $this->assertOutputContainsImage($output, $i, $f, 'resolved');
             }
         }
     }
@@ -200,7 +200,7 @@ class ResolveCacheTest extends AbstractCommandTestCase
     {
         foreach ($images as $i) {
             foreach ($filters as $f) {
-                $this->assertOutputContainsImage($output, $i, $f, 'CACHED');
+                $this->assertOutputContainsImage($output, $i, $f, 'cached');
             }
         }
     }
@@ -214,7 +214,7 @@ class ResolveCacheTest extends AbstractCommandTestCase
     {
         foreach ($images as $i) {
             foreach ($filters as $f) {
-                $this->assertContains(sprintf('"%s[%s]" FAILED with exception "', $i, $f), $output);
+                $this->assertContains(sprintf('"%s[%s]" exception as "', $i, $f), $output);
             }
         }
     }
@@ -264,5 +264,13 @@ class ResolveCacheTest extends AbstractCommandTestCase
                 $this->filesystem->dumpFile(sprintf('%s/%s/%s', $this->cacheRoot, $f, $i), $content);
             }
         }
+    }
+
+    /**
+     * @return ResolveCacheCommand
+     */
+    private function getResolveCacheCommand()
+    {
+        return $this->createClient()->getContainer()->get('liip_imagine.command.cache_resolve');
     }
 }

@@ -331,6 +331,7 @@
         </service>
 
         <!-- Post processors -->
+
         <service id="liip_imagine.filter.post_processor.jpegoptim" class="%liip_imagine.filter.post_processor.jpegoptim.class%">
             <argument>%liip_imagine.jpegoptim.binary%</argument>
             <argument>%liip_imagine.jpegoptim.stripAll%</argument>
@@ -339,6 +340,7 @@
             <argument>%liip_imagine.jpegoptim.tempDir%</argument>
             <tag name="liip_imagine.filter.post_processor" post_processor="jpegoptim" />
         </service>
+
         <service id="liip_imagine.filter.post_processor.optipng" class="%liip_imagine.filter.post_processor.optipng.class%">
             <argument>%liip_imagine.optipng.binary%</argument>
             <argument>%liip_imagine.optipng.level%</argument>
@@ -346,13 +348,24 @@
             <argument>%liip_imagine.optipng.tempDir%</argument>
             <tag name="liip_imagine.filter.post_processor" post_processor="optipng" />
         </service>
+
         <service id="liip_imagine.filter.post_processor.pngquant" class="%liip_imagine.filter.post_processor.pngquant.class%">
             <argument>%liip_imagine.pngquant.binary%</argument>
             <tag name="liip_imagine.filter.post_processor" post_processor="pngquant" />
         </service>
+
         <service id="liip_imagine.filter.post_processor.mozjpeg" class="%liip_imagine.filter.post_processor.mozjpeg.class%">
             <argument>%liip_imagine.mozjpeg.binary%</argument>
             <tag name="liip_imagine.filter.post_processor" post_processor="mozjpeg" />
+        </service>
+
+        <!-- Commands -->
+
+        <service id="liip_imagine.command.cache_resolve" class="Liip\ImagineBundle\Command\ResolveCacheCommand">
+            <argument type="service" id="liip_imagine.data.manager" />
+            <argument type="service" id="liip_imagine.filter.manager" />
+            <argument type="service" id="liip_imagine.cache.manager" />
+            <tag name="console.command" command="liip:imagine:cache:resolve" />
         </service>
     </services>
 </container>
