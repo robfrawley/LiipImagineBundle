@@ -22,96 +22,70 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ResolveCacheCommand extends Command
 {
+    use CacheCommandTrait;
+
     /**
      * @var DataManager
      */
     private $dataManager;
 
     /**
-     * @var FilterManager
-     */
-    private $filterManager;
-
-    /**
-     * @var CacheManager
-     */
-    private $cacheManager;
-
-    /**
-     * @var OutputInterface
-     */
-    private $output;
-
-    /**
-     * @var bool
-     */
-    private $forceResolution;
-
-    /**
-     * @var bool
-     */
-    private $machineReadable;
-
-    /**
-     * @var bool
-     */
-    private $verbosityQuiet;
-
-    /**
-     * @var int
-     */
-    private $resolveFailures = 0;
-
-    /**
      * @param DataManager   $dataManager
-     * @param FilterManager $filterManager
      * @param CacheManager  $cacheManager
+     * @param FilterManager $filterManager
      */
-    public function __construct(DataManager $dataManager, FilterManager $filterManager, CacheManager $cacheManager)
+    public function __construct(DataManager $dataManager, CacheManager $cacheManager, FilterManager $filterManager)
     {
         parent::__construct();
 
         $this->dataManager = $dataManager;
-        $this->filterManager = $filterManager;
         $this->cacheManager = $cacheManager;
+        $this->filterManager = $filterManager;
     }
 
-    protected function configure()
+    /**
+     * @return void
+     */
+    protected function configure(): void
     {
         $this
             ->setName('liip:imagine:cache:resolve')
-            ->setDescription('Resolve cache for given path and set of filters.')
-            ->addArgument('paths', InputArgument::REQUIRED | InputArgument::IS_ARRAY,
-                'Any number of image paths to act on.')
-            ->addOption('filter', 'f', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
-                'List of filters to apply to passed images.')
+            ->setAliases(['imagine:get'])
+            ->setDescription('Resolve cache entries for the given paths and filters.')
+            ->addArgument('path', InputArgument::REQUIRED | InputArgument::IS_ARRAY,
+                'Image file path(s) to run resolution on.')
+            ->addOption('filter', 'f', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
+                'Filter(s) to use for image resolution; if none explicitly passed, use all filters.')
             ->addOption('force', 'F', InputOption::VALUE_NONE,
-                'Force image resolution regardless of cache.')
-            ->addOption('machine', 'm', InputOption::VALUE_NONE,
-                'Only print machine-parseable results.')
+                'Force re-resolution of image, regardless of whether it has been previously cached.')
+            ->addOption('no-colors', 'C', InputOption::VALUE_NONE,
+                'Write only un-styled text output; remove any colors, styling, etc.')
+            ->addOption('as-script', 'S', InputOption::VALUE_NONE,
+                'Write only machine-readable output; silenced verbose reporting and implies --no-colors.')
             ->setHelp(<<<'EOF'
 The <comment>%command.name%</comment> command resolves the passed image(s) for the resolved
 filter(s), outputting results using the following basic format:
-  <info>- "image.ext[filter]" (resolved|cached|failed) as "path/to/cached/image.ext"</>
+  <info>image.ext[filter] (resolved|cached|failed): (resolve-image-path|exception-message)</>
 
 <comment># bin/console %command.name% --filter=thumb1 foo.ext bar.ext</comment>
-Resolve <options=bold>both</> <comment>foo.ext</comment> and <comment>bar.ext</comment> using <comment>thumb1</comment> filter, outputting:
-  <info>- "foo.ext[thumb1]" resolved as "http://localhost/media/cache/thumb1/foo.ext"</>
-  <info>- "bar.ext[thumb1]" resolved as "http://localhost/media/cache/thumb1/bar.ext"</>
+Resolve <options=bold>both</> <comment>foo.ext</comment> and <comment>bar.ext</comment> images using <options=bold>one</> filter (<comment>thumb1</comment>), outputting:
+  <info>- foo.ext[thumb1] status: http://localhost/media/cache/thumb1/foo.ext</>
+  <info>- bar.ext[thumb1] status: http://localhost/media/cache/thumb1/bar.ext</>
 
-<comment># bin/console %command.name% --filter=thumb1 --filter=thumb2 foo.ext</comment>
-Resolve <comment>foo.ext</comment> using <options=bold>both</> <comment>thumb1</comment> and <comment>thumb2</comment> filters, outputting:
-  <info>- "foo.ext[thumb1]" resolved as "http://localhost/media/cache/thumb1/foo.ext"</>
-  <info>- "foo.ext[thumb2]" resolved as "http://localhost/media/cache/thumb2/foo.ext"</>
+<comment># bin/console %command.name% --filter=thumb1 --filter=thumb3 foo.ext</comment>
+Resolve <comment>foo.ext</comment> image using <options=bold>two</> filters (<comment>thumb1</comment> and <comment>thumb3</comment>), outputting:
+  <info>- foo.ext[thumb1] status: http://localhost/media/cache/thumb1/foo.ext</>
+  <info>- foo.ext[thumb3] status: http://localhost/media/cache/thumb3/foo.ext</>
 
 <comment># bin/console %command.name% foo.ext</comment>
-Resolve <comment>foo.ext</comment> using <options=bold>all configured filters</> (as none are specified), outputting:
-  <info>- "foo.ext[thumb1]" resolved as "http://localhost/media/cache/thumb1/foo.ext"</>
-  <info>- "foo.ext[thumb2]" resolved as "http://localhost/media/cache/thumb2/foo.ext"</>
+Resolve <comment>foo.ext</comment> image using <options=bold>all</> filters (as none were specified), outputting:
+  <info>- foo.ext[thumb1] status: http://localhost/media/cache/thumb1/foo.ext</>
+  <info>- foo.ext[thumb2] status: http://localhost/media/cache/thumb2/foo.ext</>
+  <info>- foo.ext[thumb3] status: http://localhost/media/cache/thumb2/foo.ext</>
 
 <comment># bin/console %command.name% --force --filter=thumb1 foo.ext</comment>
-Resolve <comment>foo.ext</comment> using <comment>thumb1</comment> and <options=bold>force creation</> regardless of cache, outputting:
-  <info>- "foo.ext[thumb1]" resolved as "http://localhost/media/cache/thumb1/foo.ext"</>
+Resolve <comment>foo.ext</comment> image using <options=bold>one</> filter (<comment>thumb1</comment>) and <options=bold>forcing resolution</> (regardless of cache), outputting:
+  <info>- foo.ext[thumb1] resolved: http://localhost/media/cache/thumb1/foo.ext</>
 
 EOF
             );
@@ -125,131 +99,47 @@ EOF
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->output = $output;
-        $this->forceResolution = $input->getOption('force');
-        $this->machineReadable = $input->getOption('machine');
-        $this->verbosityQuiet = $output->isQuiet();
+        $this->setupOutputStyle($input, $output);
+        $this->writeCommandHeader('Cache Resolve');
 
-        if (0 === count($filters = $input->getOption('filters'))) {
-            $filters = array_keys((array) $this->filterManager->getFilterConfiguration()->all());
-        }
-
-        $this->outputTitle('Resolving Imagine Bundle Images');
-
-        $images = $input->getArgument('paths');
+        $forced = $input->getOption('force');
+        list($images, $filters) = $this->resolveFiltersAndPaths($input);
 
         foreach ($images as $i) {
-            foreach ($filters  as $f) {
-                $this->resolvePathWithFilter($i, $f);
+            foreach ($filters as $f) {
+                $this->runCacheImageResolve($i, $f, $forced);
             }
         }
 
-        $this->outputSummary($filters, $images);
-
-        return $this->getReturnCode();
+        return $this
+            ->writeCommandResult($images, $filters)
+            ->getResultCode();
     }
 
     /**
-     * @param string $path
+     * @param string $image
      * @param string $filter
+     * @param bool   $forced
+     *
+     * @return void
      */
-    private function resolvePathWithFilter(string $path, string $filter): void
+    private function runCacheImageResolve(string $image, string $filter, bool $forced): void
     {
-        $this->writeText('- "%s[%s]" ', array($path, $filter));
+        $this->writeItemInit($image, $filter);
 
         try {
-            if ($this->forceResolution || !$this->cacheManager->isStored($path, $filter)) {
-                $this->cacheManager->store($this->filterManager->applyFilter($this->dataManager->find($filter, $path), $filter), $path, $filter);
-                $this->writeText('resolved ');
+            if ($forced || !$this->cacheManager->isStored($image, $filter)) {
+                $this->cacheManager->store($this->filterManager->applyFilter($this->dataManager->find($filter, $image), $filter), $image, $filter);
+                $this->writeItemStat('resolved', 'green');
             } else {
-                $this->writeText('cached ');
+                $this->writeItemStat('cached', 'yellow');
             }
 
-            $this->writeLine('as "%s"', array($this->cacheManager->resolve($path, $filter)));
+            $this->writeItemDesc($this->cacheManager->resolve($image, $filter));
         } catch (\Exception $e) {
-            $this->writeLine('failed as "%s"', array($e->getMessage()));
-            ++$this->resolveFailures;
+            $this->writeItemStat('failed', 'red');
+            $this->writeItemDesc($e->getMessage());
+            ++$this->failures;
         }
-    }
-
-    /**
-     * @param string $title
-     */
-    private function outputTitle(string $title): void
-    {
-        if ($this->machineReadable) {
-            return;
-        }
-
-        $this
-            ->writeLine('<info>%s</info>', array($title))
-            ->writeLine(str_repeat('=', strlen($title)))
-            ->writeLine();
-   }
-
-    /**
-     * @param string[] $filters
-     * @param string[] $images
-     */
-    private function outputSummary(array $filters, array $images): void
-    {
-        if (!$this->machineReadable) {
-            return;
-        }
-
-        $countUsedImg = count($images);
-        $countFilters = count($filters);
-        $countActions = $countFilters * $countUsedImg;
-
-        $this
-            ->writeLine()
-            ->writeLine('Completed %d %s (%d %s on %d %s) <fg=red>%s</>', [
-                $countActions,
-                1 === $countActions ? 'action' : 'actions',
-                count($filters),
-                1 === $countFilters ? 'filter' : 'filters',
-                count($images),
-                1 === $countActions ? 'image' : 'images',
-                0 === $this->resolveFailures ? '' : sprintf('[encountered %d failures', $this->resolveFailures)
-            ]
-        );
-    }
-
-    /**
-     * @param string $format
-     * @param array  $replacements
-     *
-     * @return self
-     */
-    private function writeText(string $format = '', array $replacements = []): self
-    {
-        if (!$this->verbosityQuiet) {
-            $this->output->write(vsprintf($format, $replacements));
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param string $format
-     * @param array  $replacements
-     *
-     * @return self
-     */
-    private function writeLine($format = '', array $replacements = array()): self
-    {
-        if (!$this->verbosityQuiet) {
-            $this->output->writeln(vsprintf($format, $replacements));
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    private function getReturnCode(): int
-    {
-        return 0 === $this->resolveFailures ? 0 : 255;
     }
 }
