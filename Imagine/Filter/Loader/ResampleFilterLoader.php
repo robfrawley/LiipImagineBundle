@@ -14,10 +14,10 @@ namespace Liip\ImagineBundle\Imagine\Filter\Loader;
 use Imagine\Image\ImageInterface;
 use Imagine\Image\ImagineInterface;
 use Liip\ImagineBundle\Exception\Imagine\Filter\LoadFilterException;
-use Liip\ImagineBundle\Utility\OptionsResolver\OptionsResolver;
 use Liip\ImagineBundle\Exception\InvalidArgumentException;
-use Symfony\Component\OptionsResolver\Options;
+use Liip\ImagineBundle\Utility\OptionsResolver\OptionsResolver;
 use Symfony\Component\OptionsResolver\Exception\ExceptionInterface;
+use Symfony\Component\OptionsResolver\Options;
 
 class ResampleFilterLoader implements LoaderInterface
 {

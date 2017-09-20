@@ -78,18 +78,18 @@ class AbstractPostProcessorTest extends AbstractPostProcessorTestCase
             return $executable instanceof \SplFileInfo ? $executable->getRealPath() : null;
         };
 
-        $getChars = function($onlyAlpha = true) {
+        $getChars = function ($onlyAlpha = true) {
             $chars = '';
-            for ($i = 0; $i < mt_rand(1, 80); $i++) {
+            for ($i = 0; $i < mt_rand(1, 80); ++$i) {
                 $chars .= chr($onlyAlpha ? mt_rand(97, 122) : mt_rand(35, 127));
             }
 
             return strtolower($chars);
         };
 
-        $getEnvVars = function() use ($getChars) {
+        $getEnvVars = function () use ($getChars) {
             $environment = array();
-            for ($i = 0; $i < mt_rand(0, 20); $i++) {
+            for ($i = 0; $i < mt_rand(0, 20); ++$i) {
                 $environment[strtoupper($getChars())] = $getChars(false);
             }
 
@@ -104,11 +104,11 @@ class AbstractPostProcessorTest extends AbstractPostProcessorTestCase
 
         foreach (array_splice($directories, 0, 20) as $d) {
             $returns[] = array($d->getRealPath(), $getBin($d), (float) sprintf('%d.%d', mt_rand(0, 300), mt_rand(0, 99)),
-                $getChars(), $getEnvVars(), mt_rand(0, 1) === 0 ? array('bypass_shell' => true) : array());
+                $getChars(), $getEnvVars(), 0 === mt_rand(0, 1) ? array('bypass_shell' => true) : array(), );
         }
 
         return array_filter($returns, function (array $d) {
-            return $d[1] !== null;
+            return null !== $d[1];
         });
     }
 
@@ -164,6 +164,8 @@ class AbstractPostProcessorTest extends AbstractPostProcessorTestCase
      *
      * @expectedException \Liip\ImagineBundle\Exception\Imagine\Filter\PostProcessor\InvalidOptionException
      * @expectedExceptionMessage the "process:environment_variables" option must be an array of name => value pairs
+     *
+     * @param mixed $environmentVariables
      */
     public function testCreateProcessBuilderThrowsOnInvalidEnvVars($environmentVariables)
     {
@@ -173,6 +175,7 @@ class AbstractPostProcessorTest extends AbstractPostProcessorTestCase
             ),
         ), '/bin/foobar');
     }
+
     /**
      * @return array
      */
@@ -186,6 +189,8 @@ class AbstractPostProcessorTest extends AbstractPostProcessorTestCase
      *
      * @expectedException \Liip\ImagineBundle\Exception\Imagine\Filter\PostProcessor\InvalidOptionException
      * @expectedExceptionMessage the "process:options" option must be an array of options intended for the proc_open function call
+     *
+     * @param mixed $options
      */
     public function testCreateProcessBuilderThrowsOnInvalidOptions($options)
     {
@@ -194,19 +199,6 @@ class AbstractPostProcessorTest extends AbstractPostProcessorTestCase
                 'options' => $options,
             ),
         ), '/bin/foobar');
-    }
-
-    /**
-     * @param array  $options
-     * @param string $executablePath
-     *
-     * @return ProcessBuilder
-     */
-    private function callCreateProcessBuilder(array $options, $executablePath)
-    {
-        $m = $this->getProtectedReflectionMethodVisible($processor = $this->getPostProcessorInstance(), 'createProcessBuilder');
-
-        return $m->invokeArgs($processor, array($options, array($executablePath)));
     }
 
     public function testCreateProcessBuilderWithDefaultExecutable()
@@ -331,7 +323,7 @@ class AbstractPostProcessorTest extends AbstractPostProcessorTestCase
      */
     protected function getPostProcessorInstance(array $parameters = array())
     {
-        if (count($parameters) === 0) {
+        if (0 === count($parameters)) {
             $parameters = array(static::getPostProcessAsStdInExecutable());
         }
 
@@ -339,5 +331,18 @@ class AbstractPostProcessorTest extends AbstractPostProcessorTestCase
             ->getMockBuilder('\Liip\ImagineBundle\Imagine\Filter\PostProcessor\AbstractPostProcessor')
             ->setConstructorArgs($parameters)
             ->getMockForAbstractClass();
+    }
+
+    /**
+     * @param array  $options
+     * @param string $executablePath
+     *
+     * @return ProcessBuilder
+     */
+    private function callCreateProcessBuilder(array $options, $executablePath)
+    {
+        $m = $this->getProtectedReflectionMethodVisible($processor = $this->getPostProcessorInstance(), 'createProcessBuilder');
+
+        return $m->invokeArgs($processor, array($options, array($executablePath)));
     }
 }

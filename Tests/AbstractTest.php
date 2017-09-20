@@ -59,6 +59,17 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
         $this->filesystem->mkdir($this->temporaryPath);
     }
 
+    protected function tearDown()
+    {
+        if (!$this->filesystem) {
+            return;
+        }
+
+        if ($this->filesystem->exists($this->temporaryPath)) {
+            $this->filesystem->remove($this->temporaryPath);
+        }
+    }
+
     /**
      * @return string[]
      */
@@ -264,16 +275,5 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
         $m->setAccessible(true);
 
         return $m;
-    }
-
-    protected function tearDown()
-    {
-        if (!$this->filesystem) {
-            return;
-        }
-
-        if ($this->filesystem->exists($this->temporaryPath)) {
-            $this->filesystem->remove($this->temporaryPath);
-        }
     }
 }

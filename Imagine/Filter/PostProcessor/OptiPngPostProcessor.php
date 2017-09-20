@@ -88,7 +88,7 @@ class OptiPngPostProcessor extends AbstractPostProcessor
         $builder = $this->createProcessBuilder($options);
 
         if (null !== $level = isset($options['level']) ? $options['level'] : $this->level) {
-            if (!in_array($level, range(0, 7))) {
+            if (!in_array($level, range(0, 7), true)) {
                 throw new InvalidOptionException('the "level" option must be an int between 0 and 7', $options);
             }
 
@@ -119,7 +119,7 @@ class OptiPngPostProcessor extends AbstractPostProcessor
         }
 
         if (isset($options['interlace_type'])) {
-            if (!in_array($options['interlace_type'], range(0, 1))) {
+            if (!in_array($options['interlace_type'], range(0, 1), true)) {
                 throw new InvalidOptionException('the "interlace_type" option must be either 0 or 1', $options);
             }
 

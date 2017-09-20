@@ -16,13 +16,6 @@ use Liip\ImagineBundle\Binary\Locator\LocatorInterface;
 
 abstract class AbstractFileSystemLocatorTest extends \PHPUnit_Framework_TestCase
 {
-    /**
-     * @param string[]|string $roots
-     *
-     * @return LocatorInterface
-     */
-    abstract protected function getFileSystemLocator($roots);
-
     public function testImplementsLocatorInterface()
     {
         $this->assertInstanceOf('\Liip\ImagineBundle\Binary\Locator\LocatorInterface', new FileSystemLocator());
@@ -127,9 +120,18 @@ abstract class AbstractFileSystemLocatorTest extends \PHPUnit_Framework_TestCase
      *
      * @expectedException \Liip\ImagineBundle\Exception\InvalidArgumentException
      * @expectedExceptionMessage Root image path not resolvable
+     *
+     * @param mixed $path
      */
     public function testThrowsIfRealPathOutsideRootPath($path)
     {
         $this->getFileSystemLocator($path)->locate($path);
     }
+
+    /**
+     * @param string[]|string $roots
+     *
+     * @return LocatorInterface
+     */
+    abstract protected function getFileSystemLocator($roots);
 }

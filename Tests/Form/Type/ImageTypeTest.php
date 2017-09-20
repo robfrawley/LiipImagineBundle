@@ -12,8 +12,8 @@
 namespace Liip\ImagineBundle\Tests\Form\Type;
 
 use Liip\ImagineBundle\Form\Type\ImageType;
-use Liip\ImagineBundle\Utility\Framework\SymfonyFramework;
 use Liip\ImagineBundle\Tests\AbstractTest;
+use Liip\ImagineBundle\Utility\Framework\SymfonyFramework;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 

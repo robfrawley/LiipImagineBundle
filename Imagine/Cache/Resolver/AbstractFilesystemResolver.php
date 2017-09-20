@@ -11,6 +11,7 @@
 
 namespace Liip\ImagineBundle\Imagine\Cache\Resolver;
 
+use Guzzle\Http\Message\RequestInterface;
 use Liip\ImagineBundle\Binary\BinaryInterface;
 use Liip\ImagineBundle\Imagine\Cache\CacheManager;
 use Liip\ImagineBundle\Imagine\Cache\CacheManagerAwareInterface;
@@ -20,11 +21,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 abstract class AbstractFilesystemResolver implements ResolverInterface, CacheManagerAwareInterface
 {
-    /**
-     * @var Request
-     */
-    private $request;
-
     /**
      * @var Filesystem
      */
@@ -44,6 +40,10 @@ abstract class AbstractFilesystemResolver implements ResolverInterface, CacheMan
      * @var int
      */
     protected $folderPermissions = 0777;
+    /**
+     * @var Request
+     */
+    private $request;
 
     /**
      * Constructs a filesystem based cache resolver.
@@ -151,7 +151,7 @@ abstract class AbstractFilesystemResolver implements ResolverInterface, CacheMan
      */
     protected function getRequest()
     {
-        if (false == $this->request) {
+        if (!$this->request instanceof RequestInterface) {
             throw new \LogicException('The request was not injected, inject it before using resolver.');
         }
 

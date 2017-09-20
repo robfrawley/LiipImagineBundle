@@ -138,7 +138,7 @@ abstract class AbstractPostProcessor implements PostProcessorInterface, Configur
      */
     protected function isBinaryMatchingMimeType(BinaryInterface $binary, array $types)
     {
-        return in_array($binary->getMimeType(), $types);
+        return in_array($binary->getMimeType(), $types, true);
     }
 
     /**
@@ -195,7 +195,7 @@ abstract class AbstractPostProcessor implements PostProcessorInterface, Configur
      */
     protected function isProcessSuccessful(Process $process, array $validReturns = array(0), array $errorStrings = array('ERROR'))
     {
-        if (count($validReturns) > 0 && !in_array($process->getExitCode(), $validReturns)) {
+        if (count($validReturns) > 0 && !in_array($process->getExitCode(), $validReturns, true)) {
             return false;
         }
 

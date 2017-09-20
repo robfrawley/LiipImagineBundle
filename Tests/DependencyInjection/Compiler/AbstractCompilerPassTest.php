@@ -22,71 +22,6 @@ use Symfony\Component\DependencyInjection\Definition;
  */
 class AbstractCompilerPassTest extends AbstractCompilerPassTestCase
 {
-    /**
-     * @param string[] $methods
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|AbstractCompilerPass
-     */
-    private function createAbstractCompilerPassMock(array $methods = array())
-    {
-        return $this
-            ->getMockBuilder('\Liip\ImagineBundle\DependencyInjection\Compiler\AbstractCompilerPass')
-            ->setMethods($methods)
-            ->getMock();
-    }
-
-    /**
-     * @param string[] $methods
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|ContainerBuilder
-     */
-    private function createContainerBuilderMock(array $methods = array())
-    {
-        return $this
-            ->getMockBuilder('\Symfony\Component\DependencyInjection\ContainerBuilder')
-            ->setMethods($methods)
-            ->getMock();
-    }
-
-    /**
-     * @param string[] $methods
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|Compiler
-     */
-    private function createCompilerMock(array $methods = array())
-    {
-        return $this
-            ->getMockBuilder('\Symfony\Component\DependencyInjection\Compiler\Compiler')
-            ->setMethods($methods)
-            ->getMock();
-    }
-
-    /**
-     * @param string[] $methods
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|Compiler
-     */
-    private function createLoggingFormatterMock(array $methods = array())
-    {
-        return $this
-            ->getMockBuilder('\Symfony\Component\DependencyInjection\Compiler\LoggingFormatter')
-            ->setMethods($methods)
-            ->getMock();
-    }
-
-    /**
-     * @param string[] $methods
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|Definition
-     */
-    private function createDefinitionMock(array $methods = array())
-    {
-        return $this
-            ->getMockBuilder('\Symfony\Component\DependencyInjection\Definition')
-            ->setMethods($methods)
-            ->getMock();
-    }
-
     public function testCompilerLogging()
     {
         $pass = $this->createAbstractCompilerPassMock();
@@ -164,5 +99,70 @@ class AbstractCompilerPassTest extends AbstractCompilerPassTestCase
         }
 
         $m->invoke($p, $definition, true);
+    }
+
+    /**
+     * @param string[] $methods
+     *
+     * @return \PHPUnit_Framework_MockObject_MockObject|AbstractCompilerPass
+     */
+    private function createAbstractCompilerPassMock(array $methods = array())
+    {
+        return $this
+            ->getMockBuilder('\Liip\ImagineBundle\DependencyInjection\Compiler\AbstractCompilerPass')
+            ->setMethods($methods)
+            ->getMock();
+    }
+
+    /**
+     * @param string[] $methods
+     *
+     * @return \PHPUnit_Framework_MockObject_MockObject|ContainerBuilder
+     */
+    private function createContainerBuilderMock(array $methods = array())
+    {
+        return $this
+            ->getMockBuilder('\Symfony\Component\DependencyInjection\ContainerBuilder')
+            ->setMethods($methods)
+            ->getMock();
+    }
+
+    /**
+     * @param string[] $methods
+     *
+     * @return \PHPUnit_Framework_MockObject_MockObject|Compiler
+     */
+    private function createCompilerMock(array $methods = array())
+    {
+        return $this
+            ->getMockBuilder('\Symfony\Component\DependencyInjection\Compiler\Compiler')
+            ->setMethods($methods)
+            ->getMock();
+    }
+
+    /**
+     * @param string[] $methods
+     *
+     * @return \PHPUnit_Framework_MockObject_MockObject|Compiler
+     */
+    private function createLoggingFormatterMock(array $methods = array())
+    {
+        return $this
+            ->getMockBuilder('\Symfony\Component\DependencyInjection\Compiler\LoggingFormatter')
+            ->setMethods($methods)
+            ->getMock();
+    }
+
+    /**
+     * @param string[] $methods
+     *
+     * @return \PHPUnit_Framework_MockObject_MockObject|Definition
+     */
+    private function createDefinitionMock(array $methods = array())
+    {
+        return $this
+            ->getMockBuilder('\Symfony\Component\DependencyInjection\Definition')
+            ->setMethods($methods)
+            ->getMock();
     }
 }

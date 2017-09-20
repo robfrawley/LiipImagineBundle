@@ -183,6 +183,8 @@ class FileSystemLoaderTest extends \PHPUnit_Framework_TestCase
      *
      * @expectedException \Liip\ImagineBundle\Exception\Binary\Loader\NotLoadableException
      * @expectedExceptionMessage Source image invalid
+     *
+     * @param mixed $path
      */
     public function testThrowsIfRealPathOutsideRootPath($path)
     {

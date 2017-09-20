@@ -17,13 +17,6 @@ use Liip\ImagineBundle\Tests\AbstractTest;
 abstract class AbstractPostProcessorTestCase extends AbstractTest
 {
     /**
-     * @param array $parameters
-     *
-     * @return PostProcessorInterface
-     */
-    abstract protected function getPostProcessorInstance(array $parameters = array());
-
-    /**
      * @return string
      */
     public static function getPostProcessAsFileExecutable()
@@ -54,6 +47,13 @@ abstract class AbstractPostProcessorTestCase extends AbstractTest
     {
         return realpath(__DIR__.'/../../../Fixtures/bin/post-process-as-stdin-error.bash');
     }
+
+    /**
+     * @param array $parameters
+     *
+     * @return PostProcessorInterface
+     */
+    abstract protected function getPostProcessorInstance(array $parameters = array());
 
     /**
      * @return \Liip\ImagineBundle\Binary\BinaryInterface|\PHPUnit_Framework_MockObject_MockObject

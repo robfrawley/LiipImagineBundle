@@ -92,40 +92,6 @@ class CacheManager
     }
 
     /**
-     * Gets a resolver for the given filter.
-     *
-     * In case there is no specific resolver, but a default resolver has been configured, the default will be returned.
-     *
-     * @param string $filter
-     * @param string $resolver
-     *
-     * @throws \OutOfBoundsException If neither a specific nor a default resolver is available
-     *
-     * @return ResolverInterface
-     */
-    protected function getResolver($filter, $resolver)
-    {
-        // BC
-        if (false == $resolver) {
-            $config = $this->filterConfig->get($filter);
-
-            $resolverName = empty($config['cache']) ? $this->defaultResolver : $config['cache'];
-        } else {
-            $resolverName = $resolver;
-        }
-
-        if (!isset($this->resolvers[$resolverName])) {
-            throw new \OutOfBoundsException(sprintf(
-                'Could not find resolver "%s" for "%s" filter type',
-                $resolverName,
-                $filter
-            ));
-        }
-
-        return $this->resolvers[$resolverName];
-    }
-
-    /**
      * Gets filtered path for rendering in the browser.
      * It could be the cached one or an url of filter action.
      *
@@ -287,5 +253,39 @@ class CacheManager
         foreach ($mapping as $resolver) {
             $resolver->remove($paths, $mapping[$resolver]);
         }
+    }
+
+    /**
+     * Gets a resolver for the given filter.
+     *
+     * In case there is no specific resolver, but a default resolver has been configured, the default will be returned.
+     *
+     * @param string $filter
+     * @param string $resolver
+     *
+     * @throws \OutOfBoundsException If neither a specific nor a default resolver is available
+     *
+     * @return ResolverInterface
+     */
+    protected function getResolver($filter, $resolver)
+    {
+        // BC
+        if (!$resolver) {
+            $config = $this->filterConfig->get($filter);
+
+            $resolverName = empty($config['cache']) ? $this->defaultResolver : $config['cache'];
+        } else {
+            $resolverName = $resolver;
+        }
+
+        if (!isset($this->resolvers[$resolverName])) {
+            throw new \OutOfBoundsException(sprintf(
+                'Could not find resolver "%s" for "%s" filter type',
+                $resolverName,
+                $filter
+            ));
+        }
+
+        return $this->resolvers[$resolverName];
     }
 }

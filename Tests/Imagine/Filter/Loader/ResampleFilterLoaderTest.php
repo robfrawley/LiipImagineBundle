@@ -11,9 +11,9 @@
 
 namespace Liip\ImagineBundle\Tests\Filter;
 
-use Imagine\Imagick\Imagine as ImagickImagine;
 use Imagine\Gmagick\Imagine as GmagickImagine;
 use Imagine\Image\ImagineInterface;
+use Imagine\Imagick\Imagine as ImagickImagine;
 use Liip\ImagineBundle\Imagine\Filter\Loader\ResampleFilterLoader;
 use Liip\ImagineBundle\Tests\AbstractTest;
 
@@ -213,6 +213,8 @@ class ResampleFilterLoaderTest extends AbstractTest
     }
 
     /**
+     * @param mixed $driver
+     *
      * @return ImagickImagine|GmagickImagine
      */
     private function getImagineInstance($driver)

@@ -25,16 +25,6 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  */
 class CacheManagerTest extends AbstractTest
 {
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|ResolverInterface
-     */
-    private function createCacheManagerAwareResolverMock()
-    {
-        return $resolver = $this
-            ->getMockBuilder('\Liip\ImagineBundle\Tests\Fixtures\CacheManagerAwareResolver')
-            ->getMock();
-    }
-
     public function testAddCacheManagerAwareResolver()
     {
         $cacheManager = new CacheManager($this->createFilterConfigurationMock(), $this->createRouterInterfaceMock(), new Signer('secret'), $this->createEventDispatcherInterfaceMock());
@@ -204,6 +194,8 @@ class CacheManagerTest extends AbstractTest
     /**
      * @dataProvider invalidPathProvider
      * @expectedException \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     *
+     * @param mixed $path
      */
     public function testResolveInvalidPath($path)
     {
@@ -699,5 +691,15 @@ class CacheManagerTest extends AbstractTest
         $cacheManager->addResolver('default', $this->createCacheResolverInterfaceMock());
 
         $this->assertEquals('changed_url', $cacheManager->resolve('cats.jpg', 'thumbnail'));
+    }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|ResolverInterface
+     */
+    private function createCacheManagerAwareResolverMock()
+    {
+        return $resolver = $this
+            ->getMockBuilder('\Liip\ImagineBundle\Tests\Fixtures\CacheManagerAwareResolver')
+            ->getMock();
     }
 }

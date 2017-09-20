@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the `liip/LiipImagineBundle` project.
+ *
+ * (c) https://github.com/liip/LiipImagineBundle/graphs/contributors
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
 namespace Liip\ImagineBundle\Async;
 
 use Enqueue\Util\JSON;
@@ -74,11 +83,11 @@ class ResolveCache implements \JsonSerializable
     {
         $data = array_replace(array('path' => null, 'filters' => null, 'force' => false), JSON::decode($json));
 
-        if (false == $data['path']) {
+        if (!$data['path']) {
             throw new \LogicException('The message does not contain "path" but it is required.');
         }
 
-        if (false == (is_null($data['filters']) || is_array($data['filters']))) {
+        if (false === (null === $data['filters'] || is_array($data['filters']))) {
             throw new \LogicException('The message filters could be either null or array.');
         }
 

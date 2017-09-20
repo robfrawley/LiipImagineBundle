@@ -43,36 +43,6 @@ class ScaleFilterLoaderTest extends AbstractTest
      */
     const UPSCALE_DUMMY_IMAGE_HEIGHT = 400;
 
-    protected function getUpscaleMockImage()
-    {
-        $mockImageSize = new Box(
-            self::UPSCALE_DUMMY_IMAGE_WIDTH,
-            self::UPSCALE_DUMMY_IMAGE_HEIGHT
-        );
-        $mockImage = parent::getImageInterfaceMock();
-        $mockImage->method('getSize')->willReturn(new Box(
-            self::UPSCALE_DUMMY_IMAGE_WIDTH,
-            self::UPSCALE_DUMMY_IMAGE_HEIGHT
-        ));
-
-        return $mockImage;
-    }
-
-    protected function getImageInterfaceMock()
-    {
-        $mockImageSize = new Box(
-            self::DUMMY_IMAGE_WIDTH,
-            self::DUMMY_IMAGE_HEIGHT
-        );
-        $mockImage = parent::getImageInterfaceMock();
-        $mockImage->method('getSize')->willReturn(new Box(
-            self::DUMMY_IMAGE_WIDTH,
-            self::DUMMY_IMAGE_HEIGHT
-        ));
-
-        return $mockImage;
-    }
-
     /**
      * @covers \Liip\ImagineBundle\Imagine\Filter\Loader\ScaleFilterLoader::load
      */
@@ -96,6 +66,7 @@ class ScaleFilterLoaderTest extends AbstractTest
     /**
      * @param int[] $dimension
      * @param Box   $expected
+     * @param mixed $dimensions
      *
      * @covers \Liip\ImagineBundle\Imagine\Filter\Loader\ScaleFilterLoader::load
      *
@@ -143,6 +114,9 @@ class ScaleFilterLoaderTest extends AbstractTest
 
     /**
      * @dataProvider minScaleDataProvider
+     *
+     * @param mixed $dimensions
+     * @param mixed $expected
      */
     public function testShouldScale($dimensions, $expected)
     {
@@ -173,6 +147,9 @@ class ScaleFilterLoaderTest extends AbstractTest
 
     /**
      * @dataProvider minNotScaleDataProvider
+     *
+     * @param mixed $dimensions
+     * @param mixed $expected
      */
     public function testShouldNotScale($dimensions, $expected)
     {
@@ -199,5 +176,35 @@ class ScaleFilterLoaderTest extends AbstractTest
             array(array(300, 200), new Box(600, 400)),
             array(array(600, 400), new Box(600, 400)),
         );
+    }
+
+    protected function getUpscaleMockImage()
+    {
+        $mockImageSize = new Box(
+            self::UPSCALE_DUMMY_IMAGE_WIDTH,
+            self::UPSCALE_DUMMY_IMAGE_HEIGHT
+        );
+        $mockImage = parent::getImageInterfaceMock();
+        $mockImage->method('getSize')->willReturn(new Box(
+            self::UPSCALE_DUMMY_IMAGE_WIDTH,
+            self::UPSCALE_DUMMY_IMAGE_HEIGHT
+        ));
+
+        return $mockImage;
+    }
+
+    protected function getImageInterfaceMock()
+    {
+        $mockImageSize = new Box(
+            self::DUMMY_IMAGE_WIDTH,
+            self::DUMMY_IMAGE_HEIGHT
+        );
+        $mockImage = parent::getImageInterfaceMock();
+        $mockImage->method('getSize')->willReturn(new Box(
+            self::DUMMY_IMAGE_WIDTH,
+            self::DUMMY_IMAGE_HEIGHT
+        ));
+
+        return $mockImage;
     }
 }

@@ -19,14 +19,6 @@ use Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesser;
  */
 class SimpleMimeTypeGuesserTest extends \PHPUnit_Framework_TestCase
 {
-    /**
-     * @return SimpleMimeTypeGuesser
-     */
-    private function getSimpleMimeTypeGuesser()
-    {
-        return new SimpleMimeTypeGuesser(MimeTypeGuesser::getInstance());
-    }
-
     public function testCouldBeConstructedWithSymfonyMimeTypeGuesserAsFirstArgument()
     {
         $this->getSimpleMimeTypeGuesser();
@@ -60,5 +52,13 @@ class SimpleMimeTypeGuesserTest extends \PHPUnit_Framework_TestCase
     public function testGuessMimeType($fileName, $mimeType)
     {
         $this->assertEquals($mimeType, $this->getSimpleMimeTypeGuesser()->guess(file_get_contents($fileName)));
+    }
+
+    /**
+     * @return SimpleMimeTypeGuesser
+     */
+    private function getSimpleMimeTypeGuesser()
+    {
+        return new SimpleMimeTypeGuesser(MimeTypeGuesser::getInstance());
     }
 }

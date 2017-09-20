@@ -37,7 +37,7 @@ class AutoRotateFilterLoader implements LoaderInterface
 
             // Rotates if necessary.
             $degree = $this->calculateRotation($orientation);
-            if ($degree !== 0) {
+            if (0 !== $degree) {
                 $image->rotate($degree);
             }
 
@@ -90,7 +90,7 @@ class AutoRotateFilterLoader implements LoaderInterface
                 if ($orientation) {
                     $image->metadata()->offsetSet($orientationKey, '1');
 
-                    return intval($orientation);
+                    return (int) $orientation;
                 }
             }
         } else {
@@ -98,8 +98,6 @@ class AutoRotateFilterLoader implements LoaderInterface
 
             return isset($data['Orientation']) ? $data['Orientation'] : null;
         }
-
-        return;
     }
 
     /**

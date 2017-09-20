@@ -46,6 +46,8 @@ class DownscaleFilterLoaderTest extends AbstractTest
 
     /**
      * @depends testItWorksSomeHow
+     *
+     * @param mixed $sizes
      */
     public function testDontScaleUp($sizes)
     {
@@ -56,6 +58,8 @@ class DownscaleFilterLoaderTest extends AbstractTest
 
     /**
      * @depends testItWorksSomeHow
+     *
+     * @param mixed $sizes
      */
     public function testFitBoundingBox($sizes)
     {

@@ -95,6 +95,8 @@ class ChainLoaderTest extends \PHPUnit_Framework_TestCase
      *
      * @expectedException \Liip\ImagineBundle\Exception\Binary\Loader\NotLoadableException
      * @expectedExceptionMessage Source image not resolvable
+     *
+     * @param mixed $path
      */
     public function testThrowsIfFileDoesNotExist($path)
     {

@@ -19,6 +19,34 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  */
 class MetadataReaderCompilerPassTest extends \PHPUnit_Framework_TestCase
 {
+    public function testProcessWithoutExtExifAddsDefaultReader()
+    {
+        list($metadataParameter, $metadataExifClass, $metadataDefaultClass) = static::getReaderParamAndDefaultAndExifValues();
+
+        $container = new ContainerBuilder();
+        $container->setParameter($metadataParameter, $metadataExifClass);
+
+        $pass = $this->getMetadataReaderCompilerPass(false);
+        $this->assertEquals($metadataExifClass, $container->getParameter($metadataParameter));
+
+        $pass->process($container);
+        $this->assertEquals($metadataDefaultClass, $container->getParameter($metadataParameter));
+    }
+
+    public function testProcessWithExtExifKeepsExifReader()
+    {
+        list($metadataParameter, $metadataExifClass) = static::getReaderParamAndDefaultAndExifValues();
+
+        $container = new ContainerBuilder();
+        $container->setParameter($metadataParameter, $metadataExifClass);
+
+        $pass = static::getMetadataReaderCompilerPass(true);
+        $this->assertEquals($metadataExifClass, $container->getParameter($metadataParameter));
+
+        $pass->process($container);
+        $this->assertEquals($metadataExifClass, $container->getParameter($metadataParameter));
+    }
+
     /**
      * @param \ReflectionClass $r
      * @param string           $p
@@ -64,33 +92,5 @@ class MetadataReaderCompilerPassTest extends \PHPUnit_Framework_TestCase
             ->willReturn($return);
 
         return $mock;
-    }
-
-    public function testProcessWithoutExtExifAddsDefaultReader()
-    {
-        list($metadataParameter, $metadataExifClass, $metadataDefaultClass) = static::getReaderParamAndDefaultAndExifValues();
-
-        $container = new ContainerBuilder();
-        $container->setParameter($metadataParameter, $metadataExifClass);
-
-        $pass = $this->getMetadataReaderCompilerPass(false);
-        $this->assertEquals($metadataExifClass, $container->getParameter($metadataParameter));
-
-        $pass->process($container);
-        $this->assertEquals($metadataDefaultClass, $container->getParameter($metadataParameter));
-    }
-
-    public function testProcessWithExtExifKeepsExifReader()
-    {
-        list($metadataParameter, $metadataExifClass) = static::getReaderParamAndDefaultAndExifValues();
-
-        $container = new ContainerBuilder();
-        $container->setParameter($metadataParameter, $metadataExifClass);
-
-        $pass = static::getMetadataReaderCompilerPass(true);
-        $this->assertEquals($metadataExifClass, $container->getParameter($metadataParameter));
-
-        $pass->process($container);
-        $this->assertEquals($metadataExifClass, $container->getParameter($metadataParameter));
     }
 }

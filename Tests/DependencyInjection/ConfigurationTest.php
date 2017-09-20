@@ -58,7 +58,6 @@ class ConfigurationTest extends \Phpunit_Framework_TestCase
                         ),
                     ),
                 ),
-
             ))
         );
 
@@ -94,7 +93,6 @@ class ConfigurationTest extends \Phpunit_Framework_TestCase
                         ),
                     ),
                 ),
-
             ))
         );
 
@@ -225,7 +223,6 @@ class ConfigurationTest extends \Phpunit_Framework_TestCase
                         ),
                     ),
                 ),
-
             ))
         );
 
@@ -253,7 +250,6 @@ class ConfigurationTest extends \Phpunit_Framework_TestCase
                         ),
                     ),
                 ),
-
             ))
         );
 
@@ -289,7 +285,6 @@ class ConfigurationTest extends \Phpunit_Framework_TestCase
                         ),
                     ),
                 ),
-
             ))
         );
 
@@ -383,7 +378,6 @@ class ConfigurationTest extends \Phpunit_Framework_TestCase
                         ),
                     ),
                 ),
-
             ))
         );
 

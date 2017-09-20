@@ -110,6 +110,7 @@ class MozJpegPostProcessorTest extends AbstractPostProcessorTestCase
      *
      * @param array  $options
      * @param string $expected
+     * @param mixed  $content
      */
     public function testProcessError($content, array $options, $expected)
     {

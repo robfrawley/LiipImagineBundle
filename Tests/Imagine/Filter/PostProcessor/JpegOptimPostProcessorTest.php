@@ -21,7 +21,7 @@ use Liip\ImagineBundle\Model\FileBinary;
  */
 class JpegOptimPostProcessorTest extends AbstractPostProcessorTestCase
 {
-   /**
+    /**
      * @group legacy
      *
      * @expectedDeprecation The %s::setMax() method was deprecated in %s and will be removed in %s. You must setup the class state via its __construct() method. You can still pass filter-specific options to the process() method to overwrite behavior.
@@ -173,6 +173,7 @@ class JpegOptimPostProcessorTest extends AbstractPostProcessorTestCase
      *
      * @param array  $options
      * @param string $expected
+     * @param mixed  $content
      */
     public function testProcessError($content, array $options, $expected)
     {

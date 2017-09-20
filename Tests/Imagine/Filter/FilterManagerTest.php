@@ -525,6 +525,7 @@ class FilterManagerTest extends AbstractTest
             $filterManager->applyFilter($binary, 'thumbnail', $runtimeConfig)
         );
     }
+
     /**
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage Could not find filter loader for "thumbnail" filter type
@@ -982,6 +983,7 @@ class FilterManagerTest extends AbstractTest
         $this->assertInstanceOf('\Liip\ImagineBundle\Model\Binary', $filteredBinary);
         $this->assertEquals($expectedPostProcessedContent, $filteredBinary->getContent());
     }
+
     /**
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage Post-processor "foo" could not be found

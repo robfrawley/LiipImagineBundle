@@ -16,7 +16,6 @@ use Liip\ImagineBundle\Binary\BinaryInterface;
 use Liip\ImagineBundle\Binary\FileBinaryInterface;
 use Liip\ImagineBundle\Binary\MimeTypeGuesserInterface;
 use Liip\ImagineBundle\Imagine\Filter\Loader\LoaderInterface;
-use Liip\ImagineBundle\Imagine\Filter\PostProcessor\ConfigurablePostProcessorInterface;
 use Liip\ImagineBundle\Imagine\Filter\PostProcessor\PostProcessorInterface;
 use Liip\ImagineBundle\Model\Binary;
 
@@ -148,7 +147,7 @@ class FilterManager
             $options['png_compression_filter'] = $config['png_compression_filter'];
         }
 
-        if ($binary->getFormat() === 'gif' && $config['animated']) {
+        if ('gif' === $binary->getFormat() && $config['animated']) {
             $options['animated'] = $config['animated'];
         }
 

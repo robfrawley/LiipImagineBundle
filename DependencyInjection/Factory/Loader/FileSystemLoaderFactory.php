@@ -104,7 +104,7 @@ class FileSystemLoaderFactory extends AbstractLoaderFactory
         $resourcePaths = array();
 
         foreach ($this->getBundleResourcePaths($container) as $name => $path) {
-            if (('whitelist' === $config['access_control_type']) === in_array($name, $config['access_control_list']) && is_dir($path)) {
+            if (('whitelist' === $config['access_control_type']) === in_array($name, $config['access_control_list'], true) && is_dir($path)) {
                 $resourcePaths[$name] = $path;
             }
         }

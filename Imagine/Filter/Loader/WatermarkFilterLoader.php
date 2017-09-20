@@ -44,7 +44,7 @@ class WatermarkFilterLoader implements LoaderInterface
             'position' => 'center',
         );
 
-        if (substr($options['size'], -1) == '%') {
+        if ('%' === substr($options['size'], -1)) {
             $options['size'] = substr($options['size'], 0, -1) / 100;
         }
 

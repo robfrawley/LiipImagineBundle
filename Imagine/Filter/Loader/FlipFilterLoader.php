@@ -12,10 +12,10 @@
 namespace Liip\ImagineBundle\Imagine\Filter\Loader;
 
 use Imagine\Image\ImageInterface;
-use Liip\ImagineBundle\Utility\OptionsResolver\OptionsResolver;
 use Liip\ImagineBundle\Exception\InvalidArgumentException;
-use Symfony\Component\OptionsResolver\Options;
+use Liip\ImagineBundle\Utility\OptionsResolver\OptionsResolver;
 use Symfony\Component\OptionsResolver\Exception\ExceptionInterface;
+use Symfony\Component\OptionsResolver\Options;
 
 class FlipFilterLoader implements LoaderInterface
 {
@@ -29,7 +29,7 @@ class FlipFilterLoader implements LoaderInterface
     {
         $options = $this->sanitizeOptions($options);
 
-        return $options['axis'] === 'x' ? $image->flipHorizontally() : $image->flipVertically();
+        return 'x' === $options['axis'] ? $image->flipHorizontally() : $image->flipVertically();
     }
 
     /**
@@ -43,7 +43,7 @@ class FlipFilterLoader implements LoaderInterface
         $resolver->setDefault('axis', 'x');
         $resolver->setAllowedValues('axis', array('x', 'horizontal', 'y', 'vertical'));
         $resolver->setNormalizer('axis', function (Options $options, $value) {
-            return $value === 'horizontal' ? 'x' : ($value === 'vertical' ? 'y' : $value);
+            return 'horizontal' === $value ? 'x' : ('vertical' === $value ? 'y' : $value);
         });
 
         try {

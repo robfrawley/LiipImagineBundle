@@ -21,67 +21,6 @@ class AutoRotateFilterLoaderTest extends AbstractTest
 {
     private $orientationKey = 'exif.Orientation';
 
-    /**
-     * Starts a test with expected results.
-     *
-     * @param $exifValue {String} The exif value to be returned by the metadata mock
-     * @param $expectCallRotateValue {null|number} The expected rotation value, null if no rotation is expected
-     * @param $expectCallFlip {Boolean} True if a horizontal flip is expected, false otherwise
-     */
-    private function loadExif($exifValue, $expectCallRotateValue, $expectCallFlip)
-    {
-        $loader = new AutoRotateFilterLoader();
-
-        // Mocks the image and makes it use the fake meta data.
-        $image = $this->getImageInterfaceMock();
-
-        if (method_exists('\Imagine\Image\ImageInterface', 'metadata')) {
-            // Mocks the metadata and makes it return the expected exif value for the rotation.
-            // If $exifValue is null, it means the image doesn't contain any metadata.
-            $metaData = $this->getMetadataBagMock();
-
-            $metaData
-                ->expects($this->atLeastOnce())
-                ->method('offsetGet')
-                ->willReturn($exifValue);
-
-            if ($exifValue && $exifValue > '1' && $exifValue <= 8) {
-                $metaData
-                    ->expects($this->once())
-                    ->method('offsetSet')
-                    ->with($this->orientationKey, '1');
-            }
-
-            $image
-                ->expects($this->atLeastOnce())
-                ->method('metadata')
-                ->willReturn($metaData);
-        } else {
-            $jpg = file_get_contents(__DIR__.'/../../../Fixtures/assets/pixel_1x1_orientation_at_0x30.jpg');
-            // The byte with orientation is at offset 0x30 for this image
-            $jpg[0x30] = chr((int) $exifValue);
-
-            $image
-                ->expects($this->once())
-                ->method('get')
-                ->with('jpg')
-                ->will($this->returnValue($jpg));
-        }
-
-        // Checks that rotate is called with $expectCallRotateValue, or not called at all if $expectCallRotateValue is null.
-        $image
-            ->expects($expectCallRotateValue !== null ? $this->once() : $this->never())
-            ->method('rotate')
-            ->with($expectCallRotateValue);
-
-        // Checks that rotate is called if $expectCallFlip is true, not called if $expectCallFlip is false.
-        $image
-            ->expects($expectCallFlip ? $this->once() : $this->never())
-            ->method('flipHorizontally');
-
-        $loader->load($image);
-    }
-
     /*
      * Possible rotation values
      * 1: 0°
@@ -180,5 +119,66 @@ class AutoRotateFilterLoaderTest extends AbstractTest
     public function testLoadExifNull()
     {
         $this->loadExif(null, null, false);
+    }
+
+    /**
+     * Starts a test with expected results.
+     *
+     * @param $exifValue {String} The exif value to be returned by the metadata mock
+     * @param $expectCallRotateValue {null|number} The expected rotation value, null if no rotation is expected
+     * @param $expectCallFlip {Boolean} True if a horizontal flip is expected, false otherwise
+     */
+    private function loadExif($exifValue, $expectCallRotateValue, $expectCallFlip)
+    {
+        $loader = new AutoRotateFilterLoader();
+
+        // Mocks the image and makes it use the fake meta data.
+        $image = $this->getImageInterfaceMock();
+
+        if (method_exists('\Imagine\Image\ImageInterface', 'metadata')) {
+            // Mocks the metadata and makes it return the expected exif value for the rotation.
+            // If $exifValue is null, it means the image doesn't contain any metadata.
+            $metaData = $this->getMetadataBagMock();
+
+            $metaData
+                ->expects($this->atLeastOnce())
+                ->method('offsetGet')
+                ->willReturn($exifValue);
+
+            if ($exifValue && $exifValue > '1' && $exifValue <= 8) {
+                $metaData
+                    ->expects($this->once())
+                    ->method('offsetSet')
+                    ->with($this->orientationKey, '1');
+            }
+
+            $image
+                ->expects($this->atLeastOnce())
+                ->method('metadata')
+                ->willReturn($metaData);
+        } else {
+            $jpg = file_get_contents(__DIR__.'/../../../Fixtures/assets/pixel_1x1_orientation_at_0x30.jpg');
+            // The byte with orientation is at offset 0x30 for this image
+            $jpg[0x30] = chr((int) $exifValue);
+
+            $image
+                ->expects($this->once())
+                ->method('get')
+                ->with('jpg')
+                ->will($this->returnValue($jpg));
+        }
+
+        // Checks that rotate is called with $expectCallRotateValue, or not called at all if $expectCallRotateValue is null.
+        $image
+            ->expects(null !== $expectCallRotateValue ? $this->once() : $this->never())
+            ->method('rotate')
+            ->with($expectCallRotateValue);
+
+        // Checks that rotate is called if $expectCallFlip is true, not called if $expectCallFlip is false.
+        $image
+            ->expects($expectCallFlip ? $this->once() : $this->never())
+            ->method('flipHorizontally');
+
+        $loader->load($image);
     }
 }

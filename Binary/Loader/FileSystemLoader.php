@@ -52,7 +52,7 @@ class FileSystemLoader implements LoaderInterface
         if ($locator instanceof LocatorInterface) { // post-1.9.0 behavior
             $this->locator = $locator;
         } elseif (is_array($locator) || is_string($locator)) { // pre-1.9.0 behaviour
-            if (count((array) $locator) === 0) {
+            if (0 === count((array) $locator)) {
                 throw new InvalidArgumentException('One or more data root paths must be specified.');
             }
 

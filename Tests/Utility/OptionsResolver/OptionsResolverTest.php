@@ -118,7 +118,7 @@ class OptionsResolverTest extends \PHPUnit_Framework_TestCase
         $resolver->setAllowedTypes('bar', array('integer'));
         $resolver->setAllowedTypes('baz', array('string'));
         $resolver->setNormalizer('foo', function (Options $options, $value) {
-            return $value === 'c' ? 'z' : $value;
+            return 'c' === $value ? 'z' : $value;
         });
 
         return $resolver;

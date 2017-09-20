@@ -33,6 +33,11 @@ class LiipImagineExtensionTest extends AbstractTest
      */
     protected $containerBuilder;
 
+    protected function tearDown()
+    {
+        unset($this->containerBuilder);
+    }
+
     /**
      * @expectedException \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
      */
@@ -89,6 +94,9 @@ class LiipImagineExtensionTest extends AbstractTest
 
     /**
      * @dataProvider provideFactoryData
+     *
+     * @param mixed $service
+     * @param mixed $factory
      */
     public function testFactoriesConfiguration($service, $factory)
     {
@@ -106,6 +114,9 @@ class LiipImagineExtensionTest extends AbstractTest
      * @group legacy
      *
      * @dataProvider provideFactoryData
+     *
+     * @param mixed $service
+     * @param mixed $factory
      */
     public function testFactoriesConfigurationLegacy($service, $factory)
     {
@@ -215,10 +226,5 @@ EOF;
     private function assertDICConstructorArguments(Definition $definition, array $arguments)
     {
         $this->assertEquals($arguments, $definition->getArguments(), "Expected and actual DIC Service constructor arguments of definition '".$definition->getClass()."' don't match.");
-    }
-
-    protected function tearDown()
-    {
-        unset($this->containerBuilder);
     }
 }

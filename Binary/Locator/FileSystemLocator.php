@@ -77,6 +77,17 @@ class FileSystemLocator implements LocatorInterface
     }
 
     /**
+     * @param string $root
+     * @param string $path
+     *
+     * @return string|false
+     */
+    protected function generateAbsolutePath($root, $path)
+    {
+        return realpath($root.DIRECTORY_SEPARATOR.$path);
+    }
+
+    /**
      * @param string $path
      *
      * @return bool|string
@@ -109,17 +120,6 @@ class FileSystemLocator implements LocatorInterface
 
         throw new NotLoadableException(sprintf('Invalid root placeholder "%s" for path "%s"',
             $matches['name'], $matches['path']));
-    }
-
-    /**
-     * @param string $root
-     * @param string $path
-     *
-     * @return string|false
-     */
-    protected function generateAbsolutePath($root, $path)
-    {
-        return realpath($root.DIRECTORY_SEPARATOR.$path);
     }
 
     /**
