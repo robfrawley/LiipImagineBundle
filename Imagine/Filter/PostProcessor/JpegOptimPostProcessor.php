@@ -114,7 +114,7 @@ class JpegOptimPostProcessor extends AbstractPostProcessor
      */
     protected function doProcess(BinaryInterface $binary, array $options = array())
     {
-        if (!$this->isBinaryTypeJpgImage($binary)) {
+        if (!$this->isBinaryJpgMimeType($binary)) {
             return $binary;
         }
 
@@ -123,7 +123,7 @@ class JpegOptimPostProcessor extends AbstractPostProcessor
         $process = $this->setupProcessBuilder($options)->add($file)->getProcess();
         $process->run();
 
-        if (!$this->isSuccessfulProcess($process)) {
+        if (!$this->isProcessSuccessful($process)) {
             unlink($file);
             throw new ProcessFailedException($process);
         }
@@ -142,7 +142,7 @@ class JpegOptimPostProcessor extends AbstractPostProcessor
      */
     private function setupProcessBuilder(array $options = array())
     {
-        $builder = $this->createProcessBuilder(array($this->executablePath), $options);
+        $builder = $this->createProcessBuilder($options);
 
         if (isset($options['strip_all']) ? $options['strip_all'] : $this->strip) {
             $builder->add('--strip-all');

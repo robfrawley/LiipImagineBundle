@@ -57,7 +57,7 @@ class OptiPngPostProcessor extends AbstractPostProcessor
      */
     protected function doProcess(BinaryInterface $binary, array $options = array())
     {
-        if (!$this->isBinaryTypePngImage($binary)) {
+        if (!$this->isBinaryPngMimeType($binary)) {
             return $binary;
         }
 
@@ -66,7 +66,7 @@ class OptiPngPostProcessor extends AbstractPostProcessor
         $process = $this->setupProcessBuilder($options)->add($file)->getProcess();
         $process->run();
 
-        if (!$this->isSuccessfulProcess($process)) {
+        if (!$this->isProcessSuccessful($process)) {
             unlink($file);
             throw new ProcessFailedException($process);
         }
@@ -85,7 +85,7 @@ class OptiPngPostProcessor extends AbstractPostProcessor
      */
     private function setupProcessBuilder(array $options = array())
     {
-        $builder = $this->createProcessBuilder(array($this->executablePath), $options);
+        $builder = $this->createProcessBuilder($options);
 
         if (null !== $level = isset($options['level']) ? $options['level'] : $this->level) {
             if (!in_array($level, range(0, 7))) {

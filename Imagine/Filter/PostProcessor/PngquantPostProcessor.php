@@ -70,14 +70,14 @@ class PngquantPostProcessor extends AbstractPostProcessor
      */
     protected function doProcess(BinaryInterface $binary, array $options = array())
     {
-        if (!$this->isBinaryTypePngImage($binary)) {
+        if (!$this->isBinaryPngMimeType($binary)) {
             return $binary;
         }
 
         $process = $this->setupProcessBuilder($options, $binary)->add('-')->setInput($binary->getContent())->getProcess();
         $process->run();
 
-        if (!$this->isSuccessfulProcess($process, array(0, 98, 99), array())) {
+        if (!$this->isProcessSuccessful($process, array(0, 98, 99), array())) {
             throw new ProcessFailedException($process);
         }
 
@@ -91,7 +91,7 @@ class PngquantPostProcessor extends AbstractPostProcessor
      */
     private function setupProcessBuilder(array $options = array())
     {
-        $builder = $this->createProcessBuilder(array($this->executablePath), $options);
+        $builder = $this->createProcessBuilder($options);
 
         if ($quality = isset($options['quality']) ? $options['quality'] : $this->quality) {
             if (is_string($quality) && false !== strpos($quality, '-')) {

@@ -13,6 +13,7 @@ namespace Liip\ImagineBundle\Imagine\Filter\PostProcessor;
 
 use Liip\ImagineBundle\Binary\BinaryInterface;
 use Liip\ImagineBundle\Binary\FileBinaryInterface;
+use Liip\ImagineBundle\Exception\Imagine\Filter\PostProcessor\InvalidOptionException;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Exception\ProcessFailedException;
@@ -59,21 +60,14 @@ abstract class AbstractPostProcessor implements PostProcessorInterface, Configur
      */
     public function process(BinaryInterface $binary /* , array $options = array() */)
     {
-        if (func_num_args() < 2) {
-            @trigger_error(sprintf(
-                'Calling the %s::%s() method without a second parameter of options was deprecated in 1.10.0 and '.
-                'will be removed in 2.0.', get_called_class(), __FUNCTION__
-            ), E_USER_DEPRECATED);
-        }
-
         return $this->doProcess($binary, func_num_args() >= 2 ? func_get_arg(1) : array());
     }
 
     /**
      * Performs post-process operation on passed binary and returns the resulting binary.
      *
-     * @deprecated This method was deprecated in 1.10.0 and will be removed in 2.0. Use PostProcessorInterface::process()
-     *             instead.
+     * @deprecated This method was deprecated in 1.10.0 and will be removed in 2.0. Instead, the signature of the
+     *             PostProcessorInterface::process() method has been expanded to include an options array.
      *
      * @param BinaryInterface $binary
      * @param array           $options
@@ -84,10 +78,9 @@ abstract class AbstractPostProcessor implements PostProcessorInterface, Configur
      */
     public function processWithConfiguration(BinaryInterface $binary, array $options)
     {
-        @trigger_error(sprintf(
-            'The %s::%s() method was deprecated in 1.10.0 and will be removed in 2.0. Use the %s::process() '.
-            'method instead.', get_called_class(), __FUNCTION__, get_called_class()
-        ), E_USER_DEPRECATED);
+        @trigger_error(sprintf('The %s() method was deprecated in 1.10.0 and will be removed in 2.0 in favor of '.
+            'the %s::process() method, which was expanded to allow passing options as the second argument.',
+            __FUNCTION__, get_called_class()), E_USER_DEPRECATED);
 
         return $this->doProcess($binary, $options);
     }
@@ -103,42 +96,16 @@ abstract class AbstractPostProcessor implements PostProcessorInterface, Configur
     abstract protected function doProcess(BinaryInterface $binary, array $options);
 
     /**
-     * @param array $arguments
      * @param array $options
+     * @param array $arguments
      *
      * @return ProcessBuilder
      */
-    protected function createProcessBuilder(array $arguments = array(), array $options = array())
+    protected function createProcessBuilder(array $options = array(), array $arguments = array())
     {
-        $builder = new ProcessBuilder($arguments);
+        $builder = new ProcessBuilder($arguments ?: array($this->executablePath));
 
-        if (!isset($options['process'])) {
-            return $builder;
-        }
-
-        if (isset($options['process']['timeout'])) {
-            $builder->setTimeout($options['process']['timeout']);
-        }
-
-        if (isset($options['process']['prefix'])) {
-            $builder->setPrefix($options['process']['prefix']);
-        }
-
-        if (isset($options['process']['working_directory'])) {
-            $builder->setWorkingDirectory($options['process']['working_directory']);
-        }
-
-        if (isset($options['process']['environment_variables']) && is_array($options['process']['environment_variables'])) {
-            foreach ($options['process']['environment_variables'] as $n => $v) {
-                $builder->setEnv($n, $v);
-            }
-        }
-
-        if (isset($options['process']['options']) && is_array($options['process']['options'])) {
-            foreach ($options['process']['options'] as $n => $v) {
-                $builder->setOption($n, $v);
-            }
-        }
+        $this->configureProcessBuilder($builder, $options);
 
         return $builder;
     }
@@ -148,9 +115,9 @@ abstract class AbstractPostProcessor implements PostProcessorInterface, Configur
      *
      * @return bool
      */
-    protected function isBinaryTypeJpgImage(BinaryInterface $binary)
+    protected function isBinaryJpgMimeType(BinaryInterface $binary)
     {
-        return $this->isBinaryTypeMatch($binary, array('image/jpeg', 'image/jpg'));
+        return $this->isBinaryMatchingMimeType($binary, array('image/jpeg', 'image/jpg'));
     }
 
     /**
@@ -158,9 +125,9 @@ abstract class AbstractPostProcessor implements PostProcessorInterface, Configur
      *
      * @return bool
      */
-    protected function isBinaryTypePngImage(BinaryInterface $binary)
+    protected function isBinaryPngMimeType(BinaryInterface $binary)
     {
-        return $this->isBinaryTypeMatch($binary, array('image/png'));
+        return $this->isBinaryMatchingMimeType($binary, array('image/png'));
     }
 
     /**
@@ -169,7 +136,7 @@ abstract class AbstractPostProcessor implements PostProcessorInterface, Configur
      *
      * @return bool
      */
-    protected function isBinaryTypeMatch(BinaryInterface $binary, array $types)
+    protected function isBinaryMatchingMimeType(BinaryInterface $binary, array $types)
     {
         return in_array($binary->getMimeType(), $types);
     }
@@ -183,15 +150,15 @@ abstract class AbstractPostProcessor implements PostProcessorInterface, Configur
      */
     protected function writeTemporaryFile(BinaryInterface $binary, array $options = array(), $prefix = null)
     {
-        $temporary = $this->acquireTemporaryFilePath($options, $prefix);
+        $file = $this->acquireTemporaryFilePath($options, $prefix);
 
         if ($binary instanceof FileBinaryInterface) {
-            $this->filesystem->copy($binary->getPath(), $temporary, true);
+            $this->filesystem->copy($binary->getPath(), $file, true);
         } else {
-            $this->filesystem->dumpFile($temporary, $binary->getContent());
+            $this->filesystem->dumpFile($file, $binary->getContent());
         }
 
-        return $temporary;
+        return $file;
     }
 
     /**
@@ -208,7 +175,7 @@ abstract class AbstractPostProcessor implements PostProcessorInterface, Configur
             try {
                 $this->filesystem->mkdir($root);
             } catch (IOException $exception) {
-                // ignore failure as "tempnam" function will revert back to system default tmp path as last resort
+                // ignore exceptions as tempnam func will revert to system default temporary path if required
             }
         }
 
@@ -226,7 +193,7 @@ abstract class AbstractPostProcessor implements PostProcessorInterface, Configur
      *
      * @return bool
      */
-    protected function isSuccessfulProcess(Process $process, array $validReturns = array(0), array $errorStrings = array('ERROR'))
+    protected function isProcessSuccessful(Process $process, array $validReturns = array(0), array $errorStrings = array('ERROR'))
     {
         if (count($validReturns) > 0 && !in_array($process->getExitCode(), $validReturns)) {
             return false;
@@ -246,8 +213,51 @@ abstract class AbstractPostProcessor implements PostProcessorInterface, Configur
      */
     protected function triggerSetterMethodDeprecation($method)
     {
-        @trigger_error(sprintf('The %s() method was deprecated in 1.10.0 and will be removed in 2.0. You must '
-            .'setup the class state via its __construct() method. You can still pass filter-specific options to the '.
+        @trigger_error(sprintf('The %s() method was deprecated in 1.10.0 and will be removed in 2.0. You must '.
+            'setup the class state via its __construct() method. You can still pass filter-specific options to the '.
             'process() method to overwrite behavior.', $method), E_USER_DEPRECATED);
+    }
+
+    /**
+     * @param ProcessBuilder $builder
+     * @param array          $options
+     */
+    private function configureProcessBuilder(ProcessBuilder $builder, array $options)
+    {
+        if (!isset($options['process'])) {
+            return;
+        }
+
+        if (isset($options['process']['environment_variables'])) {
+            if (!is_array($options['process']['environment_variables'])) {
+                throw new InvalidOptionException('the "process:environment_variables" option must be an array of name => value pairs', $options);
+            }
+
+            foreach ($options['process']['environment_variables'] as $name => $value) {
+                $builder->setEnv($name, $value);
+            }
+        }
+
+        if (isset($options['process']['options'])) {
+            if (!is_array($options['process']['options'])) {
+                throw new InvalidOptionException('the "process:options" option must be an array of options intended for the proc_open function call', $options);
+            }
+
+            foreach ($options['process']['options'] as $name => $value) {
+                $builder->setOption($name, $value);
+            }
+        }
+
+        if (isset($options['process']['timeout'])) {
+            $builder->setTimeout($options['process']['timeout']);
+        }
+
+        if (isset($options['process']['prefix'])) {
+            $builder->setPrefix($options['process']['prefix']);
+        }
+
+        if (isset($options['process']['working_directory'])) {
+            $builder->setWorkingDirectory($options['process']['working_directory']);
+        }
     }
 }

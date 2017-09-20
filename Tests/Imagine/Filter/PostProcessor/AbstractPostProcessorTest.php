@@ -15,6 +15,7 @@ use Liip\ImagineBundle\Imagine\Filter\PostProcessor\AbstractPostProcessor;
 use Liip\ImagineBundle\Model\Binary;
 use Liip\ImagineBundle\Model\FileBinary;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Process\ProcessBuilder;
 
 /**
  * @covers \Liip\ImagineBundle\Imagine\Filter\PostProcessor\AbstractPostProcessor
@@ -24,19 +25,7 @@ class AbstractPostProcessorTest extends AbstractPostProcessorTestCase
     /**
      * @group legacy
      *
-     * @expectedDeprecation Calling the %s::process() method without a second parameter of options was deprecated in %s and will be removed in %s.
-     */
-    public function testProcessDeprecation()
-    {
-        $this
-            ->getProtectedReflectionMethodVisible($processor = $this->getPostProcessorInstance(), 'process')
-            ->invoke($processor, $this->getBinaryInterfaceMock());
-    }
-
-    /**
-     * @group legacy
-     *
-     * @expectedDeprecation The %s::processWithConfiguration() method was deprecated in %s and will be removed in %s. Use the %s::process() method instead.
+     * @expectedDeprecation The processWithConfiguration() method was deprecated in %s and will be removed in %s in favor of the %s::process() method, which was expanded to allow passing options as the second argument.
      */
     public function testProcessWithConfigurationDeprecation()
     {
@@ -45,7 +34,7 @@ class AbstractPostProcessorTest extends AbstractPostProcessorTestCase
             ->invoke($processor, $this->getBinaryInterfaceMock(), array());
     }
 
-    public function testIsBinaryOfType()
+    public function testIsBinaryMimeType()
     {
         $binary = $this->getBinaryInterfaceMock();
 
@@ -58,43 +47,179 @@ class AbstractPostProcessorTest extends AbstractPostProcessorTestCase
 
         $processor = $this->getPostProcessorInstance();
 
-        $m = $this->getProtectedReflectionMethodVisible($processor, 'isBinaryTypeJpgImage');
+        $m = $this->getProtectedReflectionMethodVisible($processor, 'isBinaryJpgMimeType');
         $this->assertTrue($m->invoke($processor, $binary));
         $this->assertTrue($m->invoke($processor, $binary));
         $this->assertFalse($m->invoke($processor, $binary));
         $this->assertFalse($m->invoke($processor, $binary));
 
-        $m = $this->getProtectedReflectionMethodVisible($processor, 'isBinaryTypePngImage');
+        $m = $this->getProtectedReflectionMethodVisible($processor, 'isBinaryPngMimeType');
         $this->assertFalse($m->invoke($processor, $binary));
         $this->assertFalse($m->invoke($processor, $binary));
         $this->assertFalse($m->invoke($processor, $binary));
         $this->assertTrue($m->invoke($processor, $binary));
     }
 
-    public function testCreateProcessBuilder()
+    /**
+     * @return array[]
+     */
+    public static function provideCreateProcessBuilderData()
     {
-        $optionTimeout = 120.0;
-        $optionPrefix = array('a-custom-prefix');
-        $optionWorkDir = getcwd();
-        $optionEnvVars = array('FOO' => 'BAR');
-        $optionOptions = array('bypass_shell' => true);
+        $root = realpath(__DIR__.'/../../../');
 
-        $m = $this->getProtectedReflectionMethodVisible($processor = $this->getPostProcessorInstance(), 'createProcessBuilder');
-        $b = $m->invokeArgs($processor, array(array('/path/to/bin'), array(
+        $getBin = function (\SplFileInfo $path) use ($root) {
+            $finder = new Finder();
+            $finder->in($path->getRealPath());
+
+            $files = iterator_to_array($finder->files(), false);
+            shuffle($files);
+            $executable = array_pop($files);
+
+            return $executable instanceof \SplFileInfo ? $executable->getRealPath() : null;
+        };
+
+        $getChars = function($onlyAlpha = true) {
+            $chars = '';
+            for ($i = 0; $i < mt_rand(1, 80); $i++) {
+                $chars .= chr($onlyAlpha ? mt_rand(97, 122) : mt_rand(35, 127));
+            }
+
+            return strtolower($chars);
+        };
+
+        $getEnvVars = function() use ($getChars) {
+            $environment = array();
+            for ($i = 0; $i < mt_rand(0, 20); $i++) {
+                $environment[strtoupper($getChars())] = $getChars(false);
+            }
+
+            return $environment;
+        };
+
+        $finder = new Finder();
+        $finder->in($root);
+        $directories = iterator_to_array($finder->directories(), false);
+        shuffle($directories);
+        $returns = array();
+
+        foreach (array_splice($directories, 0, 20) as $d) {
+            $returns[] = array($d->getRealPath(), $getBin($d), (float) sprintf('%d.%d', mt_rand(0, 300), mt_rand(0, 99)),
+                $getChars(), $getEnvVars(), mt_rand(0, 1) === 0 ? array('bypass_shell' => true) : array());
+        }
+
+        return array_filter($returns, function (array $d) {
+            return $d[1] !== null;
+        });
+    }
+
+    /**
+     * @dataProvider provideCreateProcessBuilderData
+     *
+     * @param string  $workingDirectory
+     * @param string  $executablePath
+     * @param int     $timeout
+     * @param string  $prefix
+     * @param mixed[] $environmentVariables
+     * @param mixed[] $options
+     */
+    public function testCreateProcessBuilder($workingDirectory, $executablePath, $timeout, $prefix, array $environmentVariables, array $options)
+    {
+        $b = $this->callCreateProcessBuilder(array(
             'process' => array(
-                'timeout' => $optionTimeout,
-                'prefix' => $optionPrefix,
-                'working_directory' => $optionWorkDir,
-                'environment_variables' => $optionEnvVars,
-                'options' => $optionOptions,
+                'working_directory' => $workingDirectory,
+                'timeout' => $timeout,
+                'prefix' => $prefix,
+                'environment_variables' => $environmentVariables,
+                'options' => $options,
             ),
-        )));
+        ), $executablePath);
 
-        $this->assertSame($optionTimeout, $this->getProtectedReflectionPropertyVisible($b, 'timeout')->getValue($b));
-        $this->assertSame($optionPrefix, $this->getProtectedReflectionPropertyVisible($b, 'prefix')->getValue($b));
-        $this->assertSame($optionWorkDir, $this->getProtectedReflectionPropertyVisible($b, 'cwd')->getValue($b));
-        $this->assertSame($optionEnvVars, $this->getProtectedReflectionPropertyVisible($b, 'env')->getValue($b));
-        $this->assertSame($optionOptions, $this->getProtectedReflectionPropertyVisible($b, 'options')->getValue($b));
+        $this->assertSame($timeout, $this->getProtectedReflectionPropertyVisible($b, 'timeout')->getValue($b));
+        $this->assertSame(array($prefix), $this->getProtectedReflectionPropertyVisible($b, 'prefix')->getValue($b));
+        $this->assertSame($workingDirectory, $this->getProtectedReflectionPropertyVisible($b, 'cwd')->getValue($b));
+        $this->assertSame($environmentVariables, $this->getProtectedReflectionPropertyVisible($b, 'env')->getValue($b));
+        $this->assertSame($options, $this->getProtectedReflectionPropertyVisible($b, 'options')->getValue($b));
+        $this->assertSame(array($executablePath), $this->getProtectedReflectionPropertyVisible($b, 'arguments')->getValue($b));
+    }
+
+    /**
+     * @return array
+     */
+    public static function provideCreateProcessBuilderThrowsOnInvalidEnvVarsData()
+    {
+        return array(
+            array(true),
+            array(false),
+            array(-9999),
+            array(0),
+            array(10000),
+            array(34.54),
+            array('a-string'),
+            array(new \stdClass()),
+        );
+    }
+
+    /**
+     * @dataProvider provideCreateProcessBuilderThrowsOnInvalidEnvVarsData
+     *
+     * @expectedException \Liip\ImagineBundle\Exception\Imagine\Filter\PostProcessor\InvalidOptionException
+     * @expectedExceptionMessage the "process:environment_variables" option must be an array of name => value pairs
+     */
+    public function testCreateProcessBuilderThrowsOnInvalidEnvVars($environmentVariables)
+    {
+        $this->callCreateProcessBuilder(array(
+            'process' => array(
+                'environment_variables' => $environmentVariables,
+            ),
+        ), '/bin/foobar');
+    }
+    /**
+     * @return array
+     */
+    public static function provideCreateProcessBuilderThrowsOnInvalidOptionsData()
+    {
+        return static::provideCreateProcessBuilderThrowsOnInvalidEnvVarsData();
+    }
+
+    /**
+     * @dataProvider provideCreateProcessBuilderThrowsOnInvalidOptionsData
+     *
+     * @expectedException \Liip\ImagineBundle\Exception\Imagine\Filter\PostProcessor\InvalidOptionException
+     * @expectedExceptionMessage the "process:options" option must be an array of options intended for the proc_open function call
+     */
+    public function testCreateProcessBuilderThrowsOnInvalidOptions($options)
+    {
+        $this->callCreateProcessBuilder(array(
+            'process' => array(
+                'options' => $options,
+            ),
+        ), '/bin/foobar');
+    }
+
+    /**
+     * @param array  $options
+     * @param string $executablePath
+     *
+     * @return ProcessBuilder
+     */
+    private function callCreateProcessBuilder(array $options, $executablePath)
+    {
+        $m = $this->getProtectedReflectionMethodVisible($processor = $this->getPostProcessorInstance(), 'createProcessBuilder');
+
+        return $m->invokeArgs($processor, array($options, array($executablePath)));
+    }
+
+    public function testCreateProcessBuilderWithDefaultExecutable()
+    {
+        $executablePath = '/bin/foobar';
+
+        $p = $this->getProtectedReflectionPropertyVisible($processor = $this->getPostProcessorInstance(), 'executablePath');
+        $p->setValue($processor, $executablePath);
+
+        $m = $this->getProtectedReflectionMethodVisible($this->getPostProcessorInstance(), 'createProcessBuilder');
+        $b = $m->invoke($processor);
+
+        $this->assertSame(array($executablePath), $this->getProtectedReflectionPropertyVisible($b, 'arguments')->getValue($b));
     }
 
     /**
@@ -153,7 +278,7 @@ class AbstractPostProcessorTest extends AbstractPostProcessorTestCase
     /**
      * @return array[]
      */
-    public static function provideIsValidReturnData()
+    public static function provideIsSuccessfulProcess()
     {
         return array(
             array(array(), array(), true),
@@ -169,13 +294,13 @@ class AbstractPostProcessorTest extends AbstractPostProcessorTestCase
     }
 
     /**
-     * @dataProvider provideIsValidReturnData
+     * @dataProvider provideIsSuccessfulProcess
      *
      * @param array $validReturns
      * @param array $errorString
      * @param bool  $expected
      */
-    public function testIsValidReturn(array $validReturns, array $errorString, $expected)
+    public function testIsSuccessfulProcess(array $validReturns, array $errorString, $expected)
     {
         $process = $this
             ->getMockBuilder('\Symfony\Component\Process\Process')
@@ -193,7 +318,7 @@ class AbstractPostProcessorTest extends AbstractPostProcessorTestCase
             ->willReturn('foo bar baz');
 
         $result = $this
-            ->getProtectedReflectionMethodVisible($processor = $this->getPostProcessorInstance(), 'isSuccessfulProcess')
+            ->getProtectedReflectionMethodVisible($processor = $this->getPostProcessorInstance(), 'isProcessSuccessful')
             ->invoke($processor, $process, $validReturns, $errorString);
 
         $this->assertSame($expected, $result);

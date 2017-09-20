@@ -68,14 +68,14 @@ class MozJpegPostProcessor extends AbstractPostProcessor
      */
     protected function doProcess(BinaryInterface $binary, array $options = array())
     {
-        if (!$this->isBinaryTypeJpgImage($binary)) {
+        if (!$this->isBinaryJpgMimeType($binary)) {
             return $binary;
         }
 
         $process = $this->setupProcessBuilder($options, $binary)->setInput($binary->getContent())->getProcess();
         $process->run();
 
-        if (!$this->isSuccessfulProcess($process)) {
+        if (!$this->isProcessSuccessful($process)) {
             throw new ProcessFailedException($process);
         }
 
@@ -89,7 +89,7 @@ class MozJpegPostProcessor extends AbstractPostProcessor
      */
     private function setupProcessBuilder(array $options = array())
     {
-        $builder = $this->createProcessBuilder(array($this->executablePath), $options);
+        $builder = $this->createProcessBuilder($options);
 
         if ($quantTable = isset($options['quant_table']) ? $options['quant_table'] : 2) {
             $builder->add('-quant-table')->add($quantTable);
