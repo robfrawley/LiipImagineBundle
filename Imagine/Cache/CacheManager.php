@@ -82,7 +82,7 @@ class CacheManager
      * @param string            $filter
      * @param ResolverInterface $resolver
      */
-    public function addResolver($filter, ResolverInterface $resolver)
+    public function addResolver(string $filter, ResolverInterface $resolver): void
     {
         $this->resolvers[$filter] = $resolver;
 
@@ -103,54 +103,37 @@ class CacheManager
      *
      * @return ResolverInterface
      */
-    protected function getResolver($filter, $resolver)
+    protected function getResolver(string $filter, string $resolver = null): ResolverInterface
     {
-        // BC
-        if (false == $resolver) {
-            $config = $this->filterConfig->get($filter);
+        $resolver = $resolver ?? ($this->filterConfig->get($filter)['cache'] ?? $this->defaultResolver);
 
-            $resolverName = empty($config['cache']) ? $this->defaultResolver : $config['cache'];
-        } else {
-            $resolverName = $resolver;
+        if (!isset($this->resolvers[$resolver])) {
+            throw new \OutOfBoundsException(
+                sprintf('Could not find resolver "%s" for "%s" filter type', $resolver, $filter)
+            );
         }
 
-        if (!isset($this->resolvers[$resolverName])) {
-            throw new \OutOfBoundsException(sprintf(
-                'Could not find resolver "%s" for "%s" filter type',
-                $resolverName,
-                $filter
-            ));
-        }
-
-        return $this->resolvers[$resolverName];
+        return $this->resolvers[$resolver];
     }
 
     /**
      * Gets filtered path for rendering in the browser.
      * It could be the cached one or an url of filter action.
      *
-     * @param string $path          The path where the resolved file is expected
-     * @param string $filter
-     * @param array  $runtimeConfig
-     * @param string $resolver
+     * @param string      $path          The path where the resolved file is expected
+     * @param string      $filter
+     * @param array       $runtimeConfig
+     * @param string|null $resolver
      *
      * @return string
      */
-    public function getBrowserPath($path, $filter, array $runtimeConfig = [], $resolver = null)
+    public function getBrowserPath(string $path, string $filter, array $runtimeConfig = [], string $resolver = null): string
     {
-        if (!empty($runtimeConfig)) {
-            $rcPath = $this->getRuntimePath($path, $runtimeConfig);
+        $runtimePath = !empty($runtimeConfig) ? $this->getRuntimePath($path, $runtimeConfig) : $path;
 
-            return $this->isStored($rcPath, $filter, $resolver) ?
-                $this->resolve($rcPath, $filter, $resolver) :
-                $this->generateUrl($path, $filter, $runtimeConfig, $resolver)
-            ;
-        }
-
-        return $this->isStored($path, $filter, $resolver) ?
-            $this->resolve($path, $filter, $resolver) :
-            $this->generateUrl($path, $filter, [], $resolver)
-        ;
+        return $this->isStored($runtimePath, $filter, $resolver) ?
+            $this->resolve($runtimePath, $filter, $resolver) :
+            $this->generateUrl($path, $filter, $runtimeConfig, $resolver);
     }
 
     /**
@@ -161,7 +144,7 @@ class CacheManager
      *
      * @return string
      */
-    public function getRuntimePath($path, array $runtimeConfig)
+    public function getRuntimePath(string $path, array $runtimeConfig): string
     {
         return 'rc/'.$this->signer->sign($path, $runtimeConfig).'/'.$path;
     }
@@ -169,46 +152,42 @@ class CacheManager
     /**
      * Returns a web accessible URL.
      *
-     * @param string $path          The path where the resolved file is expected
-     * @param string $filter        The name of the imagine filter in effect
-     * @param array  $runtimeConfig
-     * @param string $resolver
+     * @param string      $path          The path where the resolved file is expected
+     * @param string      $filter        The name of the imagine filter in effect
+     * @param array       $runtimeConfig
+     * @param string|null $resolver
      *
      * @return string
      */
-    public function generateUrl($path, $filter, array $runtimeConfig = [], $resolver = null)
+    public function generateUrl(string $path, string $filter, array $runtimeConfig = [], string $resolver = null): string
     {
-        $params = [
+        $parameters = [
             'path' => ltrim($path, '/'),
             'filter' => $filter,
+            'resolver' => $resolver,
         ];
 
-        if ($resolver) {
-            $params['resolver'] = $resolver;
+        if (!empty($runtimeConfig)) {
+            $routeNamed = 'liip_imagine_filter_runtime';
+            $parameters = array_merge($parameters, [
+                'filters' => $runtimeConfig,
+                'hash' => $this->signer->sign($path, $runtimeConfig),
+            ]);
         }
 
-        if (empty($runtimeConfig)) {
-            $filterUrl = $this->router->generate('liip_imagine_filter', $params, UrlGeneratorInterface::ABSOLUTE_URL);
-        } else {
-            $params['filters'] = $runtimeConfig;
-            $params['hash'] = $this->signer->sign($path, $runtimeConfig);
-
-            $filterUrl = $this->router->generate('liip_imagine_filter_runtime', $params, UrlGeneratorInterface::ABSOLUTE_URL);
-        }
-
-        return $filterUrl;
+        return $this->router->generate($routeNamed ?? 'liip_imagine_filter', array_filter($parameters), UrlGeneratorInterface::ABSOLUTE_URL);
     }
 
     /**
      * Checks whether the path is already stored within the respective Resolver.
      *
-     * @param string $path
-     * @param string $filter
-     * @param string $resolver
+     * @param string      $path
+     * @param string      $filter
+     * @param string|null $resolver
      *
      * @return bool
      */
-    public function isStored($path, $filter, $resolver = null)
+    public function isStored(string $path, string $filter, string $resolver = null): bool
     {
         return $this->getResolver($filter, $resolver)->isStored($path, $filter);
     }
@@ -216,29 +195,24 @@ class CacheManager
     /**
      * Resolves filtered path for rendering in the browser.
      *
-     * @param string $path
-     * @param string $filter
-     * @param string $resolver
+     * @param string      $path
+     * @param string      $filter
+     * @param string|null $resolver
      *
      * @throws NotFoundHttpException if the path can not be resolved
      *
-     * @return string The url of resolved image
+     * @return string|null The url of resolved image
      */
-    public function resolve($path, $filter, $resolver = null)
+    public function resolve(string $path, string $filter, string $resolver = null): ?string
     {
         if (false !== strpos($path, '/../') || 0 === strpos($path, '../')) {
             throw new NotFoundHttpException(sprintf("Source image was searched with '%s' outside of the defined root path", $path));
         }
 
-        $preEvent = new CacheResolveEvent($path, $filter);
-        $this->dispatcher->dispatch(ImagineEvents::PRE_RESOLVE, $preEvent);
+        $preEvent = $this->dispatchEvent(ImagineEvents::PRE_RESOLVE, $path, $filter);
+        $resolved = $this->getResolver($preEvent->getFilter(), $resolver)->resolve($preEvent->getPath(), $preEvent->getFilter());
 
-        $url = $this->getResolver($preEvent->getFilter(), $resolver)->resolve($preEvent->getPath(), $preEvent->getFilter());
-
-        $postEvent = new CacheResolveEvent($preEvent->getPath(), $preEvent->getFilter(), $url);
-        $this->dispatcher->dispatch(ImagineEvents::POST_RESOLVE, $postEvent);
-
-        return $postEvent->getUrl();
+        return $this->dispatchEvent(ImagineEvents::POST_RESOLVE, $preEvent->getPath(), $preEvent->getFilter(), $resolved)->getUrl();
     }
 
     /**
@@ -247,9 +221,9 @@ class CacheManager
      * @param BinaryInterface $binary
      * @param string          $path
      * @param string          $filter
-     * @param string          $resolver
+     * @param string|null     $resolver
      */
-    public function store(BinaryInterface $binary, $path, $filter, $resolver = null)
+    public function store(BinaryInterface $binary, string $path, string $filter, string $resolver = null): void
     {
         $this->getResolver($filter, $resolver)->store($binary, $path, $filter);
     }
@@ -258,33 +232,31 @@ class CacheManager
      * @param string|string[]|null $paths
      * @param string|string[]|null $filters
      */
-    public function remove($paths = null, $filters = null)
+    public function remove($paths = null, $filters = null): void
     {
-        if (null === $filters) {
-            $filters = array_keys($this->filterConfig->all());
-        } elseif (!is_array($filters)) {
-            $filters = [$filters];
+        $targetPaths = array_filter((array) $paths);
+        $filterNames = array_filter((array) ($filters ?? array_keys($this->filterConfig->all())));
+        $filterRMaps = new \SplObjectStorage();
+
+        array_walk($filterNames, function (string $filter) use ($filterRMaps) {
+            $filterRMaps->attach($r = $this->getResolver($filter, null), array_merge($filterRMaps[$r] ?? [], [$filter]));
+        });
+
+        foreach ($filterRMaps as $r) {
+            $r->remove($targetPaths, $filterRMaps[$r]);
         }
-        if (!is_array($paths)) {
-            $paths = [$paths];
-        }
+    }
 
-        $paths = array_filter($paths);
-        $filters = array_filter($filters);
+    /**
+     * @param string          $name
+     * @param string[]|null[] ...$parameters
+     *
+     * @return CacheResolveEvent
+     */
+    private function dispatchEvent(string $name, ...$parameters): CacheResolveEvent
+    {
+        $this->dispatcher->dispatch($name, $event = new CacheResolveEvent(...$parameters));
 
-        $mapping = new \SplObjectStorage();
-        foreach ($filters as $filter) {
-            $resolver = $this->getResolver($filter, null);
-
-            $list = isset($mapping[$resolver]) ? $mapping[$resolver] : [];
-
-            $list[] = $filter;
-
-            $mapping[$resolver] = $list;
-        }
-
-        foreach ($mapping as $resolver) {
-            $resolver->remove($paths, $mapping[$resolver]);
-        }
+        return $event;
     }
 }
