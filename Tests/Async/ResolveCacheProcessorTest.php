@@ -169,7 +169,7 @@ class ResolveCacheProcessorTest extends AbstractTest
 
         $result = $processor->process($message, new NullContext());
 
-        $this->assertEquals(Result::ACK, $result);
+        $this->assertEquals(Result::ACK, (string) $result);
     }
 
     public function testShouldCreateOneImagePerFilter()
@@ -208,7 +208,7 @@ class ResolveCacheProcessorTest extends AbstractTest
 
         $result = $processor->process($message, new NullContext());
 
-        $this->assertEquals(Result::ACK, $result);
+        $this->assertEquals(Result::ACK, (string) $result);
     }
 
     public function testShouldOnlyCreateImageForRequestedFilter()
@@ -238,7 +238,7 @@ class ResolveCacheProcessorTest extends AbstractTest
 
         $result = $processor->process($message, new NullContext());
 
-        $this->assertEquals(Result::ACK, $result);
+        $this->assertEquals(Result::ACK, (string) $result);
     }
 
     public function testShouldCreateOneImagePerRequestedFilter()
@@ -272,7 +272,7 @@ class ResolveCacheProcessorTest extends AbstractTest
 
         $result = $processor->process($message, new NullContext());
 
-        $this->assertEquals(Result::ACK, $result);
+        $this->assertEquals(Result::ACK, (string) $result);
     }
 
     public function testShouldBurstCacheWhenResolvingForced()
