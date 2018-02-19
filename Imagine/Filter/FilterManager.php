@@ -16,7 +16,6 @@ use Liip\ImagineBundle\Binary\BinaryInterface;
 use Liip\ImagineBundle\Binary\FileBinaryInterface;
 use Liip\ImagineBundle\Binary\MimeTypeGuesserInterface;
 use Liip\ImagineBundle\Imagine\Filter\Loader\LoaderInterface;
-use Liip\ImagineBundle\Imagine\Filter\PostProcessor\ConfigurablePostProcessorInterface;
 use Liip\ImagineBundle\Imagine\Filter\PostProcessor\PostProcessorInterface;
 use Liip\ImagineBundle\Model\Binary;
 
@@ -172,18 +171,12 @@ class FilterManager
      */
     public function applyPostProcessors(BinaryInterface $binary, $config)
     {
-        $config += ['post_processors' => []];
-        foreach ($config['post_processors'] as $postProcessorName => $postProcessorOptions) {
-            if (!isset($this->postProcessors[$postProcessorName])) {
-                throw new \InvalidArgumentException(sprintf(
-                    'Could not find post processor "%s"', $postProcessorName
-                ));
+        foreach ($config['post_processors'] ?? [] as $name => $options) {
+            if (!isset($this->postProcessors[$name])) {
+                throw new \InvalidArgumentException(sprintf('Post-processor "%s" could not be found', $name));
             }
-            if ($this->postProcessors[$postProcessorName] instanceof ConfigurablePostProcessorInterface) {
-                $binary = $this->postProcessors[$postProcessorName]->processWithConfiguration($binary, $postProcessorOptions);
-            } else {
-                $binary = $this->postProcessors[$postProcessorName]->process($binary);
-            }
+
+            $binary = $this->postProcessors[$name]->process($binary, $options);
         }
 
         return $binary;

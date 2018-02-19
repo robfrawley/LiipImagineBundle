@@ -12,29 +12,29 @@
 namespace Liip\ImagineBundle\Imagine\Filter\PostProcessor;
 
 use Liip\ImagineBundle\Binary\BinaryInterface;
-use Liip\ImagineBundle\Binary\FileBinaryInterface;
+use Liip\ImagineBundle\Exception\Imagine\Filter\PostProcessor\InvalidOptionException;
 use Liip\ImagineBundle\Model\Binary;
+use Liip\ImagineBundle\Utility\Process\DescribeProcess;
 use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Process\Process;
 
-class JpegOptimPostProcessor implements PostProcessorInterface, ConfigurablePostProcessorInterface
+/**
+ * @author Rob Frawley 2nd <rmf@src.run>
+ */
+final class JpegOptimPostProcessor extends AbstractPostProcessor
 {
-    /** @var string Path to jpegoptim binary */
-    protected $jpegoptimBin;
-
     /**
      * If set --strip-all will be passed to jpegoptim.
      *
      * @var bool
      */
-    protected $stripAll;
+    protected $strip;
 
     /**
      * If set, --max=$value will be passed to jpegoptim.
      *
      * @var int
      */
-    protected $max;
+    protected $quality;
 
     /**
      * If set to true --all-progressive will be passed to jpegoptim, otherwise --all-normal will be passed.
@@ -44,81 +44,21 @@ class JpegOptimPostProcessor implements PostProcessorInterface, ConfigurablePost
     protected $progressive;
 
     /**
-     * Directory where temporary file will be written.
+     * JpegOptimPostProcessor constructor.
      *
-     * @var string
+     * @param string      $executablePath
+     * @param bool        $strip
+     * @param bool|null   $quality
+     * @param bool        $progressive
+     * @param string|null $temporaryBasePath
      */
-    protected $tempDir;
+    public function __construct(string $executablePath = '/usr/bin/jpegoptim', bool $strip = true, bool $quality = null, bool $progressive = true, string $temporaryBasePath = null)
+    {
+        parent::__construct($executablePath, $temporaryBasePath);
 
-    /**
-     * Constructor.
-     *
-     * @param string $jpegoptimBin Path to the jpegoptim binary
-     * @param bool   $stripAll     Strip all markers from output
-     * @param int    $max          Set maximum image quality factor
-     * @param bool   $progressive  Force output to be progressive
-     * @param string $tempDir      Directory where temporary file will be written
-     */
-    public function __construct(
-        $jpegoptimBin = '/usr/bin/jpegoptim',
-        $stripAll = true,
-        $max = null,
-        $progressive = true,
-        $tempDir = ''
-    ) {
-        $this->jpegoptimBin = $jpegoptimBin;
-        $this->stripAll = $stripAll;
-        $this->max = $max;
+        $this->strip = $strip;
+        $this->quality = $quality;
         $this->progressive = $progressive;
-        $this->tempDir = $tempDir ?: sys_get_temp_dir();
-    }
-
-    /**
-     * @param int $max
-     *
-     * @return JpegOptimPostProcessor
-     */
-    public function setMax($max)
-    {
-        $this->max = $max;
-
-        return $this;
-    }
-
-    /**
-     * @param bool $progressive
-     *
-     * @return JpegOptimPostProcessor
-     */
-    public function setProgressive($progressive)
-    {
-        $this->progressive = $progressive;
-
-        return $this;
-    }
-
-    /**
-     * @param bool $stripAll
-     *
-     * @return JpegOptimPostProcessor
-     */
-    public function setStripAll($stripAll)
-    {
-        $this->stripAll = $stripAll;
-
-        return $this;
-    }
-
-    /**
-     * @param BinaryInterface $binary
-     *
-     * @throws ProcessFailedException
-     *
-     * @return BinaryInterface
-     */
-    public function process(BinaryInterface $binary)
-    {
-        return $this->processWithConfiguration($binary, []);
     }
 
     /**
@@ -129,56 +69,49 @@ class JpegOptimPostProcessor implements PostProcessorInterface, ConfigurablePost
      *
      * @return BinaryInterface
      */
-    public function processWithConfiguration(BinaryInterface $binary, array $options)
+    public function process(BinaryInterface $binary, array $options = []): BinaryInterface
     {
-        $type = strtolower($binary->getMimeType());
-        if (!in_array($type, ['image/jpeg', 'image/jpg'])) {
+        if (!$this->isBinaryTypeJpgImage($binary)) {
             return $binary;
         }
 
-        $tempDir = array_key_exists('temp_dir', $options) ? $options['temp_dir'] : $this->tempDir;
-        if (false === $input = tempnam($tempDir, 'imagine_jpegoptim')) {
-            throw new \RuntimeException(sprintf('Temp file can not be created in "%s".', $tempDir));
+        $file = $this->writeTemporaryFile($binary, $options, 'imagine-post-processor-optipng');
+
+        ($process = $this->createProcess($options, function (...$arguments): void {
+            $this->configureProcess(...$arguments);
+        }, $file))->run();
+
+        if (!$this->isProcessSuccess($process)) {
+            unlink($file);
+            throw new ProcessFailedException($process);
         }
 
-        $processArguments = [$this->jpegoptimBin];
-
-        $stripAll = array_key_exists('strip_all', $options) ? $options['strip_all'] : $this->stripAll;
-        if ($stripAll) {
-            $processArguments[] =  '--strip-all';
-        }
-
-        $max = array_key_exists('max', $options) ? $options['max'] : $this->max;
-        if ($max) {
-            $processArguments[] =  '--max='.$max;
-        }
-
-        $progressive = array_key_exists('progressive', $options) ? $options['progressive'] : $this->progressive;
-        if ($progressive) {
-            $processArguments[] =  '--all-progressive';
-        } else {
-            $processArguments[] =  '--all-normal';
-        }
-
-        $processArguments[] = $input;
-        if ($binary instanceof FileBinaryInterface) {
-            copy($binary->getPath(), $input);
-        } else {
-            file_put_contents($input, $binary->getContent());
-        }
-
-        $proc = new Process($processArguments);
-        $proc->run();
-
-        if (false !== strpos($proc->getOutput(), 'ERROR') || 0 !== $proc->getExitCode()) {
-            unlink($input);
-            throw new ProcessFailedException($proc);
-        }
-
-        $result = new Binary(file_get_contents($input), $binary->getMimeType(), $binary->getFormat());
-
-        unlink($input);
+        $result = new Binary(file_get_contents($file), $binary->getMimeType(), $binary->getFormat());
+        unlink($file);
 
         return $result;
+    }
+
+    /**
+     * @param DescribeProcess $definition
+     * @param array           $options
+     * @param string          $temporaryFile
+     */
+    private function configureProcess(DescribeProcess $definition, array $options, string $temporaryFile): void
+    {
+        if ($options['strip_all'] ?? $this->strip) {
+            $definition->pushArgument('--strip-all');
+        }
+
+        if ($quality = $options['quality'] ?? $this->quality) {
+            if (100 < $quality || 0 > $quality) {
+                throw new InvalidOptionException('the "quality" option must be an int between 0 and 100', $options);
+            }
+
+            $definition->pushArgument('--max=%d', $quality);
+        }
+
+        $definition->pushArgument($options['progressive'] ?? $this->progressive ? '--all-progressive' : '--all-normal');
+        $definition->pushArgument($temporaryFile);
     }
 }

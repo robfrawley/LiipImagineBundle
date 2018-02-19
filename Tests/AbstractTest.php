@@ -34,79 +34,89 @@ use Symfony\Component\Routing\RouterInterface;
 abstract class AbstractTest extends TestCase
 {
     /**
-     * @var Filesystem
+     * @var string
      */
-    protected $filesystem;
+    private $fixturePath;
 
     /**
      * @var string
      */
-    protected $fixturesPath;
+    private $tmpWorkPath;
 
-    /**
-     * @var string
-     */
-    protected $temporaryPath;
-
-    protected function setUp()
+    protected function setUp(): void
     {
-        $this->fixturesPath = realpath(__DIR__.DIRECTORY_SEPARATOR.'Fixtures');
-        $this->temporaryPath = sys_get_temp_dir().DIRECTORY_SEPARATOR.'liip_imagine_test';
-        $this->filesystem = new Filesystem();
+        $this->fixturePath = realpath(__DIR__.'/Fixtures');
+        $this->tmpWorkPath = sprintf('%s/liip_imagine_test', sys_get_temp_dir());
 
-        if ($this->filesystem->exists($this->temporaryPath)) {
-            $this->filesystem->remove($this->temporaryPath);
-        }
+        $this->emptyTemporaryWorkPath();
+    }
 
-        $this->filesystem->mkdir($this->temporaryPath);
+    protected function tearDown(): void
+    {
+        $this->emptyTemporaryWorkPath(false);
     }
 
     /**
-     * @return string[]
+     * @return string
      */
-    public function invalidPathProvider()
+    protected function getFixturePath(): string
     {
-        return array(
-            array($this->fixturesPath.'/assets/../../foobar.png'),
-            array($this->fixturesPath.'/assets/some_folder/../foobar.png'),
-            array('../../outside/foobar.jpg'),
-        );
+        return $this->fixturePath;
     }
 
     /**
+     * @return string
+     */
+    protected function getTmpWorkPath(): string
+    {
+        return $this->tmpWorkPath;
+    }
+
+    /**
+     * @return \Iterator
+     */
+    public function invalidPathProvider(): \Iterator
+    {
+        yield [$this->getFixturePath().'/assets/../../foobar.png'];
+        yield [$this->getFixturePath().'/assets/some_folder/../foobar.png'];
+        yield ['../../outside/foobar.jpg'];
+    }
+
+    /**
+     * @param string[] $filterNames
+     * @param array[]  $filterConfs
+     *
      * @return FilterConfiguration
      */
-    protected function createFilterConfiguration()
+    protected function createFilterConfiguration(array $filterNames = [], array $filterConfs = []): FilterConfiguration
     {
-        $config = new FilterConfiguration();
-        $config->set('thumbnail', array(
-            'size' => array(180, 180),
-            'mode' => 'outbound',
-        ));
+        $d = ['thumbnail' => ['size' => [180, 180], 'mode' => 'outbound']];
+        $c = new FilterConfiguration($filterNames);
 
-        return $config;
+        foreach ($filterConfs ?? $d as $name => $conf) {
+            $c->set($name, $conf);
+        }
+
+        return $c;
     }
 
     /**
      * @return \PHPUnit_Framework_MockObject_MockObject|CacheManager
      */
-    protected function createCacheManagerMock()
+    protected function createCacheManagerMock(): \PHPUnit_Framework_MockObject_MockObject
     {
-        return $this
-            ->getMockBuilder(CacheManager::class)
-            ->setConstructorArgs(array(
-                $this->createFilterConfiguration(),
-                $this->createRouterInterfaceMock(),
-                $this->createSignerInterfaceMock(),
-                $this->createEventDispatcherInterfaceMock(),
-            ))
-            ->getMock();
+        return $this->createObjectMock(CacheManager::class, null, true, [
+            $this->createFilterConfiguration(),
+            $this->createRouterInterfaceMock(),
+            $this->createSignerInterfaceMock(),
+            $this->createEventDispatcherInterfaceMock(),
+        ]);
     }
 
     /**
      * @return \PHPUnit_Framework_MockObject_MockObject|FilterConfiguration
      */
-    protected function createFilterConfigurationMock()
+    protected function createFilterConfigurationMock(): \PHPUnit_Framework_MockObject_MockObject
     {
         return $this->createObjectMock(FilterConfiguration::class);
     }
@@ -114,7 +124,7 @@ abstract class AbstractTest extends TestCase
     /**
      * @return \PHPUnit_Framework_MockObject_MockObject|SignerInterface
      */
-    protected function createSignerInterfaceMock()
+    protected function createSignerInterfaceMock(): \PHPUnit_Framework_MockObject_MockObject
     {
         return $this->createObjectMock(SignerInterface::class);
     }
@@ -122,7 +132,7 @@ abstract class AbstractTest extends TestCase
     /**
      * @return \PHPUnit_Framework_MockObject_MockObject|RouterInterface
      */
-    protected function createRouterInterfaceMock()
+    protected function createRouterInterfaceMock(): \PHPUnit_Framework_MockObject_MockObject
     {
         return $this->createObjectMock(RouterInterface::class);
     }
@@ -130,7 +140,7 @@ abstract class AbstractTest extends TestCase
     /**
      * @return \PHPUnit_Framework_MockObject_MockObject|ResolverInterface
      */
-    protected function createCacheResolverInterfaceMock()
+    protected function createCacheResolverInterfaceMock(): \PHPUnit_Framework_MockObject_MockObject
     {
         return $this->createObjectMock(ResolverInterface::class);
     }
@@ -138,7 +148,7 @@ abstract class AbstractTest extends TestCase
     /**
      * @return \PHPUnit_Framework_MockObject_MockObject|EventDispatcherInterface
      */
-    protected function createEventDispatcherInterfaceMock()
+    protected function createEventDispatcherInterfaceMock(): \PHPUnit_Framework_MockObject_MockObject
     {
         return $this->createObjectMock(EventDispatcherInterface::class);
     }
@@ -146,7 +156,7 @@ abstract class AbstractTest extends TestCase
     /**
      * @return \PHPUnit_Framework_MockObject_MockObject|ImageInterface
      */
-    protected function getImageInterfaceMock()
+    protected function getImageInterfaceMock(): \PHPUnit_Framework_MockObject_MockObject
     {
         return $this->createObjectMock(ImageInterface::class);
     }
@@ -154,7 +164,7 @@ abstract class AbstractTest extends TestCase
     /**
      * @return \PHPUnit_Framework_MockObject_MockObject|MetadataBag
      */
-    protected function getMetadataBagMock()
+    protected function getMetadataBagMock(): \PHPUnit_Framework_MockObject_MockObject
     {
         return $this->createObjectMock(MetadataBag::class);
     }
@@ -162,7 +172,7 @@ abstract class AbstractTest extends TestCase
     /**
      * @return \PHPUnit_Framework_MockObject_MockObject|ImagineInterface
      */
-    protected function createImagineInterfaceMock()
+    protected function createImagineInterfaceMock(): \PHPUnit_Framework_MockObject_MockObject
     {
         return $this->createObjectMock(ImagineInterface::class);
     }
@@ -170,7 +180,7 @@ abstract class AbstractTest extends TestCase
     /**
      * @return \PHPUnit_Framework_MockObject_MockObject|LoggerInterface
      */
-    protected function createLoggerInterfaceMock()
+    protected function createLoggerInterfaceMock(): \PHPUnit_Framework_MockObject_MockObject
     {
         return $this->createObjectMock(LoggerInterface::class);
     }
@@ -178,7 +188,7 @@ abstract class AbstractTest extends TestCase
     /**
      * @return \PHPUnit_Framework_MockObject_MockObject|LoaderInterface
      */
-    protected function createBinaryLoaderInterfaceMock()
+    protected function createBinaryLoaderInterfaceMock(): \PHPUnit_Framework_MockObject_MockObject
     {
         return $this->createObjectMock(LoaderInterface::class);
     }
@@ -186,7 +196,7 @@ abstract class AbstractTest extends TestCase
     /**
      * @return \PHPUnit_Framework_MockObject_MockObject|MimeTypeGuesserInterface
      */
-    protected function createMimeTypeGuesserInterfaceMock()
+    protected function createMimeTypeGuesserInterfaceMock(): \PHPUnit_Framework_MockObject_MockObject
     {
         return $this->createObjectMock(MimeTypeGuesserInterface::class);
     }
@@ -194,7 +204,7 @@ abstract class AbstractTest extends TestCase
     /**
      * @return \PHPUnit_Framework_MockObject_MockObject|ExtensionGuesserInterface
      */
-    protected function createExtensionGuesserInterfaceMock()
+    protected function createExtensionGuesserInterfaceMock(): \PHPUnit_Framework_MockObject_MockObject
     {
         return $this->createObjectMock(ExtensionGuesserInterface::class);
     }
@@ -202,7 +212,7 @@ abstract class AbstractTest extends TestCase
     /**
      * @return \PHPUnit_Framework_MockObject_MockObject|PostProcessorInterface
      */
-    protected function createPostProcessorInterfaceMock()
+    protected function createPostProcessorInterfaceMock(): \PHPUnit_Framework_MockObject_MockObject
     {
         return $this->createObjectMock(PostProcessorInterface::class);
     }
@@ -210,80 +220,130 @@ abstract class AbstractTest extends TestCase
     /**
      * @return \PHPUnit_Framework_MockObject_MockObject|FilterManager
      */
-    protected function createFilterManagerMock()
+    protected function createFilterManagerMock(): \PHPUnit_Framework_MockObject_MockObject
     {
-        return $this->createObjectMock(FilterManager::class, array(), false);
+        return $this->createObjectMock(FilterManager::class);
     }
 
     /**
      * @return \PHPUnit_Framework_MockObject_MockObject|FilterService
      */
-    protected function createFilterServiceMock()
+    protected function createFilterServiceMock(): \PHPUnit_Framework_MockObject_MockObject
     {
-        return $this->createObjectMock('\Liip\ImagineBundle\Service\FilterService');
+        return $this->createObjectMock(FilterService::class);
     }
 
     /**
      * @return \PHPUnit_Framework_MockObject_MockObject|DataManager
      */
-    protected function createDataManagerMock()
+    protected function createDataManagerMock(): \PHPUnit_Framework_MockObject_MockObject
     {
-        return $this->createObjectMock(DataManager::class, array(), false);
+        return $this->createObjectMock(DataManager::class);
     }
 
     /**
-     * @param string   $object
-     * @param string[] $methods
-     * @param bool     $constructorInvoke
-     * @param mixed[]  $constructorParams
+     * @param string        $object
+     * @param string[]|null $methods
+     * @param bool          $constructorEnabled
+     * @param mixed[]       $constructorArgs
      *
      * @return \PHPUnit_Framework_MockObject_MockObject
      */
-    protected function createObjectMock($object, array $methods = array(), $constructorInvoke = false, array $constructorParams = array())
+    protected function createObjectMock(string $object, array $methods = null, bool $constructorEnabled = false, array $constructorArgs = []): \PHPUnit_Framework_MockObject_MockObject
     {
         $builder = $this->getMockBuilder($object);
 
-        if (count($methods) > 0) {
+        if (!empty($methods)) {
             $builder->setMethods($methods);
         }
 
-        if ($constructorInvoke) {
+        if ($constructorEnabled) {
             $builder->enableOriginalConstructor();
         } else {
             $builder->disableOriginalConstructor();
         }
 
-        if (count($constructorParams) > 0) {
-            $builder->setConstructorArgs($constructorParams);
+        if (!empty($constructorArgs)) {
+            $builder->setConstructorArgs($constructorArgs);
         }
 
         return $builder->getMock();
     }
 
     /**
-     * @param object $object
-     * @param string $name
+     * @param \ReflectionObject|string $object
+     * @param string                   $method
      *
      * @return \ReflectionMethod
      */
-    protected function getVisibilityRestrictedMethod($object, $name)
+    protected function getAccessiblePrivateMethod($object, string $method)
     {
-        $r = new \ReflectionObject($object);
-
-        $m = $r->getMethod($name);
+        $m = $this->getReflectionObjectInstanceForObject($object)->getMethod($method);
         $m->setAccessible(true);
 
         return $m;
     }
 
-    protected function tearDown()
+    /**
+     * @param \ReflectionObject|string $object
+     * @param string                   $property
+     *
+     * @return \ReflectionProperty
+     */
+    protected function getAccessiblePrivateProperty($object, string $property)
     {
-        if (!$this->filesystem) {
-            return;
+        $p = $this->getReflectionObjectInstanceForObject($object)->getProperty($property);
+        $p->setAccessible(true);
+
+        return $p;
+    }
+
+    /**
+     * @param string|\ReflectionObject $object
+     *
+     * @return \ReflectionObject
+     */
+    private function getReflectionObjectInstanceForObject($object): \ReflectionObject
+    {
+        try {
+            return false === $object instanceof \ReflectionObject ? new \ReflectionObject($object) : $object;
+        } catch (\ReflectionException $e) {
+            throw new \RuntimeException(
+                sprintf('Unable to create reflection object for "%s"', var_export($object, true)), 0, $e
+            );
+        }
+    }
+
+    /**
+     * @param bool $recreate
+     *
+     * @return Filesystem
+     */
+    protected function getFileSystemInstance(bool $recreate = false): Filesystem
+    {
+        static $filesystem;
+
+        if (null === $filesystem || true === $recreate) {
+            $filesystem = new FileSystem();
         }
 
-        if ($this->filesystem->exists($this->temporaryPath)) {
-            $this->filesystem->remove($this->temporaryPath);
+        return $filesystem;
+    }
+
+    /**
+     * @param bool $recreate
+     */
+    protected function emptyTemporaryWorkPath(bool $recreate = true): void
+    {
+        $filesystem = $this->getFileSystemInstance();
+        $tmpWorkDir = $this->getTmpWorkPath();
+
+        if ($filesystem->exists($tmpWorkDir)) {
+            $filesystem->remove($tmpWorkDir);
+        }
+
+        if (true === $recreate) {
+            $filesystem->mkdir($tmpWorkDir);
         }
     }
 }

@@ -12,7 +12,16 @@
 namespace Liip\ImagineBundle\Exception\Binary\Loader;
 
 use Liip\ImagineBundle\Exception\ExceptionInterface;
+use Throwable;
 
 class NotLoadableException extends \RuntimeException implements ExceptionInterface
 {
+    public function __construct(string $message = "", int $code = 0, Throwable $previous = null)
+    {
+        parent::__construct(
+            $message,
+            $code,
+            $previous
+        );
+    }
 }

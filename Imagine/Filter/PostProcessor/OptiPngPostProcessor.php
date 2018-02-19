@@ -12,18 +12,16 @@
 namespace Liip\ImagineBundle\Imagine\Filter\PostProcessor;
 
 use Liip\ImagineBundle\Binary\BinaryInterface;
-use Liip\ImagineBundle\Binary\FileBinaryInterface;
+use Liip\ImagineBundle\Exception\Imagine\Filter\PostProcessor\InvalidOptionException;
 use Liip\ImagineBundle\Model\Binary;
+use Liip\ImagineBundle\Utility\Process\DescribeProcess;
 use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Process\Process;
 
-class OptiPngPostProcessor implements PostProcessorInterface, ConfigurablePostProcessorInterface
+/**
+ * @author Rob Frawley 2nd <rmf@src.run>
+ */
+class OptiPngPostProcessor extends AbstractPostProcessor
 {
-    /**
-     * @var string Path to optipng binary
-     */
-    protected $optipngBin;
-
     /**
      * If set --oN will be passed to optipng.
      *
@@ -36,41 +34,20 @@ class OptiPngPostProcessor implements PostProcessorInterface, ConfigurablePostPr
      *
      * @var bool
      */
-    protected $stripAll;
+    protected $strip;
 
     /**
-     * Directory where temporary file will be written.
-     *
-     * @var string
+     * @param string      $executablePath
+     * @param int         $level
+     * @param bool        $strip
+     * @param string|null $temporaryBasePath
      */
-    protected $tempDir;
-
-    /**
-     * Constructor.
-     *
-     * @param string $optipngBin Path to the optipng binary
-     * @param int    $level      Optimization level
-     * @param bool   $stripAll   Strip metadata objects
-     * @param string $tempDir    Directory where temporary file will be written
-     */
-    public function __construct($optipngBin = '/usr/bin/optipng', $level = 7, $stripAll = true, $tempDir = '')
+    public function __construct(string $executablePath = '/usr/bin/optipng', int $level = 7, bool $strip = true, string $temporaryBasePath = null)
     {
-        $this->optipngBin = $optipngBin;
+        parent::__construct($executablePath, $temporaryBasePath);
+
         $this->level = $level;
-        $this->stripAll = $stripAll;
-        $this->tempDir = $tempDir ?: sys_get_temp_dir();
-    }
-
-    /**
-     * @param BinaryInterface $binary
-     *
-     * @throws ProcessFailedException
-     *
-     * @return BinaryInterface
-     */
-    public function process(BinaryInterface $binary)
-    {
-        return $this->processWithConfiguration($binary, []);
+        $this->strip = $strip;
     }
 
     /**
@@ -81,50 +58,84 @@ class OptiPngPostProcessor implements PostProcessorInterface, ConfigurablePostPr
      *
      * @return BinaryInterface|Binary
      */
-    public function processWithConfiguration(BinaryInterface $binary, array $options)
+    public function process(BinaryInterface $binary, array $options = []): BinaryInterface
     {
-        $type = strtolower($binary->getMimeType());
-        if (!in_array($type, ['image/png'])) {
+        if (!$this->isBinaryTypePngImage($binary)) {
             return $binary;
         }
 
-        $tempDir = array_key_exists('temp_dir', $options) ? $options['temp_dir'] : $this->tempDir;
-        if (false === $input = tempnam($tempDir, 'imagine_optipng')) {
-            throw new \RuntimeException(sprintf('Temp file can not be created in "%s".', $tempDir));
+        $file = $this->writeTemporaryFile($binary, $options, 'imagine-post-processor-optipng');
+
+        ($process = $this->createProcess($options, function (...$arguments): void {
+            $this->configureProcess(...$arguments);
+        }, $file))->run();
+
+        if (!$this->isProcessSuccess($process)) {
+            unlink($file);
+            throw new ProcessFailedException($process);
         }
 
-        $processArguments = [$this->optipngBin];
-
-        $level = array_key_exists('level', $options) ? $options['level'] : $this->level;
-        if ($level !== null) {
-            $processArguments[] =  sprintf('--o%d', $level);
-        }
-
-        $stripAll = array_key_exists('strip_all', $options) ? $options['strip_all'] : $this->stripAll;
-        if ($stripAll) {
-            $processArguments[] =  '--strip=all';
-        }
-
-        $processArguments[] =  $input;
-
-        if ($binary instanceof FileBinaryInterface) {
-            copy($binary->getPath(), $input);
-        } else {
-            file_put_contents($input, $binary->getContent());
-        }
-
-        $proc = new Process($processArguments);
-        $proc->run();
-
-        if (false !== strpos($proc->getOutput(), 'ERROR') || 0 !== $proc->getExitCode()) {
-            unlink($input);
-            throw new ProcessFailedException($proc);
-        }
-
-        $result = new Binary(file_get_contents($input), $binary->getMimeType(), $binary->getFormat());
-
-        unlink($input);
+        $result = new Binary(file_get_contents($file), $binary->getMimeType(), $binary->getFormat());
+        unlink($file);
 
         return $result;
+    }
+
+    /**
+     * @param DescribeProcess $definition
+     * @param array           $options
+     * @param string          $temporaryFile
+     */
+    private function configureProcess(DescribeProcess $definition, array $options, string $temporaryFile): void
+    {
+        if (null !== $level = $options['level'] ?? $this->level) {
+            if (7 < $level || 0 > $level) {
+                throw new InvalidOptionException('the "level" option must be an int between 0 and 7', $options);
+            }
+
+            $definition->pushArgument('-o%d', $level);
+        }
+
+        if ($strip = $options['strip'] ?? $this->strip) {
+            $definition
+                ->pushArgument('-strip')
+                ->pushArgument($strip ? 'all' : $strip);
+        }
+
+        if (true === $options['snip'] ?? false) {
+            $definition->pushArgument('-snip');
+        }
+
+        if (true === $options['preserve_attributes'] ?? false) {
+            $definition->pushArgument('-preserve');
+        }
+
+        if ($interlaceType = $options['interlace_type'] ?? false) {
+            if (1 < $interlaceType || 0 > $interlaceType) {
+                throw new InvalidOptionException('the "interlace_type" option must be either 0 or 1', $options);
+            }
+
+            $definition
+                ->pushArgument('-i')
+                ->pushArgument($interlaceType);
+        }
+
+        if (true === $options['no_bit_depth_reductions'] ?? false) {
+            $definition->pushArgument('-nb');
+        }
+
+        if (true === $options['no_color_type_reductions'] ?? false) {
+            $definition->pushArgument('-nc');
+        }
+
+        if (true === $options['no_palette_reductions'] ?? false) {
+            $definition->pushArgument('-np');
+        }
+
+        if (true === $options['no_reductions']) {
+            $definition->pushArgument('-nx');
+        }
+
+        $definition->pushArgument($temporaryFile);
     }
 }

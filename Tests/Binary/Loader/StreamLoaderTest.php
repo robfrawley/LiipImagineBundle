@@ -26,7 +26,7 @@ class StreamLoaderTest extends AbstractTest
     public function testThrowsIfInvalidPathGivenOnFind()
     {
         $loader = new StreamLoader('file://');
-        $loader->find($this->temporaryPath.'/invalid.jpeg');
+        $loader->find($this->getTmpWorkPath().'/invalid.jpeg');
     }
 
     public function testReturnImageContentOnFind()
@@ -34,8 +34,8 @@ class StreamLoaderTest extends AbstractTest
         $loader = new StreamLoader('file://');
 
         $this->assertSame(
-            file_get_contents($this->fixturesPath.'/assets/cats.jpeg'),
-            $loader->find($this->fixturesPath.'/assets/cats.jpeg')
+            file_get_contents($this->getFixturePath().'/assets/cats.jpeg'),
+            $loader->find($this->getFixturePath().'/assets/cats.jpeg')
         );
     }
 
@@ -44,8 +44,8 @@ class StreamLoaderTest extends AbstractTest
         $loader = new StreamLoader('file://', stream_context_create());
 
         $this->assertSame(
-            file_get_contents($this->fixturesPath.'/assets/cats.jpeg'),
-            $loader->find($this->fixturesPath.'/assets/cats.jpeg')
+            file_get_contents($this->getFixturePath().'/assets/cats.jpeg'),
+            $loader->find($this->getFixturePath().'/assets/cats.jpeg')
         );
     }
 

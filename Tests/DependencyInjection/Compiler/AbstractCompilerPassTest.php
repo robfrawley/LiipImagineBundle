@@ -43,7 +43,7 @@ class AbstractCompilerPassTest extends AbstractCompilerPassTestCase
         $container = $this->createContainerBuilderMock();
         $this->expectContainerLogMethodCalledOnce($container, $pass, $expects);
 
-        $log = $this->getVisibilityRestrictedMethod($pass, 'log');
+        $log = $this->getAccessiblePrivateMethod($pass, 'log');
         $log->invoke($pass, $container, $message, ...$replace);
     }
 }

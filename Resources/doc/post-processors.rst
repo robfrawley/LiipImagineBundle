@@ -53,17 +53,12 @@ interface, as shown below.
 
     interface PostProcessorInterface
     {
-        public function process(BinaryInterface $binary);
+        public function process(BinaryInterface $binary, array $options = []);
     }
 
 As defined in ``PostProcessorInterface``, the only required method is one named ``process``,
 which is provided an instance of ``BinaryInterface`` as its singular parameter, and
 subsequently provides an instance of ``BinaryInterface`` in return.
-
-.. tip::
-
-    You may optionally implement ``ConfigurablePostProcessorInterface`` in your
-    post-processor to allow it to be configurable.
 
 The following is a template for creating your own post-processor that calls an executable.
 You must set the ``EXECUTABLE_PATH`` class constant to the absolute path of the desired
@@ -86,10 +81,11 @@ for your custom post-processor.
 
         /**
          * @param BinaryInterface $binary
+         * @param array           $options
          *
          * @return BinaryInterface
          */
-        public function process(BinaryInterface $binary)
+        public function process(BinaryInterface $binary, array $options = [])
         {
             // ensure the passed binary is a png
             if (!in_array(strtolower($binary->getMimeType()), ['image/png'])) {

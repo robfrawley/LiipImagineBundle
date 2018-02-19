@@ -13,61 +13,34 @@ namespace Liip\ImagineBundle\Imagine\Filter\PostProcessor;
 
 use Liip\ImagineBundle\Binary\BinaryInterface;
 use Liip\ImagineBundle\Model\Binary;
+use Liip\ImagineBundle\Utility\Process\DescribeProcess;
 use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Process\Process;
 
 /**
- * mozjpeg post-processor, for noticably better jpeg compression.
- *
  * @see http://calendar.perfplanet.com/2014/mozjpeg-3-0/
  * @see https://mozjpeg.codelove.de/binaries.html
  *
+ * @author Rob Frawley 2nd <rmf@src.run>
  * @author Alex Wilson <a@ax.gy>
  */
-class MozJpegPostProcessor implements PostProcessorInterface, ConfigurablePostProcessorInterface
+class MozJpegPostProcessor extends AbstractPostProcessor
 {
-    /** @var string Path to the mozjpeg cjpeg binary */
-    protected $mozjpegBin;
-
-    /** @var null|int Quality factor */
+    /*
+     * @var int|null Quality factor
+     */
     protected $quality;
 
     /**
-     * Constructor.
+     * MozJpegPostProcessor constructor.
      *
-     * @param string   $mozjpegBin Path to the mozjpeg cjpeg binary
-     * @param int|null $quality    Quality factor
+     * @param string   $executablePath
+     * @param int|null $quality
      */
-    public function __construct(
-        $mozjpegBin = '/opt/mozjpeg/bin/cjpeg',
-        $quality = null
-    ) {
-        $this->mozjpegBin = $mozjpegBin;
-        $this->setQuality($quality);
-    }
-
-    /**
-     * @param int $quality
-     *
-     * @return MozJpegPostProcessor
-     */
-    public function setQuality($quality)
+    public function __construct(string $executablePath = '/opt/mozjpeg/bin/cjpeg', int $quality = null)
     {
+        parent::__construct($executablePath);
+
         $this->quality = $quality;
-
-        return $this;
-    }
-
-    /**
-     * @param BinaryInterface $binary
-     *
-     * @throws ProcessFailedException
-     *
-     * @return BinaryInterface
-     */
-    public function process(BinaryInterface $binary)
-    {
-        return $this->processWithConfiguration($binary, []);
     }
 
     /**
@@ -78,38 +51,43 @@ class MozJpegPostProcessor implements PostProcessorInterface, ConfigurablePostPr
      *
      * @return BinaryInterface
      */
-    public function processWithConfiguration(BinaryInterface $binary, array $options)
+    public function process(BinaryInterface $binary, array $options = []): BinaryInterface
     {
-        $type = strtolower($binary->getMimeType());
-        if (!in_array($type, ['image/jpeg', 'image/jpg'])) {
+        if (!$this->isBinaryTypeJpgImage($binary)) {
             return $binary;
         }
 
-        $processArguments = [$this->mozjpegBin];
+        ($process = $this->createProcess($options, function (...$arguments): void {
+            $this->configureProcess(...$arguments);
+        }))->setInput($binary->getContent())->run();
 
-        // Places emphasis on DC
-        $processArguments[] =  '-quant-table';
-        $processArguments[] =  2;
-
-        $transformQuality = array_key_exists('quality', $options) ? $options['quality'] : $this->quality;
-        if ($transformQuality !== null) {
-            $processArguments[] =  '-quality';
-            $processArguments[] =  $transformQuality;
+        if (!$this->isProcessSuccess($process)) {
+            throw new ProcessFailedException($process);
         }
 
-        $processArguments[] =  '-optimise';
+        return new Binary($process->getOutput(), $binary->getMimeType(), $binary->getFormat());
+    }
 
-        // Favor stdin/stdout so we don't waste time creating a new file.
-        $proc = new Process($processArguments);
-        $proc->setInput($binary->getContent());
-        $proc->run();
-
-        if (false !== strpos($proc->getOutput(), 'ERROR') || 0 !== $proc->getExitCode()) {
-            throw new ProcessFailedException($proc);
+    /**
+     * @param DescribeProcess $definition
+     * @param array           $options
+     */
+    private function configureProcess(DescribeProcess $definition, array $options): void
+    {
+        if ($quantTable = $options['quant_table'] ?? 2) {
+            $definition
+                ->pushArgument('-quant-table')
+                ->pushArgument($quantTable);
         }
 
-        $result = new Binary($proc->getOutput(), $binary->getMimeType(), $binary->getFormat());
+        if ($options['optimise'] ?? true) {
+            $definition->pushArgument('-optimise');
+        }
 
-        return $result;
+        if (null !== $quality = $options['quality'] ?? $this->quality) {
+            $definition
+                ->pushArgument('-quality')
+                ->pushArgument($quality);
+        }
     }
 }

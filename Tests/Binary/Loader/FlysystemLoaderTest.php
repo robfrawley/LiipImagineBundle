@@ -35,7 +35,7 @@ class FlysystemLoaderTest extends AbstractTest
             $this->markTestSkipped('Requires the league/flysystem package.');
         }
 
-        $this->flyFilesystem = new Filesystem(new Local($this->fixturesPath));
+        $this->flyFilesystem = new Filesystem(new Local($this->getFixturePath()));
     }
 
     /**
@@ -56,7 +56,7 @@ class FlysystemLoaderTest extends AbstractTest
         $loader = $this->getFlysystemLoader();
 
         $this->assertSame(
-            file_get_contents($this->fixturesPath.'/assets/cats.jpeg'),
+            file_get_contents($this->getFixturePath().'/assets/cats.jpeg'),
             $loader->find('assets/cats.jpeg')->getContent()
         );
     }
