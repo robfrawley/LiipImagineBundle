@@ -1,0 +1,9 @@
+
+<fg=yellow;bg=black> <fg=yellow;bg=black>/</> <fg=yellow;bg=black>[ NOTE ]</> In vel mi sit amet augue congue elementum. Morbi in ipsum sit amet pede facilisis laoreet. Donec lacus      </>
+<fg=yellow;bg=black> <fg=yellow;bg=black>/</> nunc, viverra nec, blandit vel, egestas et, augue. Vestibulum tincidunt malesuada tellus. Ut ultrices ultrices 100   </>
+<fg=yellow;bg=black> <fg=yellow;bg=black>/</> enim. Curabitur sit amet mauris. Morbi in dui quis est pulvinar ullamcorper.                                         </>
+
+/ [ NOTE ] In vel mi sit amet augue congue elementum. Morbi in ipsum sit amet pede facilisis laoreet. Donec lacus nunc,
+/ viverra nec, blandit vel, egestas et, augue. Vestibulum tincidunt malesuada tellus. Ut ultrices ultrices 100 enim.
+/ Curabitur sit amet mauris. Morbi in dui quis est pulvinar ullamcorper.
+

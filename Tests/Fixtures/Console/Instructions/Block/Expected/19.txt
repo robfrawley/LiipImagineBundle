@@ -1,0 +1,7 @@
+
+<fg=white;bg=black;options=reverse> <fg=white;bg=black;options=reverse></>                                                                                                                       </>
+<fg=white;bg=black;options=reverse> <fg=white;bg=black;options=reverse></> <fg=white;bg=black;options=reverse>[liip/imagine-bundle]</> Amet Augue Congue Elementum                                                                     </>
+<fg=white;bg=black;options=reverse> <fg=white;bg=black;options=reverse></>                                                                                                                       </>
+
+# [liip/imagine-bundle] Amet Augue Congue Elementum
+

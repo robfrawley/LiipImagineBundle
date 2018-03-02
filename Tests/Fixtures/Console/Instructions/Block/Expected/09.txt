@@ -1,0 +1,63 @@
+
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</>                                                                                                                 </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> <fg=white;bg=black;options=bold,reverse>[ PAD HEADER+WHOLE EMPHASIS REVERSE ]</>                                                                           </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</>                                                                                                                 </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> Integer euismod lacus luctus magna. Quisque cursus, metus vitae pharetra. Sed cursus ante dapibus diam. Nulla   </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> quis sem at sed nisi.                                                                                           </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</>                                                                                                                 </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> In vel mi sit amet augue congue elementum. Morbi in ipsum sit amet pede facilisis laoreet. Donec lacus nunc,    </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> viverra nec, blandit vel, egestas et, augue. Vestibulum tincidunt malesuada tellus. Ut ultrices ultrices enim.  </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> Curabitur sit amet mauris. Morbi in dui quis est pulvinar ullamcorper.                                          </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</>                                                                                                                 </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> Curabitur tortor. Pellentesque nibh. Aenean quam. In scelerisque sem at dolor. Maecenas mattis. Sed convallis   </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> tristique sem. Proin ut ligula vel nunc egestas porttitor. Morbi lectus risus, iaculis vel, suscipit quis,      </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> luctus non, massa. Fusce ac turpis quis ligula lacinia aliquet. Mauris ipsum. Nulla metus metus, ullamcorper    </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> vel, tincidunt sed, euismod in, nibh. Quisque volutpat condimentum velit. Class aptent taciti sociosqu ad       </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> litora torquent per conubia nostra, per inceptos himenaeos. Nam nec ante. Sed lacinia, urna non tincidunt       </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> mattis, tortor neque adipiscing diam, a cursus ipsum ante quis turpis. Nulla facilisi. Ut fringilla.            </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> Suspendisse potenti.                                                                                            </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</>                                                                                                                 </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> Fusce ac turpis quis ligula lacinia aliquet.                                                                    </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</>                                                                                                                 </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> Mauris ipsum. Nulla metus metus, ullamcorper vel, tincidunt sed, euismod in, nibh. Quisque volutpat condimentum </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> velit.                                                                                                          </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</>                                                                                                                 </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus ante     </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> dapibus diam. Sed nisi. Nulla quis sem at nibh elementum imperdiet. Duis sagittis ipsum. Praesent mauris. Fusce </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> nec tellus sed augue semper porta. Mauris massa. Vestibulum lacinia arcu eget nulla. Class aptent taciti        </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur sodales ligula in libero. Sed </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> dignissim lacinia nunc. Curabitur tortor. Pellentesque nibh. Aenean quam. In scelerisque sem at dolor. Maecenas </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> mattis. Sed convallis tristique sem. Proin ut ligula vel nunc egestas porttitor. Morbi lectus risus, iaculis    </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> vel, suscipit quis, luctus non, massa. Fusce ac turpis quis ligula lacinia aliquet. Mauris ipsum. Nulla metus   </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> metus, ullamcorper vel, tincidunt sed, euismod in, nibh. Quisque volutpat condimentum velit. Class aptent       </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam nec ante. Sed lacinia, urna  </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> non tincidunt mattis, tortor neque adipiscing diam, a cursus ipsum ante quis turpis. Nulla facilisi. Ut         </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> fringilla. Suspendisse potenti. Nunc feugiat mi a tellus consequat imperdiet.                                   </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</>                                                                                                                 </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus ante     </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> dapibus diam. Sed nisi. Nulla quis sem at nibh elementum imperdiet. Duis sagittis ipsum. Praesent mauris. Fusce </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> nec tellus sed augue semper porta. Mauris massa. Vestibulum lacinia arcu eget nulla. Class aptent taciti        </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur sodales ligula in libero. Sed </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> dignissim lacinia nunc. Curabitur tortor. Pellentesque nibh. Aenean quam. In scelerisque sem at dolor. Maecenas </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> mattis. Sed convallis tristique sem. Proin ut ligula vel nunc egestas porttitor. Morbi lectus risus, iaculis    </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> vel, suscipit quis, luctus non, massa. Fusce ac turpis quis ligula lacinia aliquet. Mauris ipsum. Nulla metus   </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> metus, ullamcorper vel, tincidunt sed, euismod in, nibh. Quisque volutpat condimentum velit. Class aptent       </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam nec ante. Sed lacinia, urna  </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> non tincidunt mattis, tortor neque adipiscing diam, a cursus ipsum ante quis turpis. Nulla facilisi. Ut         </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> fringilla. Suspendisse potenti. Nunc feugiat mi a tellus consequat imperdiet. Vestibulum sapien. Proin quam.    </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> Etiam ultrices. Suspendisse in justo eu magna luctus suscipit. Sed lectus. Integer euismod lacus luctus magna.  </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> Quisque cursus, metus vitae pharetra auctor, sem massa mattis sem, at interdum magna augue eget diam.           </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Morbi lacinia molestie  </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> dui. Praesent blandit dolor. Sed non quam. In vel mi sit amet augue congue elementum. Morbi in ipsum sit amet   </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> pede facilisis laoreet. Donec lacus nunc, viverra nec, blandit vel, egestas et, augue. Vestibulum tincidunt     </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> malesuada tellus. Ut ultrices ultrices enim. Curabitur sit amet mauris. Morbi in dui quis est pulvinar          </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> ullamcorper.                                                                                                    </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</>                                                                                                                 </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> Quisque cursus, metus vitae pharetra auctor, sem massa mattis sem, at interdum magna augue eget diam.           </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</>                                                                                                                 </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> Sed dignissim lacinia nunc. Curabitur tortor. Pellentesque nibh. Aenean quam. In scelerisque sem at dolor.      </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> Maecenas mattis. Sed convallis tristique sem. Proin ut ligula vel nunc egestas porttitor.                       </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</>                                                                                                                 </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</> Morbi in ipsum sit amet pede facilisis laoreet.                                                                 </>
+<fg=white;bg=black;options=bold,reverse> <fg=white;bg=black;options=bold,reverse>PREFIX</>                                                                                                                 </>
+

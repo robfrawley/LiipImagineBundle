@@ -1,0 +1,109 @@
+
+<fg=white;bg=black> <fg=white;bg=black>(*)</> <fg=white;bg=black>[STRIPPED]</>                                                                                                         </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> Integer euismod lacus luctus magna. Quisque cursus, metus vitae pharetra. Sed cursus ante dapibus diam. Nulla quis </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> sem at sed nisi.                                                                                                   </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> In vel mi sit amet augue congue elementum. Morbi in ipsum sit amet pede facilisis laoreet. Donec lacus nunc,       </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> viverra nec, blandit vel, egestas et, augue. Vestibulum tincidunt malesuada tellus. Ut ultrices ultrices enim.     </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> Curabitur sit amet mauris. Morbi in dui quis est pulvinar ullamcorper.                                             </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> Curabitur tortor. Pellentesque nibh. Aenean quam. In scelerisque sem at dolor. Maecenas mattis. Sed convallis      </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> tristique sem. Proin ut ligula vel nunc egestas porttitor. Morbi lectus risus, iaculis vel, suscipit quis, luctus  </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> non, massa. Fusce ac turpis quis ligula lacinia aliquet. Mauris ipsum. Nulla metus metus, ullamcorper vel,         </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> tincidunt sed, euismod in, nibh. Quisque volutpat condimentum velit. Class aptent taciti sociosqu ad litora        </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> torquent per conubia nostra, per inceptos himenaeos. Nam nec ante. Sed lacinia, urna non tincidunt mattis, tortor  </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> neque adipiscing diam, a cursus ipsum ante quis turpis. Nulla facilisi. Ut fringilla. Suspendisse potenti.         </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> Fusce ac turpis quis ligula lacinia aliquet.                                                                       </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> Mauris ipsum. Nulla metus metus, ullamcorper vel, tincidunt sed, euismod in, nibh. Quisque volutpat condimentum    </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> velit.                                                                                                             </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus ante        </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> dapibus diam. Sed nisi. Nulla quis sem at nibh elementum imperdiet. Duis sagittis ipsum. Praesent mauris. Fusce    </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> nec tellus sed augue semper porta. Mauris massa. Vestibulum lacinia arcu eget nulla. Class aptent taciti sociosqu  </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur sodales ligula in libero. Sed dignissim   </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> lacinia nunc. Curabitur tortor. Pellentesque nibh. Aenean quam. In scelerisque sem at dolor. Maecenas mattis. Sed  </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> convallis tristique sem. Proin ut ligula vel nunc egestas porttitor. Morbi lectus risus, iaculis vel, suscipit     </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> quis, luctus non, massa. Fusce ac turpis quis ligula lacinia aliquet. Mauris ipsum. Nulla metus metus, ullamcorper </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> vel, tincidunt sed, euismod in, nibh. Quisque volutpat condimentum velit. Class aptent taciti sociosqu ad litora   </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> torquent per conubia nostra, per inceptos himenaeos. Nam nec ante. Sed lacinia, urna non tincidunt mattis, tortor  </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> neque adipiscing diam, a cursus ipsum ante quis turpis. Nulla facilisi. Ut fringilla. Suspendisse potenti. Nunc    </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> feugiat mi a tellus consequat imperdiet.                                                                           </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus ante        </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> dapibus diam. Sed nisi. Nulla quis sem at nibh elementum imperdiet. Duis sagittis ipsum. Praesent mauris. Fusce    </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> nec tellus sed augue semper porta. Mauris massa. Vestibulum lacinia arcu eget nulla. Class aptent taciti sociosqu  </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur sodales ligula in libero. Sed dignissim   </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> lacinia nunc. Curabitur tortor. Pellentesque nibh. Aenean quam. In scelerisque sem at dolor. Maecenas mattis. Sed  </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> convallis tristique sem. Proin ut ligula vel nunc egestas porttitor. Morbi lectus risus, iaculis vel, suscipit     </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> quis, luctus non, massa. Fusce ac turpis quis ligula lacinia aliquet. Mauris ipsum. Nulla metus metus, ullamcorper </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> vel, tincidunt sed, euismod in, nibh. Quisque volutpat condimentum velit. Class aptent taciti sociosqu ad litora   </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> torquent per conubia nostra, per inceptos himenaeos. Nam nec ante. Sed lacinia, urna non tincidunt mattis, tortor  </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> neque adipiscing diam, a cursus ipsum ante quis turpis. Nulla facilisi. Ut fringilla. Suspendisse potenti. Nunc    </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> feugiat mi a tellus consequat imperdiet. Vestibulum sapien. Proin quam. Etiam ultrices. Suspendisse in justo eu    </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> magna luctus suscipit. Sed lectus. Integer euismod lacus luctus magna. Quisque cursus, metus vitae pharetra        </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> auctor, sem massa mattis sem, at interdum magna augue eget diam. Vestibulum ante ipsum primis in faucibus orci     </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> luctus et ultrices posuere cubilia Curae; Morbi lacinia molestie dui. Praesent blandit dolor. Sed non quam. In vel </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> mi sit amet augue congue elementum. Morbi in ipsum sit amet pede facilisis laoreet. Donec lacus nunc, viverra nec, </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> blandit vel, egestas et, augue. Vestibulum tincidunt malesuada tellus. Ut ultrices ultrices enim. Curabitur sit    </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> amet mauris. Morbi in dui quis est pulvinar ullamcorper.                                                           </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> Quisque cursus, metus vitae pharetra auctor, sem massa mattis sem, at interdum magna augue eget diam.              </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> Sed dignissim lacinia nunc. Curabitur tortor. Pellentesque nibh. Aenean quam. In scelerisque sem at dolor.         </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> Maecenas mattis. Sed convallis tristique sem. Proin ut ligula vel nunc egestas porttitor.                          </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> Morbi in ipsum sit amet pede facilisis laoreet.                                                                    </>
+
+<fg=white;bg=black> <fg=white;bg=black>(*)</> <fg=white;bg=black>[STRIPPED]</>                                                                                                         </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> In vel mi sit %s augue congue elementum. Morbi in ipsum sit amet %s. Donec lacus nunc, viverra nec, blandit vel,   </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> egestas et, augue. Vestibulum tincidunt malesuada tellus. Ut ultrices ultrices %d enim. Curabitur sit amet mauris. </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> Morbi in dui quis est pulvinar ullamcorper.                                                                        </>
+
+<fg=white;bg=black> <fg=white;bg=black>(*)</> <fg=white;bg=black>[ESCAPED]</>                                                                                                          </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> \<fg=white;bg=black>Integer euismod lacus luctus magna. Quisque cursus, metus vitae pharetra. Sed cursus ante       </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> dapibus diam. Nulla quis sem at sed nisi.\</>                                                                       </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> \<fg=white;bg=black>In vel mi sit amet augue congue elementum. Morbi in ipsum sit amet pede facilisis laoreet.      </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> Donec lacus nunc, viverra nec, blandit vel, egestas et, augue. Vestibulum tincidunt malesuada tellus. Ut ultrices  </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> ultrices enim. Curabitur sit amet mauris. Morbi in dui quis est pulvinar ullamcorper.\</>                           </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> \<fg=white;bg=black>Curabitur tortor. Pellentesque nibh. Aenean quam. In scelerisque sem at dolor. Maecenas         </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> mattis. Sed convallis tristique sem. Proin ut ligula vel nunc egestas porttitor. Morbi lectus risus, iaculis vel,  </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> suscipit quis, luctus non, massa. Fusce ac turpis quis ligula lacinia aliquet. Mauris ipsum. Nulla metus metus,    </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> ullamcorper vel, tincidunt sed, euismod in, nibh. Quisque volutpat condimentum velit. Class aptent taciti sociosqu </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> ad litora torquent per conubia nostra, per inceptos himenaeos. Nam nec ante. Sed lacinia, urna non tincidunt       </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> mattis, tortor neque adipiscing diam, a cursus ipsum ante quis turpis. Nulla facilisi. Ut fringilla. Suspendisse   </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> potenti.\</>                                                                                                        </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> \<fg=white;bg=black>Fusce ac turpis quis ligula lacinia aliquet.\</>                                                 </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> \<fg=white;bg=black>Mauris ipsum. Nulla metus metus, ullamcorper vel, tincidunt sed, euismod in, nibh. Quisque      </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> volutpat condimentum velit.   \</>                                                                                  </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> \<fg=white;bg=black>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero.     </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> Sed cursus ante dapibus diam. Sed nisi. Nulla quis sem at nibh elementum imperdiet. Duis sagittis ipsum. Praesent  </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> mauris. Fusce nec tellus sed augue semper porta. Mauris massa. Vestibulum lacinia arcu eget nulla. Class aptent    </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur sodales ligula in libero. </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> Sed dignissim lacinia nunc. Curabitur tortor. Pellentesque nibh. Aenean quam. In scelerisque sem at dolor.         </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> Maecenas mattis. Sed convallis tristique sem. Proin ut ligula vel nunc egestas porttitor. Morbi lectus risus,      </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> iaculis vel, suscipit quis, luctus non, massa. Fusce ac turpis quis ligula lacinia aliquet. Mauris ipsum. Nulla    </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> metus metus, ullamcorper vel, tincidunt sed, euismod in, nibh. Quisque volutpat condimentum velit. Class aptent    </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam nec ante. Sed lacinia, urna non </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> tincidunt mattis, tortor neque adipiscing diam, a cursus ipsum ante quis turpis. Nulla facilisi. Ut fringilla.     </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> Suspendisse potenti. Nunc feugiat mi a tellus consequat imperdiet.\</>                                              </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> \<fg=white;bg=black>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero.     </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> Sed cursus ante dapibus diam. Sed nisi. Nulla quis sem at nibh elementum imperdiet. Duis sagittis ipsum. Praesent  </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> mauris. Fusce nec tellus sed augue semper porta. Mauris massa. Vestibulum lacinia arcu eget nulla. Class aptent    </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur sodales ligula in libero. </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> Sed dignissim lacinia nunc. Curabitur tortor. Pellentesque nibh. Aenean quam. In scelerisque sem at dolor.         </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> Maecenas mattis. Sed convallis tristique sem. Proin ut ligula vel nunc egestas porttitor. Morbi lectus risus,      </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> iaculis vel, suscipit quis, luctus non, massa. Fusce ac turpis quis ligula lacinia aliquet. Mauris ipsum. Nulla    </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> metus metus, ullamcorper vel, tincidunt sed, euismod in, nibh. Quisque volutpat condimentum velit. Class aptent    </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam nec ante. Sed lacinia, urna non </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> tincidunt mattis, tortor neque adipiscing diam, a cursus ipsum ante quis turpis. Nulla facilisi. Ut fringilla.     </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> Suspendisse potenti. Nunc feugiat mi a tellus consequat imperdiet. Vestibulum sapien. Proin quam. Etiam ultrices.  </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> Suspendisse in justo eu magna luctus suscipit. Sed lectus. Integer euismod lacus luctus magna. Quisque cursus,     </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> metus vitae pharetra auctor, sem massa mattis sem, at interdum magna augue eget diam. Vestibulum ante ipsum primis </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> in faucibus orci luctus et ultrices posuere cubilia Curae; Morbi lacinia molestie dui. Praesent blandit dolor. Sed </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> non quam. In vel mi sit amet augue congue elementum. Morbi in ipsum sit amet pede facilisis laoreet. Donec lacus   </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> nunc, viverra nec, blandit vel, egestas et, augue. Vestibulum tincidunt malesuada tellus. Ut ultrices ultrices     </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> enim. Curabitur sit amet mauris. Morbi in dui quis est pulvinar ullamcorper.\</>                                    </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> \<fg=white;bg=black>Quisque cursus, metus vitae pharetra auctor, sem massa mattis sem, at interdum magna augue      </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> eget diam.\</>                                                                                                      </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> \<fg=white;bg=black>Sed dignissim lacinia nunc. Curabitur tortor. Pellentesque nibh. Aenean quam. In scelerisque    </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> sem at dolor. Maecenas mattis. Sed convallis tristique sem. Proin ut ligula vel nunc egestas porttitor.\</>         </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> \<fg=white;bg=black>Morbi in ipsum sit amet pede facilisis laoreet.\</>                                              </>
+
+<fg=white;bg=black> <fg=white;bg=black>(*)</> <fg=white;bg=black>[ESCAPED]</>                                                                                                          </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> \<fg=white;bg=black>In vel mi sit %s augue congue elementum. Morbi in ipsum sit amet %s. Donec lacus nunc, viverra  </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> nec, blandit vel, egestas et, augue. Vestibulum tincidunt malesuada tellus. Ut ultrices ultrices %d enim.          </>
+<fg=white;bg=black> <fg=white;bg=black>(*)</> Curabitur sit amet mauris. Morbi in dui quis est pulvinar ullamcorper.\</>                                          </>
+

@@ -1,0 +1,15 @@
+
+<fg=white;bg=red> <fg=white;bg=red>#</>                                                                                                                      </>
+<fg=white;bg=red> <fg=white;bg=red>#</> <fg=white;bg=red;options=bold>[ ERROR ]</>                                                                                                            </>
+<fg=white;bg=red> <fg=white;bg=red>#</>                                                                                                                      </>
+<fg=white;bg=red> <fg=white;bg=red>#</> In vel mi sit amet augue congue elementum. Morbi in ipsum sit amet pede facilisis laoreet. Donec lacus nunc, viverra </>
+<fg=white;bg=red> <fg=white;bg=red>#</> nec, blandit vel, egestas et, augue. Vestibulum tincidunt malesuada tellus. Ut ultrices ultrices 100 enim. Curabitur </>
+<fg=white;bg=red> <fg=white;bg=red>#</> sit amet mauris. Morbi in dui quis est pulvinar ullamcorper.                                                         </>
+<fg=white;bg=red> <fg=white;bg=red>#</>                                                                                                                      </>
+
+# <options=bold>[ ERROR ]</>
+#
+# In vel mi sit amet augue congue elementum. Morbi in ipsum sit amet pede facilisis laoreet. Donec lacus nunc, viverra
+# nec, blandit vel, egestas et, augue. Vestibulum tincidunt malesuada tellus. Ut ultrices ultrices 100 enim. Curabitur
+# sit amet mauris. Morbi in dui quis est pulvinar ullamcorper.
+

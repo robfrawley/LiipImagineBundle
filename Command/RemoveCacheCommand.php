@@ -12,64 +12,149 @@
 namespace Liip\ImagineBundle\Command;
 
 use Liip\ImagineBundle\Imagine\Cache\CacheManager;
+use Liip\ImagineBundle\Imagine\Filter\FilterManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class RemoveCacheCommand extends Command
 {
-    /* @var CacheManager cacheManager */
-    private $cacheManager;
+    use CacheCommandTrait;
 
-    public function __construct(CacheManager $cacheManager)
+    /**
+     * @param CacheManager  $cacheManager
+     * @param FilterManager $filterManager
+     */
+    public function __construct(CacheManager $cacheManager, FilterManager $filterManager)
     {
-        $this->cacheManager = $cacheManager;
+        parent::__construct();
 
-        parent::__construct('liip:imagine:cache:remove');
+        $this->cacheManager = $cacheManager;
+        $this->filterManager = $filterManager;
     }
 
-    protected function configure()
+    /**
+     * @return void
+     */
+    protected function configure(): void
     {
         $this
-            ->setDescription('Remove cache for given paths and set of filters.')
-            ->addArgument('paths', InputArgument::OPTIONAL | InputArgument::IS_ARRAY, 'Image paths')
-            ->addOption(
-                'filters',
-                'f',
-                InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
-                'Filters list'
-            )
-            ->setHelp(<<<'EOF'
-The <info>%command.name%</info> command removes cache by specified parameters.
-
-Paths should be separated by spaces:
-<info>php app/console %command.name% path1 path2</info>
-All cache for a given `paths` will be lost.
-
-If you use --filters parameter:
-<info>php app/console %command.name% --filters=thumb1 --filters=thumb2</info>
-All cache for a given filters will be lost.
-
-You can combine these parameters:
-<info>php app/console %command.name% path1 path2 --filters=thumb1 --filters=thumb2</info>
-
-<info>php app/console %command.name%</info>
-Cache for all paths and filters will be lost when executing this command without parameters.
-EOF
-            );
+            ->setDescription('Remove cache entries for given paths and filters.')
+            ->setHelp(static::getCommandHelp())
+            ->setDefinition(static::getCommandDefinitions());
     }
 
+    /**
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     *
+     * @return int
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $paths = $input->getArgument('paths');
-        $filters = $input->getOption('filters');
+        $this->initializeState($input, $output);
 
-        if (empty($filters)) {
-            $filters = null;
+        $filters = $this->resolveFilters($input);
+        $targets = $this->resolveTargets($input);
+
+        if (0 === count($targets)) {
+            $this->doCacheRemoveUseGlobbingTargets($filters);
+        } else {
+            $this->doCacheRemoveUseExplicitTargets($filters, $targets);
         }
 
-        $this->cacheManager->remove($paths, $filters);
+        return $this->getResultCode();
+    }
+
+
+    /**
+     * @param string[] $filters
+     */
+    private function doCacheRemoveUseGlobbingTargets(array $filters)
+    {
+        foreach ($filters as $f) {
+            $this->doCacheRemove($f);
+        }
+
+        $this->writeResults($filters, [], true);
+    }
+
+    /**
+     * @param string[] $filters
+     * @param string[] $targets
+     */
+    private function doCacheRemoveUseExplicitTargets(array $filters, array $targets)
+    {
+        foreach ($targets as $t) {
+            foreach ($filters as $f) {
+                $this->doCacheRemove($f, $t);
+            }
+        }
+
+        $this->writeResults($filters, $targets);
+    }
+
+    /**
+     * @param string      $target
+     * @param string|null $filter
+     */
+    private function doCacheRemove(string $filter, string $target = null): void
+    {
+        $this->writeActionStart($filter, $target);
+
+        try {
+            if (null === $target) {
+                $this->cacheManager->remove(null, $filter);
+                $this->writeActionResultDone('removed-glob', true);
+            } elseif ($this->cacheManager->isStored($target, $filter)) {
+                $this->cacheManager->remove($target, $filter);
+                $this->writeActionResultDone('removed', true);
+            } else {
+                $this->writeActionResultSkip('skipped', true);
+            }
+        } catch (\Exception $exception) {
+            $this->writeActionResultException($exception);
+        }
+    }
+
+    /**
+     * @return string
+     */
+    private static function getCommandHelp(): string
+    {
+        return <<<'EOF'
+The <comment>%command.name%</comment> command removes the passed image(s) cache entry for the 
+resolved filter(s), outputting results using the following basic format:
+  <info>image.ext[filter] (removed|skipped|failure)[: (image-path|exception-message)]</>
+
+<comment># bin/console %command.name% --filter=thumb1 foo.ext bar.ext</comment>
+Remove cache for <options=bold>both</> <comment>foo.ext</comment> and <comment>bar.ext</comment> images for <options=bold>one</> filter (<comment>thumb1</comment>), outputting:
+  <info>- foo.ext[thumb1] removed</>
+  <info>- bar.ext[thumb1] removed</>
+
+<comment># bin/console %command.name% --filter=thumb1 --filter=thumb3 foo.ext</comment>
+Remove cache for <comment>foo.ext</comment> image using <options=bold>two</> filters (<comment>thumb1</comment> and <comment>thumb3</comment>), outputting:
+  <info>- foo.ext[thumb1] removed</>
+  <info>- foo.ext[thumb3] removed</>
+
+<comment># bin/console %command.name% foo.ext</comment>
+Remove cache for <comment>foo.ext</comment> image using <options=bold>all</> filters (as none were specified), outputting:
+  <info>- foo.ext[thumb1] removed</>
+  <info>- foo.ext[thumb2] removed</>
+  <info>- foo.ext[thumb3] removed</>
+
+EOF;
+    }
+
+    /**
+     * @return InputDefinition[]
+     */
+    private static function getCommandDefinitions(): array
+    {
+        return array_merge(static::getCommandReusableDefinitions(), [
+            new InputArgument('paths', InputArgument::IS_ARRAY, 'Image target(s) to run removal on; if none explicitly passed, removal all for passed filters.'),
+        ]);
     }
 }

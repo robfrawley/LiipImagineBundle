@@ -11,8 +11,9 @@
 
 namespace Liip\ImagineBundle\Command;
 
+use Liip\ImagineBundle\Imagine\Cache\CacheManager;
+use Liip\ImagineBundle\Imagine\Data\DataManager;
 use Liip\ImagineBundle\Imagine\Filter\FilterManager;
-use Liip\ImagineBundle\Service\FilterService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -21,68 +22,139 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ResolveCacheCommand extends Command
 {
-    /* @var FilterManager $filterManager */
-    private $filterManager;
+    use CacheCommandTrait;
 
-    /* @var FilterService $filterService */
-    private $filterService;
+    /**
+     * @var DataManager
+     */
+    private $dataManager;
 
-    public function __construct(FilterManager $filterManager, FilterService $filterService)
+    /**
+     * @param CacheManager  $cacheManager
+     * @param FilterManager $filterManager
+     * @param DataManager   $dataManager
+     */
+    public function __construct(CacheManager $cacheManager, FilterManager $filterManager, DataManager $dataManager)
     {
-        $this->filterManager = $filterManager;
-        $this->filterService = $filterService;
+        parent::__construct();
 
-        parent::__construct('liip:imagine:cache:resolve');
+        $this->cacheManager = $cacheManager;
+        $this->filterManager = $filterManager;
+        $this->dataManager = $dataManager;
     }
 
-    protected function configure()
+    /**
+     * @return void
+     */
+    protected function configure(): void
     {
         $this
-            ->setDescription('Resolve cache for given path and set of filters.')
-            ->addArgument('paths', InputArgument::REQUIRED | InputArgument::IS_ARRAY, 'Image paths')
-            ->addOption(
-                'filters',
-                'f',
-                InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
-                'Filters list'
-            )->setHelp(<<<'EOF'
-The <info>%command.name%</info> command resolves cache by specified parameters.
-It returns list of urls.
-
-<info>php app/console %command.name% path1 path2 --filters=thumb1</info>
-Cache for this two paths will be resolved with passed filter.
-As a result you will get<info>
-    http://localhost/media/cache/thumb1/path1
-    http://localhost/media/cache/thumb1/path2</info>
-
-You can pass few filters:
-<info>php app/console %command.name% path1 --filters=thumb1 --filters=thumb2</info>
-As a result you will get<info>
-    http://localhost/media/cache/thumb1/path1
-    http://localhost/media/cache/thumb2/path1</info>
-
-If you omit --filters parameter then to resolve given paths will be used all configured and available filters in application:
-<info>php app/console %command.name% path1</info>
-As a result you will get<info>
-    http://localhost/media/cache/thumb1/path1
-    http://localhost/media/cache/thumb2/path1</info>
-EOF
-            );
+            ->setDescription('Resolve cache entries for the given paths and filters.')
+            ->setHelp(static::getCommandHelp())
+            ->setDefinition(static::getCommandDefinitions());
     }
 
+    /**
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     *
+     * @return int
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $paths = $input->getArgument('paths');
-        $filters = $input->getOption('filters');
+        $this->initializeState($input, $output);
 
-        if (empty($filters)) {
-            $filters = array_keys($this->filterManager->getFilterConfiguration()->all());
-        }
+        $forced = $input->getOption('force');
+        $filters = $this->resolveFilters($input);
+        $targets = $this->resolveTargets($input);
 
-        foreach ($paths as $path) {
-            foreach ($filters as $filter) {
-                $output->writeln($this->filterService->getUrlOfFilteredImage($path, $filter));
+        $this->doCacheResolveAsFiltersAndTargets($filters, $targets, $forced);
+
+        return $this->getResultCode();
+    }
+
+    /**
+     * @param string[] $filters
+     * @param string[] $targets
+     * @param bool     $forced
+     */
+    private function doCacheResolveAsFiltersAndTargets(array $filters, array $targets, bool $forced)
+    {
+        foreach ($targets as $t) {
+            foreach ($filters as $f) {
+                $this->doCacheResolve($f, $t, $forced);
             }
         }
+
+        $this->writeResults($filters, $targets);
+    }
+
+    /**
+     * @param string $filter
+     * @param string $target
+     * @param bool   $forced
+     *
+     * @return void
+     */
+    private function doCacheResolve(string $filter, string $target, bool $forced): void
+    {
+        $this->writeActionStart($filter, $target);
+
+        try {
+            if ($forced || !$this->cacheManager->isStored($target, $filter)) {
+                $this->cacheManager->store($this->filterManager->applyFilter($this->dataManager->find($filter, $target), $filter), $target, $filter);
+                $this->writeActionResultDone('resolved');
+            } else {
+                $this->writeActionResultSkip('cached');
+            }
+
+            $this->writeActionResultDetail($this->cacheManager->resolve($target, $filter));
+        } catch (\Exception $exception) {
+            $this->writeActionResultException($exception);
+        }
+    }
+
+    /**
+     * @return string
+     */
+    private static function getCommandHelp(): string
+    {
+        return <<<'EOF'
+The <comment>%command.name%</comment> command resolves the passed image(s) for the resolved
+filter(s), outputting results using the following basic format:
+  <info>image.ext[filter] (resolved|cached|failed): (resolve-image-path|exception-message)</>
+
+<comment># bin/console %command.name% --filter=thumb1 foo.ext bar.ext</comment>
+Resolve <options=bold>both</> <comment>foo.ext</comment> and <comment>bar.ext</comment> images using <options=bold>one</> filter (<comment>thumb1</comment>), outputting:
+  <info>- foo.ext[thumb1] status: http://localhost/media/cache/thumb1/foo.ext</>
+  <info>- bar.ext[thumb1] status: http://localhost/media/cache/thumb1/bar.ext</>
+
+<comment># bin/console %command.name% --filter=thumb1 --filter=thumb3 foo.ext</comment>
+Resolve <comment>foo.ext</comment> image using <options=bold>two</> filters (<comment>thumb1</comment> and <comment>thumb3</comment>), outputting:
+  <info>- foo.ext[thumb1] status: http://localhost/media/cache/thumb1/foo.ext</>
+  <info>- foo.ext[thumb3] status: http://localhost/media/cache/thumb3/foo.ext</>
+
+<comment># bin/console %command.name% foo.ext</comment>
+Resolve <comment>foo.ext</comment> image using <options=bold>all</> filters (as none were specified), outputting:
+  <info>- foo.ext[thumb1] status: http://localhost/media/cache/thumb1/foo.ext</>
+  <info>- foo.ext[thumb2] status: http://localhost/media/cache/thumb2/foo.ext</>
+  <info>- foo.ext[thumb3] status: http://localhost/media/cache/thumb2/foo.ext</>
+
+<comment># bin/console %command.name% --force --filter=thumb1 foo.ext</comment>
+Resolve <comment>foo.ext</comment> image using <options=bold>one</> filter (<comment>thumb1</comment>) and <options=bold>forcing resolution</> (regardless of cache), outputting:
+  <info>- foo.ext[thumb1] resolved: http://localhost/media/cache/thumb1/foo.ext</>
+
+EOF;
+    }
+
+    /**
+     * @return array
+     */
+    private static function getCommandDefinitions(): array
+    {
+        return array_merge(static::getCommandReusableDefinitions(), [
+            new InputOption('force', 'F', InputOption::VALUE_NONE, 'Force re-resolution of image, regardless of whether it has been previously cached.'),
+            new InputArgument('paths', InputArgument::REQUIRED | InputArgument::IS_ARRAY, 'Image target(s) to run resolution on.'),
+        ]);
     }
 }

@@ -1,0 +1,9 @@
+
+<fg=black;bg=green> <fg=black;bg=green>-</> <fg=black;bg=green>[ OK ]</> In vel mi sit amet augue congue elementum. Morbi in ipsum sit amet pede facilisis laoreet. Donec lacus nunc,  </>
+<fg=black;bg=green> <fg=black;bg=green>-</> viverra nec, blandit vel, egestas et, augue. Vestibulum tincidunt malesuada tellus. Ut ultrices ultrices 100 enim.   </>
+<fg=black;bg=green> <fg=black;bg=green>-</> Curabitur sit amet mauris. Morbi in dui quis est pulvinar ullamcorper.                                               </>
+
+- [ OK ] In vel mi sit amet augue congue elementum. Morbi in ipsum sit amet pede facilisis laoreet. Donec lacus nunc,
+- viverra nec, blandit vel, egestas et, augue. Vestibulum tincidunt malesuada tellus. Ut ultrices ultrices 100 enim.
+- Curabitur sit amet mauris. Morbi in dui quis est pulvinar ullamcorper.
+

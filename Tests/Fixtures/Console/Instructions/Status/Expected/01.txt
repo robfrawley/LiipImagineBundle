@@ -1,0 +1,10 @@
+(<options=bold>resolved</>)
+
+(<options=bold>skipped</>)
+
+(<options=bold>failed</>)
+
+(<options=bold>cached</>)
+
+(<options=bold>ignored</>)
+

@@ -1,0 +1,9 @@
+{
+    "results": [
+        "resolved",
+        "skipped",
+        "failed",
+        "cached",
+        "ignored"
+    ]
+}
