@@ -14,6 +14,7 @@ namespace Liip\ImagineBundle\Imagine\Filter\PostProcessor;
 use Liip\ImagineBundle\Binary\BinaryInterface;
 use Liip\ImagineBundle\Binary\FileBinaryInterface;
 use Liip\ImagineBundle\Model\Binary;
+use Liip\ImagineBundle\Utility\Filesystem\TemporaryFile;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
@@ -76,10 +77,8 @@ class OptiPngPostProcessor implements PostProcessorInterface
             return $binary;
         }
 
-        $tempDir = array_key_exists('temp_dir', $options) ? $options['temp_dir'] : $this->tempDir;
-        if (false === $input = tempnam($tempDir, 'imagine_optipng')) {
-            throw new \RuntimeException(sprintf('Temp file can not be created in "%s".', $tempDir));
-        }
+        $temporary = new TemporaryFile($options['temp_name'] ?? 'optipng', $options['temp_dir'] ?? $this->tempDir);
+        $temporary->setContents($binary instanceof FileBinaryInterface ? file_get_contents($binary->getPath()) : $binary->getContent());
 
         $processArguments = [$this->optipngBin];
 
@@ -93,26 +92,15 @@ class OptiPngPostProcessor implements PostProcessorInterface
             $processArguments[] = '--strip=all';
         }
 
-        $processArguments[] = $input;
+        $processArguments[] = $temporary->stringifyFile();
 
-        if ($binary instanceof FileBinaryInterface) {
-            copy($binary->getPath(), $input);
-        } else {
-            file_put_contents($input, $binary->getContent());
+        $process = new Process($processArguments);
+        $process->run();
+
+        if (false !== mb_strpos($process->getOutput(), 'ERROR') || 0 !== $process->getExitCode()) {
+            throw new ProcessFailedException($process);
         }
 
-        $proc = new Process($processArguments);
-        $proc->run();
-
-        if (false !== mb_strpos($proc->getOutput(), 'ERROR') || 0 !== $proc->getExitCode()) {
-            unlink($input);
-            throw new ProcessFailedException($proc);
-        }
-
-        $result = new Binary(file_get_contents($input), $binary->getMimeType(), $binary->getFormat());
-
-        unlink($input);
-
-        return $result;
+        return new Binary($temporary->getContents(), $binary->getMimeType(), $binary->getFormat());
     }
 }

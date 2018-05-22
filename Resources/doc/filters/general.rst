@@ -9,7 +9,7 @@ Background
 ----------
 
 The built-in ``background`` filter performs layer transformations
-(which includes creating and mergin layer operations). This
+(which includes creating and merging layer operations). This
 filter exposes a number of `background options`_ which may be used
 to configure its behavior.
 
@@ -126,6 +126,91 @@ Interlace Options
     ``plane``, and ``partition``.
 
 
+.. _filter-resample:
+
+Resample
+--------
+
+The built-in ``resample`` filter provides a resampling transformation, allowing you to
+change the resolution (or DPI) of an image. This filter exposes a number of
+`resample options`_ which may be used to configure its behavior.
+
+.. tip::
+
+    Resampling changes the image resolution (also known as "pixel density" or "pixels
+    per inch (PPI)") of an image and is useful when you need to present different
+    versions of an image dependent on the user's screen density. For example, you may
+    need to provide a "normal" and a "retina" variant.
+
+.. caution::
+
+    The ideas of "resolution" and "dimensions" are often conflated, so it is important
+    to note that this filter does not affect the image size or dimensions in any way;
+    instead, it changes the pixel density, or resolution of the image.
+
+.. caution::
+
+    This filter is not supported when using the `gd` Imagine driver and the operation
+    will silently fail. To use this filter you must enable either the `imagick` or
+    `gmagick` drivers in this bundle's configuration.
+
+
+Example configuration:
+
+.. code-block:: yaml
+
+    # app/config/config.yml
+
+    liip_imagine:
+        filter_sets:
+
+            # name our filter set "my_resample_filter"
+            my_resample_filter:
+                filters:
+
+                    # use and setup the "resample" filter
+                    resample:
+
+                        # set the unit to use for pixel density
+                        unit: ppi
+
+                        # set the horizontal pixel density
+                        x: 72
+
+                        # set the vertical pixel density
+                        y: 72
+
+                        # set the resampling filter
+                        filter: lanczos
+
+                        # set the temporary path to use for resampling work
+                        tmp_dir: /my/custom/temporary/directory/path
+
+
+Resample Options
+~~~~~~~~~~~~~~~~
+
+:strong:`unit:` ``string``
+    Sets the unit to use for pixel density, either "pixels per inch" or "pixels per centimeter".
+    Valid values: ``ppi`` and ``ppc``.
+
+:strong:`x:` ``int|float``
+    Sets the horizontal (x) pixel density to resample the image to.
+
+:strong:`y:` ``int|float``
+    Sets the vertical (y) pixel density to resample the image to.
+
+:strong:`filter:` ``string``
+    Sets the optional filter to use during the resampling operation. It must be a string resolvable
+    as a constant from `Imagine\Image\ImageInterface`_ (you may omit the ``FILTER_`` prefix)
+    or a valid fully qualified constant. By default it is set to ``FILTER_UNDEFINED``.
+
+:strong:`tmp_dir:` ``string``
+    Sets the optional temporary work directory. This filter requires a temporary location to save
+    out and read back in the image binary, as these operations are requires to resample an image.
+    By default, it is set to the value of the `sys_get_temp_dir()`_ function.
+
+
 .. _filter-strip:
 
 Strip
@@ -211,3 +296,6 @@ Watermark Options
     The **position** option and **ordering** for this filter is significant.
     For example, calling a ``crop`` after this filter could unintentionally
     remove the watermark entirely from the final image.
+
+.. _`Imagine\Image\ImageInterface`: https://github.com/avalanche123/Imagine/blob/develop/lib/Imagine/Image/ImageInterface.php
+.. _`sys_get_temp_dir()`: http://php.net/manual/en/function.sys-get-temp-dir.php

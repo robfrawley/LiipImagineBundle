@@ -186,6 +186,91 @@ Relative Resize Options
     by multiplying all image sides by this value.
 
 
+.. _filter-relative-resize:
+
+Resize
+------
+
+The built-in ``resize`` filter performs sizing transformations. This filter exposed a number
+of `resize options`_ which may be used to configure its behavior.
+
+Basic Usage
+~~~~~~~~~~~
+
+.. code-block:: yaml
+
+    # app/config/config.yml
+
+    liip_imagine:
+        filter_sets:
+
+            # name our first filter set "my_heighten_filter"
+            my_heighten_filter:
+                filters:
+
+                    # use and setup the "relative_resize" filter
+                    relative_resize:
+
+                        # given 50x40px, output 75x60px using "heighten" option
+                        heighten: 60
+
+            # name our second filter set "my_widen_filter"
+            my_widen_filter:
+                filters:
+
+                    # use and setup the "relative_resize" filter
+                    relative_resize:
+
+                        # given 50x40px, output 32x26px using "widen" option
+                        widen: 32
+
+            # name our second filter set "my_increase_filter"
+            my_increase_filter:
+                filters:
+
+                    # use and setup the "relative_resize" filter
+                    relative_resize:
+
+                        # given 50x40px, output 60x50px, using "increase" option
+                        increase: 10
+
+            # name our second filter set "my_scale_filter"
+            my_scale_filter:
+                filters:
+
+                    # use and setup the "relative_resize" filter
+                    relative_resize:
+
+                        # given 50x40px, output 125x100px using "scale" option
+                        scale: 2.5
+
+
+.. tip::
+
+    The "relative resize" filter options map directly to the methods of the
+    `BoxInterface`_ interface provided by the `Imagine Library`_.
+
+
+Relative Resize Options
+~~~~~~~~~~~~~~~~~~~~~~~
+
+:strong:`heighten:` ``float``
+    Sets the "desired height" which initiates a proportional scale operation that up- or
+    down-scales until the image height matches this value.
+
+:strong:`widen:` ``float``
+    Sets the "desired width" which initiates a proportional scale operation that up- or
+    down-scales until the image width matches this value.
+
+:strong:`increase:` ``float``
+    Sets the "desired additional size" which initiates a scale operation computed by
+    adding this value to all image sides.
+
+:strong:`scale:` ``float``
+    Sets the "ratio multiple" which initiates a proportional scale operation computed
+    by multiplying all image sides by this value.
+
+
 .. _filter-scale:
 
 Scale

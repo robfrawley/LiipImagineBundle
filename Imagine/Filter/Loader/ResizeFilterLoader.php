@@ -19,6 +19,7 @@ use Imagine\Image\ImageInterface;
  * Loader for Imagine's basic resize filter.
  *
  * @author Jeremy Mikola <jmikola@gmail.com>
+ * @author Rob Frawley 2nd <rmf@src.run>
  */
 class ResizeFilterLoader implements LoaderInterface
 {
@@ -27,11 +28,28 @@ class ResizeFilterLoader implements LoaderInterface
      */
     public function load(ImageInterface $image, array $options = [])
     {
-        $width = isset($options['size'][0]) ? $options['size'][0] : null;
-        $height = isset($options['size'][1]) ? $options['size'][1] : null;
+        return (new Resize(new Box(...$this->extractSizingOptions($options['size']))))->apply($image);
+    }
 
-        $filter = new Resize(new Box($width, $height));
+    /**
+     * @param int|int[] $sizes
+     *
+     * @return int[]
+     */
+    private function extractSizingOptions($sizes): array
+    {
+        if (is_int($sizes)) {
+            return [$sizes, $sizes];
+        }
 
-        return $filter->apply($image);
+        if (array_values($sizes) === $sizes) {
+            $sizes['width'] = $sizes[0] ?? null;
+            $sizes['height'] = $sizes[1] ?? null;
+        }
+
+        return [
+            $sizes['width'] ?? null,
+            $sizes['height'] ?? null,
+        ];
     }
 }

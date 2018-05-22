@@ -84,17 +84,15 @@ class PngquantPostProcessor implements PostProcessorInterface
 
         // Read to/from stdout to save resources.
         $processArguments[] = '-';
-        $proc = new Process($processArguments);
-        $proc->setInput($binary->getContent());
-        $proc->run();
+        $process = new Process($processArguments);
+        $process->setInput($binary->getContent());
+        $process->run();
 
         // 98 and 99 are "quality too low" to compress current current image which, while isn't ideal, is not a failure
-        if (!in_array($proc->getExitCode(), [0, 98, 99], true)) {
-            throw new ProcessFailedException($proc);
+        if (!in_array($process->getExitCode(), [0, 98, 99], true)) {
+            throw new ProcessFailedException($process);
         }
 
-        $result = new Binary($proc->getOutput(), $binary->getMimeType(), $binary->getFormat());
-
-        return $result;
+        return new Binary($process->getOutput(), $binary->getMimeType(), $binary->getFormat());
     }
 }

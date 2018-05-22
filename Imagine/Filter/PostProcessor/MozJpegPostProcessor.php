@@ -92,16 +92,14 @@ class MozJpegPostProcessor implements PostProcessorInterface
         $processArguments[] = '-optimise';
 
         // Favor stdin/stdout so we don't waste time creating a new file.
-        $proc = new Process($processArguments);
-        $proc->setInput($binary->getContent());
-        $proc->run();
+        $process = new Process($processArguments);
+        $process->setInput($binary->getContent());
+        $process->run();
 
-        if (false !== mb_strpos($proc->getOutput(), 'ERROR') || 0 !== $proc->getExitCode()) {
-            throw new ProcessFailedException($proc);
+        if (false !== mb_strpos($process->getOutput(), 'ERROR') || 0 !== $process->getExitCode()) {
+            throw new ProcessFailedException($process);
         }
 
-        $result = new Binary($proc->getOutput(), $binary->getMimeType(), $binary->getFormat());
-
-        return $result;
+        return new Binary($process->getOutput(), $binary->getMimeType(), $binary->getFormat());
     }
 }
