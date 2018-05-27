@@ -135,7 +135,8 @@ filter_sets:
             thumbnail: { size: [100, ~], mode: inset }
             route:
                 requirements: { variable1: 'value1' }
-        quality: 80
+        jpeg_quality: 80
+        png_compression_level: 7
     medium_small_cropped:
         filters:
             thumbnail: { size: [223, 173], mode: outbound }
@@ -154,9 +155,11 @@ filter_sets:
     xxl:
         filters:
             thumbnail: { size: [660, ~], mode: inset }
-        quality: 100
+        jpeg_quality: 80
+        png_compression_level: 7
     '':
-        quality: 100
+        jpeg_quality: 80
+        png_compression_level: 7
 data_loader: my_loader
 EOF;
         $parser = new Parser();

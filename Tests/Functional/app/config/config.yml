@@ -29,7 +29,9 @@ liip_imagine:
 
         default:
             filesystem:
-                data_root: "%kernel.root_dir%/public"
+                data_root:
+                    - "%kernel.root_dir%/public"
+                    - "%kernel.project_dir%/Tests/Fixtures/images"
 
         foo:
             filesystem:

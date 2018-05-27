@@ -29,43 +29,43 @@ class ImagineControllerTest extends AbstractSetupWebTestCase
     public function testShouldResolvePopulatingCacheFirst()
     {
         //guard
-        $this->assertFileNotExists($this->cacheRoot.'/thumbnail_web_path/images/cats.jpeg');
+        $this->assertFileNotExists($this->cacheRoot.'/thumbnail_web_path/images/cats.jpg');
 
-        $this->client->request('GET', '/media/cache/resolve/thumbnail_web_path/images/cats.jpeg');
+        $this->client->request('GET', '/media/cache/resolve/thumbnail_web_path/images/cats.jpg');
 
         $response = $this->client->getResponse();
 
         $this->assertInstanceOf(RedirectResponse::class, $response);
         $this->assertSame(301, $response->getStatusCode());
-        $this->assertSame('http://localhost/media/cache/thumbnail_web_path/images/cats.jpeg', $response->getTargetUrl());
+        $this->assertSame('http://localhost/media/cache/thumbnail_web_path/images/cats.jpg', $response->getTargetUrl());
 
-        $this->assertFileExists($this->cacheRoot.'/thumbnail_web_path/images/cats.jpeg');
+        $this->assertFileExists($this->cacheRoot.'/thumbnail_web_path/images/cats.jpg');
     }
 
     public function testShouldResolveFromCache()
     {
         $this->filesystem->dumpFile(
-            $this->cacheRoot.'/thumbnail_web_path/images/cats.jpeg',
+            $this->cacheRoot.'/thumbnail_web_path/images/cats.jpg',
             'anImageContent'
         );
 
-        $this->client->request('GET', '/media/cache/resolve/thumbnail_web_path/images/cats.jpeg');
+        $this->client->request('GET', '/media/cache/resolve/thumbnail_web_path/images/cats.jpg');
 
         $response = $this->client->getResponse();
 
         $this->assertInstanceOf(RedirectResponse::class, $response);
         $this->assertSame(301, $response->getStatusCode());
-        $this->assertSame('http://localhost/media/cache/thumbnail_web_path/images/cats.jpeg', $response->getTargetUrl());
+        $this->assertSame('http://localhost/media/cache/thumbnail_web_path/images/cats.jpg', $response->getTargetUrl());
 
-        $this->assertFileExists($this->cacheRoot.'/thumbnail_web_path/images/cats.jpeg');
+        $this->assertFileExists($this->cacheRoot.'/thumbnail_web_path/images/cats.jpg');
     }
 
     public function testThrowBadRequestIfSignInvalidWhileUsingCustomFilters()
     {
         $this->expectException(\Symfony\Component\HttpKernel\Exception\BadRequestHttpException::class);
-        $this->expectExceptionMessage('Signed url does not pass the sign check for path "images/cats.jpeg" and filter "thumbnail_web_path" and runtime config {"thumbnail":{"size":["50","50"]}}');
+        $this->expectExceptionMessage('Signed url does not pass the sign check for path "images/cats.jpg" and filter "thumbnail_web_path" and runtime config {"thumbnail":{"size":["50","50"]}}');
 
-        $this->client->request('GET', '/media/cache/resolve/thumbnail_web_path/rc/invalidHash/images/cats.jpeg?'.http_build_query([
+        $this->client->request('GET', '/media/cache/resolve/thumbnail_web_path/rc/invalidHash/images/cats.jpg?'.http_build_query([
             'filters' => [
                 'thumbnail' => ['size' => [50, 50]],
             ],
@@ -78,7 +78,7 @@ class ImagineControllerTest extends AbstractSetupWebTestCase
         $this->expectException(\Symfony\Component\HttpKernel\Exception\NotFoundHttpException::class);
         $this->expectExceptionMessage('Filters must be an array. Value was "some-string"');
 
-        $this->client->request('GET', '/media/cache/resolve/thumbnail_web_path/rc/invalidHash/images/cats.jpeg?'.http_build_query([
+        $this->client->request('GET', '/media/cache/resolve/thumbnail_web_path/rc/invalidHash/images/cats.jpg?'.http_build_query([
             'filters' => 'some-string',
             '_hash' => 'hash',
         ]));
@@ -96,7 +96,7 @@ class ImagineControllerTest extends AbstractSetupWebTestCase
     {
         $this->expectException(\Symfony\Component\HttpKernel\Exception\NotFoundHttpException::class);
 
-        $this->client->request('GET', '/media/cache/resolve/invalid-filter/images/cats.jpeg');
+        $this->client->request('GET', '/media/cache/resolve/invalid-filter/images/cats.jpg');
     }
 
     public function testShouldResolveWithCustomFiltersPopulatingCacheFirst()
@@ -110,7 +110,7 @@ class ImagineControllerTest extends AbstractSetupWebTestCase
             ],
         ];
 
-        $path = 'images/cats.jpeg';
+        $path = 'images/cats.jpg';
 
         $hash = $signer->sign($path, $params['filters']);
 
@@ -143,7 +143,7 @@ class ImagineControllerTest extends AbstractSetupWebTestCase
             ],
         ];
 
-        $path = 'images/cats.jpeg';
+        $path = 'images/cats.jpg';
 
         $hash = $signer->sign($path, $params['filters']);
 

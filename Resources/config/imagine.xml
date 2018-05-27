@@ -172,7 +172,7 @@
             <tag name="liip_imagine.filter.loader" loader="interlace" />
         </service>
 
-        <service id="liip_imagine.filter.loader.resample" class="Liip\ImagineBundle\Imagine\Filter\Loader\ResampleFilterLoader">
+        <service id="liip_imagine.filter.loader.resample" class="Liip\ImagineBundle\Imagine\Filter\Loader\ResampleFilterLoader" public="true">
             <argument type="service" id="liip_imagine" />
             <tag name="liip_imagine.filter.loader" loader="resample" />
         </service>

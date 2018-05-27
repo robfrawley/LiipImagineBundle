@@ -20,6 +20,7 @@ use Liip\ImagineBundle\Imagine\Filter\Loader\ResampleFilterLoader;
 use Liip\ImagineBundle\Tests\AbstractTest;
 use Liip\ImagineBundle\Utility\Filesystem\TemporaryFile;
 use PHPUnit\Framework\MockObject\MockObject;
+use Symfony\Component\Finder\Finder;
 
 /**
  * @covers \Liip\ImagineBundle\Imagine\Filter\Loader\ResampleFilterLoader
@@ -55,8 +56,8 @@ class ResampleFilterLoaderTest extends AbstractTest
     {
         $sizes = array(72.0, 120.0, 240.0);
         $paths = [
-            realpath(__DIR__.'/../../../Fixtures/assets/cats.png'),
-            realpath(__DIR__.'/../../../Fixtures/assets/cats.jpeg'),
+            realpath(__DIR__.'/../../../Fixtures/images/cats.png'),
+            realpath(__DIR__.'/../../../Fixtures/images/cats.jpg'),
         ];
 
         foreach ($paths as $p) {
@@ -90,7 +91,7 @@ class ResampleFilterLoaderTest extends AbstractTest
         $this->assertSame([
             'x' => $resolution,
             'y' => $resolution,
-        ], $this->getImageResolution($temporary->getContents()));
+        ], $this->getImageResolution($temporary->stringifyFile()));
     }
 
     /**
@@ -160,7 +161,7 @@ class ResampleFilterLoaderTest extends AbstractTest
     public function testThrowsOnInvalidOptions(array $options)
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid option(s) passed to Liip\ImagineBundle\Imagine\Filter\Loader\ResampleFilterLoader::load().');
+        $this->expectExceptionMessage('Invalid option(s) passed to Liip\ImagineBundle\Imagine\Filter\Loader\ResampleFilterLoader::load(): ');
 
         $this
             ->createResampleFilterLoaderInstance()
@@ -170,7 +171,7 @@ class ResampleFilterLoaderTest extends AbstractTest
     public function testThrowsOnInvalidFilterOption()
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid value for "filter" option: must be a valid constant resolvable using one of formats "\Imagine\Image\ImageInterface::FILTER_%s", "\Imagine\Image\ImageInterface::%s", or "%s".');
+        $this->expectExceptionMessage('Invalid value for "filter" option: must be a valid constant resolvable using one of formats "Imagine\Image\ImageInterface::FILTER_%s", "Imagine\Image\ImageInterface::%s", or "%s".');
 
         $this
             ->createResampleFilterLoaderInstance()
@@ -186,7 +187,7 @@ class ResampleFilterLoaderTest extends AbstractTest
     public function testThrowsOnInvalidTemporaryPathOption()
     {
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessageRegExp('{Unable to create temporary file in ".+" base path.}');
+        $this->expectExceptionMessageRegExp('{Failed create operation: "/this/path/does/not/exist/foo/bar/baz/qux" \(.+\)}');
 
         $this
             ->createResampleFilterLoaderInstance()
@@ -194,7 +195,7 @@ class ResampleFilterLoaderTest extends AbstractTest
                 'x' => 120,
                 'y' => 120,
                 'unit' => 'ppi',
-                'temp_dir' => '/this/path/does/not/exist/foo/bar/baz/qux',
+                'temp_path' => '/this/path/does/not/exist/foo/bar/baz/qux',
             )
         );
     }
@@ -202,7 +203,7 @@ class ResampleFilterLoaderTest extends AbstractTest
     public function testThrowsOnSaveOrOpenError(): void
     {
         $this->expectException(FilterLoaderException::class);
-        $this->expectExceptionMessage('IDK');
+        $this->expectExceptionMessageRegExp('{Failed to run "resample" filter loader: .+}');
 
         ($image = $this->getImageInterfaceMock())
             ->expects($this->once())
@@ -212,11 +213,56 @@ class ResampleFilterLoaderTest extends AbstractTest
         $this
             ->createResampleFilterLoaderInstance()
             ->load($image, array(
-                'x' => 120,
-                'y' => 120,
-                'unit' => 'ppi',
-            )
-        );
+                    'x' => 120,
+                    'y' => 120,
+                    'unit' => 'ppi',
+                )
+            );
+    }
+
+    public function testTempNameAndTempPathAndTempKeepOptions(): void
+    {
+        ($image = $this->getImageInterfaceMock())
+            ->expects($this->once())
+            ->method('save')
+            ->willReturn($image);
+
+        ($imagine = $this->createImagineInterfaceMock())
+            ->expects($this->once())
+            ->method('open')
+            ->willReturn($image);
+
+        $name = sprintf('custom-name-%09d', mt_rand(100000, 199999));
+        $path = sprintf('custom-path-%09d', mt_rand(100000, 199999));
+
+        $this
+            ->createResampleFilterLoaderInstance($imagine)
+            ->load($image, array(
+                    'x' => 120,
+                    'y' => 120,
+                    'unit' => 'ppi',
+                    'temp_name' => $name,
+                    'temp_path' => $path,
+                    'temp_keep' => true,
+                )
+            );
+
+        $finder = new Finder();
+        $finder
+            ->ignoreUnreadableDirs(true)
+            ->in(sys_get_temp_dir())
+            ->path($path)
+            ->name(sprintf('*-%s-*', $name))
+            ->files();
+
+        $this->assertCount(1, $finder);
+
+        foreach ($finder as $f) {
+            $this->assertContains($name, $f->getPathname());
+            $this->assertContains($path, $f->getPathname());
+            @unlink($f->getPathname());
+            @rmdir($f->getPath());
+        }
     }
 
     /**
@@ -230,29 +276,28 @@ class ResampleFilterLoaderTest extends AbstractTest
     }
 
     /**
-     * @param string $blob
+     * @param string $file
      *
      * @return float[]
      */
-    private function getImageResolution(string $blob): array
+    private function getImageResolution(string $file): array
     {
         try {
             $driver = \Imagick::class === $this->driverFQC
                 ? new \Imagick()
                 : new \Gmagick();
+            $driver->readImage($file);
         } catch (\ImagickException $e) {
             $this->markTestSkipped(sprintf(
                 'Test "%s" failed to instantiate a "\Imagick" or "\Gmagick" instance: %s', __CLASS__, $e->getMessage()
             ));
-        }
-
-        try {
-            return $driver->readImageBlob($blob)->getImageResolution();
         } catch (\GmagickException $e) {
             $this->markTestSkipped(sprintf(
                 'Test "%s" failed to read in image blob using "\Gmagick" instance: %s', __CLASS__, $e->getMessage()
             ));
         }
+
+        return $driver->getImageResolution();
     }
 
     /**

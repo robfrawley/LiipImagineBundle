@@ -28,7 +28,7 @@ class FloatToIntCastByRoundUpscaleFilterLoaderTest extends AbstractTest
     {
         $loader = new UpscaleFilterLoader();
         $imagine = new Imagine();
-        $image = $imagine->open(__DIR__.'/../../../Fixtures/assets/square-50x50.png');
+        $image = $imagine->open(__DIR__.'/../../../Fixtures/images/square-050x050.png');
 
         $options = [
             'min' => [201, 201],

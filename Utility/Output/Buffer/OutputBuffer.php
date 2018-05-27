@@ -122,7 +122,7 @@ final class OutputBuffer
      */
     public function getUsedBytes(): int
     {
-        return (new TemporaryFile('imagine-memory-output-buffer', null, $this->get()))->getBytes();
+        return (new TemporaryFile(null, 'output-buffer-size', null, $this->get()))->getBytes();
     }
 
     /**

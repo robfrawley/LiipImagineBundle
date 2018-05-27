@@ -161,7 +161,7 @@ class AutoRotateFilterLoaderTest extends AbstractTest
                 ->method('metadata')
                 ->willReturn($metaData);
         } else {
-            $jpg = file_get_contents(__DIR__.'/../../../Fixtures/assets/pixel_1x1_orientation_at_0x30.jpg');
+            $jpg = file_get_contents(__DIR__.'/../../../Fixtures/images/pixel_1x1_orientation_at_0x30.jpg');
             // The byte with orientation is at offset 0x30 for this image
             $jpg[0x30] = chr((int) $exifValue);
 

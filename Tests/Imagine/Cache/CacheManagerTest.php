@@ -56,7 +56,7 @@ class CacheManagerTest extends AbstractTest
             ]));
 
         $cacheManager = new CacheManager($config, $this->createRouterInterfaceMock(), new Signer('secret'), $this->createEventDispatcherInterfaceMock());
-        $cacheManager->getBrowserPath('cats.jpeg', 'thumbnail');
+        $cacheManager->getBrowserPath('cats.jpg', 'thumbnail');
     }
 
     public function testGetRuntimePath()
@@ -79,12 +79,12 @@ class CacheManagerTest extends AbstractTest
         $resolver
             ->expects($this->once())
             ->method('isStored')
-            ->with('cats.jpeg', 'thumbnail')
+            ->with('cats.jpg', 'thumbnail')
             ->will($this->returnValue(true));
         $resolver
             ->expects($this->once())
             ->method('resolve')
-            ->with('cats.jpeg', 'thumbnail')
+            ->with('cats.jpg', 'thumbnail')
             ->will($this->returnValue('http://a/path/to/an/image.png'));
 
         $config = $this->createFilterConfigurationMock();
@@ -106,7 +106,7 @@ class CacheManagerTest extends AbstractTest
         $cacheManager = new CacheManager($config, $router, new Signer('secret'), $this->createEventDispatcherInterfaceMock());
         $cacheManager->addResolver('default', $resolver);
 
-        $actualBrowserPath = $cacheManager->getBrowserPath('cats.jpeg', 'thumbnail');
+        $actualBrowserPath = $cacheManager->getBrowserPath('cats.jpg', 'thumbnail');
 
         $this->assertSame('http://a/path/to/an/image.png', $actualBrowserPath);
     }
@@ -117,7 +117,7 @@ class CacheManagerTest extends AbstractTest
         $resolver
             ->expects($this->once())
             ->method('isStored')
-            ->with('cats.jpeg', 'thumbnail')
+            ->with('cats.jpg', 'thumbnail')
             ->will($this->returnValue(false));
         $resolver
             ->expects($this->never())
@@ -138,14 +138,14 @@ class CacheManagerTest extends AbstractTest
         $router
             ->expects($this->once())
             ->method('generate')
-            ->will($this->returnValue('/media/cache/thumbnail/cats.jpeg'));
+            ->will($this->returnValue('/media/cache/thumbnail/cats.jpg'));
 
         $cacheManager = new CacheManager($config, $router, new Signer('secret'), $this->createEventDispatcherInterfaceMock());
         $cacheManager->addResolver('default', $resolver);
 
-        $actualBrowserPath = $cacheManager->getBrowserPath('cats.jpeg', 'thumbnail');
+        $actualBrowserPath = $cacheManager->getBrowserPath('cats.jpg', 'thumbnail');
 
-        $this->assertSame('/media/cache/thumbnail/cats.jpeg', $actualBrowserPath);
+        $this->assertSame('/media/cache/thumbnail/cats.jpg', $actualBrowserPath);
     }
 
     public function testFilterActionUrlGeneratedAndReturnIfResolverReturnNullOnGetBrowserPathWithRuntimeConfig()
@@ -160,7 +160,7 @@ class CacheManagerTest extends AbstractTest
         $resolver
             ->expects($this->once())
             ->method('isStored')
-            ->with('rc/VhOzTGRB/cats.jpeg', 'thumbnail')
+            ->with('rc/TkgAFGfK/cats.jpg', 'thumbnail')
             ->will($this->returnValue(false));
         $resolver
             ->expects($this->never())
@@ -181,14 +181,14 @@ class CacheManagerTest extends AbstractTest
         $router
             ->expects($this->once())
             ->method('generate')
-            ->will($this->returnValue('/media/cache/thumbnail/rc/VhOzTGRB/cats.jpeg'));
+            ->will($this->returnValue('/media/cache/thumbnail/rc/TkgAFGfK/cats.jpg'));
 
         $cacheManager = new CacheManager($config, $router, new Signer('secret'), $this->createEventDispatcherInterfaceMock());
         $cacheManager->addResolver('default', $resolver);
 
-        $actualBrowserPath = $cacheManager->getBrowserPath('cats.jpeg', 'thumbnail', $runtimeConfig);
+        $actualBrowserPath = $cacheManager->getBrowserPath('cats.jpg', 'thumbnail', $runtimeConfig);
 
-        $this->assertSame('/media/cache/thumbnail/rc/VhOzTGRB/cats.jpeg', $actualBrowserPath);
+        $this->assertSame('/media/cache/thumbnail/rc/TkgAFGfK/cats.jpg', $actualBrowserPath);
     }
 
     /**
@@ -222,7 +222,7 @@ class CacheManagerTest extends AbstractTest
             $this->createEventDispatcherInterfaceMock()
         );
 
-        $this->assertFalse($cacheManager->resolve('cats.jpeg', 'thumbnail'));
+        $this->assertFalse($cacheManager->resolve('cats.jpg', 'thumbnail'));
     }
 
     public function testFallbackToDefaultResolver()
@@ -233,16 +233,16 @@ class CacheManagerTest extends AbstractTest
         $resolver
             ->expects($this->once())
             ->method('resolve')
-            ->with('cats.jpeg', 'thumbnail')
-            ->will($this->returnValue('/thumbs/cats.jpeg'));
+            ->with('cats.jpg', 'thumbnail')
+            ->will($this->returnValue('/thumbs/cats.jpg'));
         $resolver
             ->expects($this->once())
             ->method('store')
-            ->with($binary, '/thumbs/cats.jpeg', 'thumbnail');
+            ->with($binary, '/thumbs/cats.jpg', 'thumbnail');
         $resolver
             ->expects($this->once())
             ->method('remove')
-            ->with(['/thumbs/cats.jpeg'], ['thumbnail'])
+            ->with(['/thumbs/cats.jpg'], ['thumbnail'])
             ->will($this->returnValue(true));
 
         $config = $this->createFilterConfigurationMock();
@@ -265,12 +265,12 @@ class CacheManagerTest extends AbstractTest
         $cacheManager->addResolver('default', $resolver);
 
         // Resolve fallback to default resolver
-        $this->assertSame('/thumbs/cats.jpeg', $cacheManager->resolve('cats.jpeg', 'thumbnail'));
+        $this->assertSame('/thumbs/cats.jpg', $cacheManager->resolve('cats.jpg', 'thumbnail'));
 
-        $cacheManager->store($binary, '/thumbs/cats.jpeg', 'thumbnail');
+        $cacheManager->store($binary, '/thumbs/cats.jpg', 'thumbnail');
 
         // Remove fallback to default resolver
-        $cacheManager->remove('/thumbs/cats.jpeg', 'thumbnail');
+        $cacheManager->remove('/thumbs/cats.jpg', 'thumbnail');
     }
 
     public function testGenerateUrl()

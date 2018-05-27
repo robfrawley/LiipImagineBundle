@@ -10,3 +10,22 @@
 /.styleci.yml export-ignore
 /.travis.yml export-ignore
 /.phpunit.xml.dist export-ignore
+Tests/Fixtures/images/cats/cats-3_1600x2200.gif filter=lfs diff=lfs merge=lfs -text
+Tests/Fixtures/images/cats/cats-4_0000x0000.pdf filter=lfs diff=lfs merge=lfs -text
+Tests/Fixtures/images/cats/cats-1_1200x0600.jpg filter=lfs diff=lfs merge=lfs -text
+Tests/Fixtures/images/cats/cats-2_0700x0550.png filter=lfs diff=lfs merge=lfs -text
+Tests/Fixtures/images/cats/cats-2_1400x1150.png filter=lfs diff=lfs merge=lfs -text
+Tests/Fixtures/images/cats/cats-2_2100x1650.png filter=lfs diff=lfs merge=lfs -text
+Tests/Fixtures/images/cats/cats-3_0800x1100.gif filter=lfs diff=lfs merge=lfs -text
+Tests/Fixtures/images/cats/cats-1_0600x0300.jpg filter=lfs diff=lfs merge=lfs -text
+Tests/Fixtures/images/cats/cats-1_1800x0900.jpg filter=lfs diff=lfs merge=lfs -text
+Tests/Fixtures/images/cats/cats-3_0400x0550.gif filter=lfs diff=lfs merge=lfs -text
+Tests/Fixtures/images/watermarks/watermark-1_1200x0168.jpg filter=lfs diff=lfs merge=lfs -text
+Tests/Fixtures/images/watermarks/watermark-1_1800x0252.jpg filter=lfs diff=lfs merge=lfs -text
+Tests/Fixtures/images/watermarks/watermark-2_0600x0084.png filter=lfs diff=lfs merge=lfs -text
+Tests/Fixtures/images/watermarks/watermark-2_1200x0168.png filter=lfs diff=lfs merge=lfs -text
+Tests/Fixtures/images/watermarks/watermark-2_1800x0252.png filter=lfs diff=lfs merge=lfs -text
+Tests/Fixtures/images/watermarks/watermark-1_0600x0084.jpg filter=lfs diff=lfs merge=lfs -text
+Tests/Fixtures/images/pixel_1x1_orientation_at_0x30.jpg filter=lfs diff=lfs merge=lfs -text
+Tests/Fixtures/images/square-050x050.png filter=lfs diff=lfs merge=lfs -text
+Tests/Fixtures/images/square-300x300.png filter=lfs diff=lfs merge=lfs -text

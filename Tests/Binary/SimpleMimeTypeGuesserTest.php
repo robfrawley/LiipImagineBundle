@@ -39,10 +39,10 @@ class SimpleMimeTypeGuesserTest extends TestCase
     public static function provideImageData()
     {
         return [
-            'gif' => [__DIR__.'/../Fixtures/assets/cats.gif', 'image/gif'],
-            'png' => [__DIR__.'/../Fixtures/assets/cats.png', 'image/png'],
-            'jpg' => [__DIR__.'/../Fixtures/assets/cats.jpeg', 'image/jpeg'],
-            'pdf' => [__DIR__.'/../Fixtures/assets/cats.pdf', 'application/pdf'],
+            'gif' => [__DIR__.'/../Fixtures/images/cats.gif', 'image/gif'],
+            'png' => [__DIR__.'/../Fixtures/images/cats.png', 'image/png'],
+            'jpg' => [__DIR__.'/../Fixtures/images/cats.jpg', 'image/jpeg'],
+            'pdf' => [__DIR__.'/../Fixtures/images/cats.pdf', 'application/pdf'],
             'txt' => [__DIR__.'/../Fixtures/assets/cats.txt', 'text/plain'],
         ];
     }

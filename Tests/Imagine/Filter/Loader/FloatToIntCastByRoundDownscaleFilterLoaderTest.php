@@ -28,7 +28,7 @@ class FloatToIntCastByRoundDownscaleFilterLoaderTest extends AbstractTest
     {
         $loader = new DownscaleFilterLoader();
         $imagine = new Imagine();
-        $image = $imagine->open(__DIR__.'/../../../Fixtures/assets/square-300x300.png');
+        $image = $imagine->open(__DIR__.'/../../../Fixtures/images/square-300x300.png');
 
         $options = [
             'max' => [201, 201],
