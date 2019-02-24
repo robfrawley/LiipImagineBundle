@@ -8,3 +8,5 @@
 /Tests/Functional/app/web/media/cache
 /var/
 /vendor/
+/.php-auto-version
+

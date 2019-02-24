@@ -32,7 +32,7 @@ class MozJpegPostProcessor implements PostProcessorInterface
     protected $mozjpegBin;
 
     /**
-     * @var null|int Quality factor
+     * @var int|null Quality factor
      */
     protected $quality;
 

@@ -35,6 +35,8 @@ return Config::create()
         'native_constant_invocation' => [
             'fix_built_in' => false,
         ],
+        'native_function_casing' => true,
+        'native_function_invocation' => false,
         'combine_consecutive_issets' => true,
         'combine_consecutive_unsets' => true,
         'escape_implicit_backslashes' => true,
