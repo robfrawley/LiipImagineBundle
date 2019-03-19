@@ -1,104 +1,247 @@
+
+##
+## This file is part of the `liip/LiipImagineBundle` project.
+##
+## (c) https://github.com/liip/LiipImagineBundle/graphs/contributors
+##
+## For the full copyright and license information, please view the LICENSE.md
+## file that was distributed with this source code.
+##
+
+#
+# define language runtime for tests
+#
 language: php
 
+#
+# indicate that these instructions do not require privilege escalation
+#
 sudo: false
 
+#
+# route build to ubuntu 16.04 containers
+#
+dist: xenial
+
+#
+# cache the results of a build for subsequent builds
+#
 cache:
-
   directories:
-    - $HOME/.composer/cache
 
+    #
+    # cache composer data from a dependency resolution run, enabling subsequent builds to avoid repeating some of the
+    # costly remote requests required for the process
+    #
+    - ${HOME}/.composer/cache
+
+#
+# define global environment variables
+#
 env:
-
   global:
-    - SYMFONY_DEPRECATIONS_HELPER="weak_vendors"
-    - PHPUNIT_FLAGS="-v"
-    - PHPUNIT_ENABLED="true"
-    - PHPCSFIXER_ENABLED="false"
-    - COVERALLS_ENABLED="false"
 
+    #
+    # codecov: php-coveralls global configuration defaults
+    #
+    - CODECOV_BIN_RUNS=0
+    - CODECOV_XML_FILE="./var/build/clover.xml"
+    - CODECOV_OUT_FILE="${CODECOV_XML_FILE}.coveralls-upload.json"
+    - CODECOV_BIN_PATH="./vendor/bin/php-coveralls"
+    - CODECOV_BIN_OPTS="-vvv --no-interaction --ansi -x ${CODECOV_XML_FILE} -o ${CODECOV_OUT_FILE}"
+
+    #
+    # compose: composer global configuration defaults
+    #
+    - COMPOSE_BIN_RUNS=1
+    - COMPOSE_BIN_PATH="composer"
+    - COMPOSE_BIN_OPTS="-vvv --no-interaction --ansi"
+    - COMPOSE_REQ_OPTS=""
+    - COMPOSE_ADD_OPTS="--no-update"
+    - COMPOSE_UPD_OPTS="--prefer-dist --no-suggest"
+    - COMPOSE_REQ_DEPS=""
+    - COMPOSE_REM_DEPS=""
+    - COMPOSE_DEL_OPTS="--no-update"
+    - COMPOSE_MIN_STAB="prod"
+    - COMPOSE_SYM_VERS="dev-master"
+
+    #
+    # phpunit: simple-phpunit global configuration defaults
+    #
+    - PHPUNIT_BIN_RUNS=1
+    - PHPUNIT_BIN_PATH="./vendor/bin/simple-phpunit"
+    - PHPUNIT_BIN_OPTS="-vvv"
+    - PHPUNIT_COV_OPTS="--coverage-text --coverage-clover ${CODECOV_XML_FILE}"
+
+    #
+    # csfixer: php-cs-fixer global configuration defaults
+    #
+    - CSFIXER_BIN_RUNS=0
+    - CSFIXER_BIN_PATH="./vendor/bin/php-cs-fixer"
+    - CSFIXER_BIN_OPTS="-vvv --no-interaction --ansi --show-progress --diff --diff-format=sbd --dry-run"
+
+    #
+    # symfony: phpunit-helper global configuration defaults
+    #
+    - SYMFONY_DEPRECATIONS_HELPER="weak_vendors"
+
+#
+# define build matrix
+#
 matrix:
 
+  #
+  # finish build early by ignoring status of allowed failures
+  #
   fast_finish: true
 
+  #
+  # build environments
+  #
   include:
 
-    - php: 7.1
-    - php: 7.1
-      env:
-        - PHPUNIT_ENABLED="false"
-        - PHPCSFIXER_ENABLED="true"
-    - php: 7.1
-      env:
-        - SYMFONY_VERSION=4.0.*
-        - COMPOSER_FLAGS="--prefer-lowest"
-        - DEPENDENCIES="symfony/phpunit-bridge:^4"
-    - php: 7.2
-    - php: 7.2
-      env: SYMFONY_VERSION=3.4.*
-    - php: 7.2
-      env: SYMFONY_VERSION=4.0.*
-    - php: 7.2
-      env:
-        - DEPENDENCIES="symfony/phpunit-bridge:^4"
-        - COMPOSER_UPDATE_FLAGS="--no-dev"
-    - php: 7.2
-      env:
-        - COVERALLS_ENABLED="true"
-        - PHPUNIT_FLAGS="-v --coverage-text --coverage-clover var/build/clover.xml"
-    - php: 7.2
-      env:
-        - SYMFONY_VERSION=dev-master
-        - STABILITY=dev
-    - php: nightly
-      env:
-        - SYMFONY_VERSION=4.0.*
-        - COMPOSER_FLAGS="--ignore-platform-reqs"
+    - name: 'unit-tests@php-7.1'
+      php:  7.1
 
+    - name: 'code-style@php-7.1'
+      php:  7.1
+      env:
+        - CSFIXER_BIN_RUNS=1
+        - PHPUNIT_BIN_RUNS=0
+
+    - name: 'unit-tests@php-7.1 (compose:lowest-deps)'
+      php:  7.1
+      env:
+        - COMPOSE_SYM_VERS="4.0.*"
+        - COMPOSE_REQ_DEPS+=" symfony/phpunit-bridge:^4"
+        - COMPOSE_BIN_OPTS+=" --prefer-lowest"
+
+    - name: 'code-cover@php-7.2'
+      php:  7.2
+      env:
+        - CODECOV_BIN_RUNS=1
+        - PHPUNIT_BIN_OPTS+=" ${PHPUNIT_COV_OPTS}"
+
+    - name: 'unit-tests@php-7.2 (symfony:3.4.*)'
+      php:  7.2
+      env:
+        - COMPOSE_SYM_VERS="3.4.*"
+
+    - name: 'unit-tests@php-7.2 (symfony:4.0.*)'
+      php:  7.2
+      env:
+        - COMPOSE_SYM_VERS="4.0.*"
+
+    - name: 'unit-tests@php-7.2 (compose:no-dev-deps)'
+      php:  7.2
+      env:
+        - COMPOSE_REQ_DEPS+=" symfony/phpunit-bridge:^4"
+        - COMPOSE_REQ_OPTS+=" --no-dev"
+
+    - name: 'deps-audit@php-7.2 (compose:no-dev-deps)'
+      php:  7.2
+      env:
+        - PHPUNIT_BIN_RUNS=0
+        - CSFIXER_BIN_RUNS=0
+        - CODECOV_BIN_RUNS=0
+        - COMPOSE_REQ_DEPS+=" roave/security-advisories:dev-master"
+
+    - name: 'unit-tests@php-7.2 (compose:dev-min; symfony:dev-master; allowed:failures)'
+      php:  7.2
+      env:
+        - COMPOSE_SYM_VERS="4.*"
+        - COMPOSE_MIN_STAB="dev"
+
+    - name: 'unit-tests@php-7.3 (compose:dev-min; symfony:dev-master; allowed:failures)'
+      php:  7.3
+      env:
+        - COMPOSE_SYM_VERS="4.*"
+        - COMPOSE_MIN_STAB="dev"
+
+    - name: 'unit-tests@php-7.4[snap-shot] (compose:dev-min; symfony:dev-master; allowed:failures)'
+      php:  7.4snapshot
+      env:
+        - COMPOSE_SYM_VERS="4.*"
+        - COMPOSE_MIN_STAB="dev"
+
+    - name: 'unit-tests@php-8.0[nightly] (compose:dev-min; symfony:dev-master; allowed:failures)'
+      php:  nightly
+      env:
+        - COMPOSE_SYM_VERS="4.*"
+        - COMPOSE_MIN_STAB="dev"
+
+    - name: 'unit-tests@hhvm[current] (allowed:failures)'
+      php:  hhvm
+      env:
+        - COMPOSE_SYM_VERS="4.*"
+        - COMPOSE_MIN_STAB="dev"
+        - COMPOSE_BIN_OPTS+=" --ignore-platform-reqs"
+
+    - name: 'unit-tests@hhvm[nightly] (allowed:failures)'
+      php:  hhvm-nightly
+      env:
+        - COMPOSE_SYM_VERS="4.*"
+        - COMPOSE_MIN_STAB="dev"
+        - COMPOSE_BIN_OPTS+=" --ignore-platform-reqs"
+
+  #
+  # build environments that may fail
+  #
   allow_failures:
 
     - env:
-        - COVERALLS_ENABLED="true"
-        - PHPUNIT_FLAGS="-v --coverage-text --coverage-clover var/build/clover.xml"
-    - env:
-        - SYMFONY_VERSION=dev-master
-        - STABILITY=dev
-    - php: nightly
+        - COMPOSE_MIN_STAB="dev"
 
-
+#
+# testing step: setup environment
+#
 before_install:
 
-  - if [[ "$SYMFONY_VERSION" != "" ]]; then
-      travis_retry composer require "symfony/symfony:${SYMFONY_VERSION}" --no-update $COMPOSER_FLAGS;
+  - if [[ -n ${COMPOSE_SYM_VERS} ]]; then
+      travis_retry ${COMPOSE_BIN_PATH} require ${COMPOSE_BIN_OPTS} ${COMPOSE_ADD_OPTS} symfony/symfony:${COMPOSE_SYM_VERS};
     fi
-  - if [[ "$DEPENDENCIES" != "" ]]; then
-      travis_retry composer require $DEPENDENCIES --no-update $COMPOSER_FLAGS;
+  - if [[ -n ${COMPOSE_REQ_DEPS} ]]; then
+      travis_retry ${COMPOSE_BIN_PATH} require ${COMPOSE_BIN_OPTS} ${COMPOSE_ADD_OPTS} ${COMPOSE_REQ_DEPS};
     fi
-  - if [[ "$STABILITY" != "" ]]; then
-      travis_retry composer config minimum-stability $STABILITY;
+  - if [[ -n ${COMPOSE_MIN_STAB} ]]; then
+      travis_retry ${COMPOSE_BIN_PATH} config ${COMPOSE_BIN_OPTS} minimum-stability ${COMPOSE_MIN_STAB};
     fi
-  - if [[ "$COVERALLS_ENABLED" != "true" ]]; then
+  - if [[ ${CODECOV_BIN_RUNS} -eq 0 ]]; then
       phpenv config-rm xdebug.ini || true;
     fi
-  - if [[ "$COVERALLS_ENABLED" == "true" ]]; then
-      travis_retry composer require --dev satooshi/php-coveralls:^2.0@dev --no-update $COMPOSER_FLAGS;
+  - if [[ ${CODECOV_BIN_RUNS} -eq 1 ]]; then
+      travis_retry ${COMPOSE_BIN_PATH} remove ${COMPOSE_BIN_OPTS} ${COMPOSE_DEL_OPTS} --dev satooshi/php-coveralls;
     fi
 
+#
+# testing step: install configured environment
+#
 install:
 
-  - travis_retry composer update --prefer-dist --no-interaction --no-suggest --no-progress --ansi $COMPOSER_FLAGS $COMPOSER_UPDATE_FLAGS
-  - ./vendor/bin/simple-phpunit install
+  - if [[ ${COMPOSE_BIN_RUNS} -eq 1 ]]; then
+      travis_retry ${COMPOSE_BIN_PATH} update ${COMPOSE_BIN_OPTS} ${COMPOSE_UPD_OPTS};
+    fi
+  - if [[ ${PHPUNIT_BIN_RUNS} -eq 1 ]]; then
+      travis_retry ${PHPUNIT_BIN_PATH} install || true;
+    fi
 
+#
+# testing step: run unit tests and/or code-style checks
+#
 script:
 
-  - if [[ "$PHPUNIT_ENABLED" == "true" ]]; then
-      ./vendor/bin/simple-phpunit $PHPUNIT_FLAGS;
+  - if [[ ${PHPUNIT_BIN_RUNS} -eq 1 ]]; then
+      ${PHPUNIT_BIN_PATH} ${PHPUNIT_BIN_OPTS};
     fi
-  - if [[ "$PHPCSFIXER_ENABLED" == "true" ]]; then
-      vendor/bin/php-cs-fixer --dry-run --diff -vvv fix;
+  - if [[ ${CSFIXER_BIN_RUNS} -eq 1 ]]; then
+      ${CSFIXER_BIN_PATH} fix ${CSFIXER_BIN_OPTS};
     fi
 
+#
+# testing step: submit test code coverage report
+#
 after_success:
 
-  - if [[ "$PHPUNIT_ENABLED" == "true" && "$COVERALLS_ENABLED" == "true" ]]; then
-      ./vendor/bin/php-coveralls -vvv --config .coveralls.yml;
-    fi;
+  - if [[ ${PHPUNIT_BIN_RUNS} -eq 1 ]] && [[ ${CODECOV_BIN_RUNS} -eq 1 ]]; then
+      travis_retry ${CODECOV_BIN_PATH} ${CODECOV_BIN_OPTS};
+    fi
