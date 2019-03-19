@@ -62,7 +62,7 @@ env:
     - COMPOSE_REQ_DEPS=""
     - COMPOSE_REM_DEPS=""
     - COMPOSE_DEL_OPTS="--no-update"
-    - COMPOSE_MIN_STAB="prod"
+    - COMPOSE_MIN_STAB="stable"
     - COMPOSE_SYM_VERS="dev-master"
 
     #
@@ -190,7 +190,13 @@ matrix:
   allow_failures:
 
     - env:
+        - COMPOSE_SYM_VERS="4.*"
         - COMPOSE_MIN_STAB="dev"
+
+    - env:
+        - COMPOSE_SYM_VERS="4.*"
+        - COMPOSE_MIN_STAB="dev"
+        - COMPOSE_BIN_OPTS+=" --ignore-platform-reqs"
 
 #
 # testing step: setup environment
