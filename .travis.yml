@@ -56,12 +56,9 @@ env:
     - COMPOSE_BIN_RUNS=1
     - COMPOSE_BIN_PATH="composer"
     - COMPOSE_BIN_OPTS="-vvv --no-interaction --ansi"
-    - COMPOSE_REQ_OPTS=""
-    - COMPOSE_ADD_OPTS="--no-update"
+    - COMPOSE_REQ_OPTS="--no-update"
     - COMPOSE_UPD_OPTS="--prefer-dist --no-suggest"
-    - COMPOSE_REQ_DEPS=""
-    - COMPOSE_REM_DEPS=""
-    - COMPOSE_DEL_OPTS="--no-update"
+    - COMPOSE_REM_OPTS="--no-update"
     - COMPOSE_MIN_STAB=""
     - COMPOSE_SYM_VERS="dev-master"
 
@@ -78,7 +75,7 @@ env:
     #
     - CSFIXER_BIN_RUNS=0
     - CSFIXER_BIN_PATH="./vendor/bin/php-cs-fixer"
-    - CSFIXER_BIN_OPTS="-vvv --no-interaction --ansi --show-progress --diff --diff-format=sbd --dry-run"
+    - CSFIXER_BIN_OPTS="-vvv --no-interaction --ansi --diff --diff-format=sbd --dry-run"
 
     #
     # symfony: phpunit-helper global configuration defaults
@@ -109,21 +106,18 @@ matrix:
         - CSFIXER_BIN_RUNS=1
         - PHPUNIT_BIN_RUNS=0
 
-    - name: '[zend@7.1] unit-tests (compose:lowest-deps)'
+    - name: '[zend@7.1] unit-tests (deps:lowest)'
       php:  7.1
       env:
         - COMPOSE_SYM_VERS="4.0.*"
-        - COMPOSE_REQ_DEPS+=" symfony/phpunit-bridge:^4"
-        - COMPOSE_BIN_OPTS+=" --prefer-lowest"
+        - COMPOSE_REQ_DEPS="${COMPOSE_REQ_DEPS} symfony/phpunit-bridge:^4"
+        - COMPOSE_BIN_OPTS="${COMPOSE_BIN_OPTS} --prefer-lowest"
 
     - name: '[zend@7.2] code-cover'
       php:  7.2
       env:
         - CODECOV_BIN_RUNS=1
-        - PHPUNIT_BIN_OPTS+=" ${PHPUNIT_COV_OPTS}"
-
-    - name: '[zend@7.3] unit-tests'
-      php:  7.3
+        - PHPUNIT_BIN_OPTS="${PHPUNIT_BIN_OPTS} ${PHPUNIT_COV_OPTS}"
 
     - name: '[zend@7.2] unit-tests (symfony:3.4.*)'
       php:  7.2
@@ -140,24 +134,43 @@ matrix:
       env:
         - COMPOSE_SYM_VERS="4.1.*"
 
-    - name: '[zend@7.2] unit-tests (symfony:4.1.*)'
+    - name: '[zend@7.2] unit-tests (symfony:4.2.*)'
       php:  7.2
       env:
         - COMPOSE_SYM_VERS="4.2.*"
 
-    - name: '[zend@7.2] unit-tests (compose:no-dev-deps)'
-      php:  7.2
-      env:
-        - COMPOSE_REQ_DEPS+=" symfony/phpunit-bridge:^4"
-        - COMPOSE_REQ_OPTS+=" --no-dev"
+    - name: '[zend@7.3] unit-tests'
+      php:  7.3
 
-    - name: '[zend@7.2] deps-audit (compose:no-dev-deps)'
+    - name: '[zend@7.3] unit-tests (deps:no-dev)'
+      php:  7.3
+      env:
+        - COMPOSE_REQ_DEPS="${COMPOSE_REQ_DEPS} symfony/phpunit-bridge:^4"
+        - COMPOSE_REQ_OPTS="${COMPOSE_REQ_OPTS} --no-dev"
+
+    - name: '[zend@7.1] deps-audit'
+      php:  7.1
+      env:
+        - PHPUNIT_BIN_RUNS=0
+        - CSFIXER_BIN_RUNS=0
+        - CODECOV_BIN_RUNS=0
+        - COMPOSE_REQ_DEPS="${COMPOSE_REQ_DEPS} roave/security-advisories:dev-master"
+
+    - name: '[zend@7.2] deps-audit'
       php:  7.2
       env:
         - PHPUNIT_BIN_RUNS=0
         - CSFIXER_BIN_RUNS=0
         - CODECOV_BIN_RUNS=0
-        - COMPOSE_REQ_DEPS+=" roave/security-advisories:dev-master"
+        - COMPOSE_REQ_DEPS="${COMPOSE_REQ_DEPS} roave/security-advisories:dev-master"
+
+    - name: '[zend@7.3] deps-audit'
+      php:  7.3
+      env:
+        - PHPUNIT_BIN_RUNS=0
+        - CSFIXER_BIN_RUNS=0
+        - CODECOV_BIN_RUNS=0
+        - COMPOSE_REQ_DEPS="${COMPOSE_REQ_DEPS} roave/security-advisories:dev-master"
 
     - name: '[zend@7.2] unit-tests (stability:dev; symfony:4.*; allows:failure)'
       php:  7.2
@@ -165,13 +178,13 @@ matrix:
         - COMPOSE_SYM_VERS="4.*"
         - COMPOSE_MIN_STAB="dev"
 
-    - name: '[zend@7.4-snapshot] unit-tests (stability:dev; symfony:4.*; allows:failure)'
+    - name: '[zend@7.4snapshot] unit-tests (stability:dev; symfony:4.*; allows:failure)'
       php:  7.4snapshot
       env:
         - COMPOSE_SYM_VERS="4.*"
         - COMPOSE_MIN_STAB="dev"
 
-    - name: '[zend@8.0-nightly] unit-tests (stability:dev; symfony:4.*; allows:failure)'
+    - name: '[zend@nightly] unit-tests (stability:dev; symfony:4.*; allows:failure)'
       php:  nightly
       env:
         - COMPOSE_SYM_VERS="4.*"
@@ -182,7 +195,7 @@ matrix:
       env:
         - COMPOSE_SYM_VERS="4.*"
         - COMPOSE_MIN_STAB="dev"
-        - COMPOSE_BIN_OPTS+=" --ignore-platform-reqs"
+        - COMPOSE_BIN_OPTS="${COMPOSE_BIN_OPTS} --ignore-platform-reqs"
 
     - name: '[hhvm@nightly] unit-tests (allows:failure)'
       php:  hhvm-nightly
@@ -211,10 +224,10 @@ matrix:
 before_install:
 
   - if [[ -n ${COMPOSE_SYM_VERS} ]]; then
-      travis_retry ${COMPOSE_BIN_PATH} require ${COMPOSE_BIN_OPTS} ${COMPOSE_ADD_OPTS} symfony/symfony:${COMPOSE_SYM_VERS};
+      travis_retry ${COMPOSE_BIN_PATH} require ${COMPOSE_BIN_OPTS} ${COMPOSE_REQ_OPTS} symfony/symfony:${COMPOSE_SYM_VERS};
     fi
   - if [[ -n ${COMPOSE_REQ_DEPS} ]]; then
-      travis_retry ${COMPOSE_BIN_PATH} require ${COMPOSE_BIN_OPTS} ${COMPOSE_ADD_OPTS} ${COMPOSE_REQ_DEPS};
+      travis_retry ${COMPOSE_BIN_PATH} require ${COMPOSE_BIN_OPTS} ${COMPOSE_REQ_OPTS} ${COMPOSE_REQ_DEPS};
     fi
   - if [[ -n ${COMPOSE_MIN_STAB} ]]; then
       travis_retry ${COMPOSE_BIN_PATH} config ${COMPOSE_BIN_OPTS} minimum-stability ${COMPOSE_MIN_STAB};
@@ -223,7 +236,7 @@ before_install:
       phpenv config-rm xdebug.ini || true;
     fi
   - if [[ ${CODECOV_BIN_RUNS} -eq 1 ]]; then
-      travis_retry ${COMPOSE_BIN_PATH} remove ${COMPOSE_BIN_OPTS} ${COMPOSE_DEL_OPTS} --dev satooshi/php-coveralls;
+      travis_retry ${COMPOSE_BIN_PATH} remove ${COMPOSE_BIN_OPTS} ${COMPOSE_REM_OPTS} --dev satooshi/php-coveralls;
     fi
 
 #
