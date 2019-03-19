@@ -146,7 +146,7 @@ matrix:
       php:  7.3
       env:
         - COMPOSE_REQ_DEPS="${COMPOSE_REQ_DEPS} symfony/phpunit-bridge:^4"
-        - COMPOSE_REQ_OPTS="${COMPOSE_REQ_OPTS} --no-dev"
+        - COMPOSE_UPD_OPTS="${COMPOSE_REQ_OPTS} --no-dev"
 
     - name: '[zend@7.1] deps-audit'
       php:  7.1
@@ -202,7 +202,7 @@ matrix:
       env:
         - COMPOSE_SYM_VERS="4.*"
         - COMPOSE_MIN_STAB="dev"
-        - COMPOSE_BIN_OPTS+=" --ignore-platform-reqs"
+        - COMPOSE_BIN_OPTS="${COMPOSE_BIN_OPTS} --ignore-platform-reqs"
 
   #
   # build environments that may fail
@@ -216,7 +216,7 @@ matrix:
     - env:
         - COMPOSE_SYM_VERS="4.*"
         - COMPOSE_MIN_STAB="dev"
-        - COMPOSE_BIN_OPTS+=" --ignore-platform-reqs"
+        - COMPOSE_BIN_OPTS="${COMPOSE_BIN_OPTS} --ignore-platform-reqs"
 
 #
 # testing step: setup environment
