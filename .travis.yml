@@ -148,7 +148,7 @@ matrix:
       php:  7.3
       env:
         - COMPOSE_REQ_DEPS="${COMPOSE_REQ_DEPS} symfony/phpunit-bridge:^4"
-        - COMPOSE_UPD_OPTS="${COMPOSE_REQ_OPTS} --no-dev"
+        - COMPOSE_UPD_OPTS="${COMPOSE_UPD_OPTS} --no-dev"
 
     - name: '[zend@7.1] deps-audit'
       php:  7.1
