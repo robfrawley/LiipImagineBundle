@@ -97,27 +97,29 @@ matrix:
   #
   include:
 
+
+
+    - name: '[zend@7.0] unit-tests'
+      php:  7.0
+
+    - name: '[zend@7.0] unit-tests (deps:lowest)'
+      php:  7.0
+      env:
+        - COMPOSE_REQ_DEPS="${COMPOSE_REQ_DEPS} symfony/phpunit-bridge:^4.2"
+        - COMPOSE_BIN_OPTS="${COMPOSE_BIN_OPTS} --prefer-lowest"
+
     - name: '[zend@7.1] unit-tests'
       php:  7.1
-
-    - name: '[zend@7.1] code-style'
-      php:  7.1
-      env:
-        - CSFIXER_BIN_RUNS=1
-        - PHPUNIT_BIN_RUNS=0
 
     - name: '[zend@7.1] unit-tests (deps:lowest)'
       php:  7.1
       env:
         - COMPOSE_SYM_VERS="4.0.*"
-        - COMPOSE_REQ_DEPS="${COMPOSE_REQ_DEPS} symfony/phpunit-bridge:^4"
+        - COMPOSE_REQ_DEPS="${COMPOSE_REQ_DEPS} symfony/phpunit-bridge:^4.2"
         - COMPOSE_BIN_OPTS="${COMPOSE_BIN_OPTS} --prefer-lowest"
 
-    - name: '[zend@7.2] code-cover'
+    - name: '[zend@7.2] unit-tests'
       php:  7.2
-      env:
-        - CODECOV_BIN_RUNS=1
-        - PHPUNIT_BIN_OPTS="${PHPUNIT_BIN_OPTS} ${PHPUNIT_COV_OPTS}"
 
     - name: '[zend@7.2] unit-tests (symfony:3.4.*)'
       php:  7.2
@@ -171,6 +173,18 @@ matrix:
         - CSFIXER_BIN_RUNS=0
         - CODECOV_BIN_RUNS=0
         - COMPOSE_REQ_DEPS="${COMPOSE_REQ_DEPS} roave/security-advisories:dev-master"
+
+    - name: '[zend@7.2] code-style'
+      php:  7.1
+      env:
+        - CSFIXER_BIN_RUNS=1
+        - PHPUNIT_BIN_RUNS=0
+
+    - name: '[zend@7.2] code-cover'
+      php:  7.2
+      env:
+        - CODECOV_BIN_RUNS=1
+        - PHPUNIT_BIN_OPTS="${PHPUNIT_BIN_OPTS} ${PHPUNIT_COV_OPTS}"
 
     - name: '[zend@7.2] unit-tests (stability:dev; symfony:4.*; allows:failure)'
       php:  7.2
